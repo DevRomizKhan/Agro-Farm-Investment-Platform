@@ -1,0 +1,87 @@
+import { redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
+import { Settings, User, Bell, Shield, LogOut } from 'lucide-react'
+import { ROUTES } from '@/constants'
+import { logoutAction } from '@/actions/auth'
+
+export default async function InvestorSettingsPage() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect(ROUTES.LOGIN)
+
+  const { data: profile } = await supabase.from('profiles').select('role, full_name, email').eq('user_id', user.id).maybeSingle()
+
+  return (
+    <div className="fade-in space-y-8">
+      {/* Header */}
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">Settings</h1>
+          <p className="page-subtitle">Manage your account preferences</p>
+        </div>
+      </div>
+
+      <div className="max-w-2xl space-y-6">
+        {/* Profile Information */}
+        <div className="glass-card p-6">
+          <h2 className="font-semibold text-white mb-4 flex items-center gap-2">
+            <User className="h-5 w-5 text-green-400" />
+            Profile Information
+          </h2>
+          <div className="space-y-3">
+            <div>
+              <label className="text-xs text-slate-500 block mb-1">Full Name</label>
+              <p className="text-white">{profile?.full_name || '—'}</p>
+            </div>
+            <div>
+              <label className="text-xs text-slate-500 block mb-1">Email</label>
+              <p className="text-white">{profile?.email || user.email}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Notification Settings */}
+        <div className="glass-card p-6">
+          <h2 className="font-semibold text-white mb-4 flex items-center gap-2">
+            <Bell className="h-5 w-5 text-green-400" />
+            Notifications
+          </h2>
+          <div className="space-y-3">
+            <label className="flex items-center justify-between cursor-pointer">
+              <span className="text-sm text-slate-300">Email notifications for investment updates</span>
+              <input type="checkbox" defaultChecked className="h-4 w-4 rounded border-slate-600 bg-slate-800 accent-green-500" />
+            </label>
+            <label className="flex items-center justify-between cursor-pointer">
+              <span className="text-sm text-slate-300">Email notifications for ROI payouts</span>
+              <input type="checkbox" defaultChecked className="h-4 w-4 rounded border-slate-600 bg-slate-800 accent-green-500" />
+            </label>
+          </div>
+        </div>
+
+        {/* Security */}
+        <div className="glass-card p-6">
+          <h2 className="font-semibold text-white mb-4 flex items-center gap-2">
+            <Shield className="h-5 w-5 text-green-400" />
+            Security
+          </h2>
+          <div className="space-y-3">
+            <button className="w-full py-2.5 px-4 rounded-lg bg-slate-800/50 text-white text-sm font-medium hover:bg-slate-700/50 transition-colors text-left">
+              Change Password
+            </button>
+            <button className="w-full py-2.5 px-4 rounded-lg bg-slate-800/50 text-white text-sm font-medium hover:bg-slate-700/50 transition-colors text-left">
+              Enable Two-Factor Authentication
+            </button>
+          </div>
+        </div>
+
+        {/* Logout */}
+        <form action={logoutAction}>
+          <button type="submit" className="w-full py-3 px-4 rounded-lg bg-red-500/10 text-red-400 font-medium hover:bg-red-500/20 transition-colors flex items-center justify-center gap-2">
+            <LogOut className="h-4 w-4" />
+            Sign Out
+          </button>
+        </form>
+      </div>
+    </div>
+  )
+}
