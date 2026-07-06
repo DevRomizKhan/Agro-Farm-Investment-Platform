@@ -1,5 +1,0 @@
-allowBuilds:
-  sharp: true
-  unrs-resolver: true
-  "@next/swc-linux-x64-gnu": true
-  esbuild: true
