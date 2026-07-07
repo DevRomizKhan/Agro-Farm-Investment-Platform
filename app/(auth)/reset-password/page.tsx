@@ -85,12 +85,12 @@ export default function ResetPasswordPage() {
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">Confirm Password</label>
             <input
-              {...register('confirmPassword')}
+              {...register('confirm_password')}
               type="password"
               placeholder="••••••••"
               className="input-base"
             />
-            {errors.confirmPassword && <p className="mt-1.5 text-xs text-red-400">{errors.confirmPassword.message}</p>}
+            {errors.confirm_password && <p className="mt-1.5 text-xs text-red-400">{errors.confirm_password.message}</p>}
           </div>
 
           <button type="submit" disabled={isLoading} className="btn-primary w-full">
