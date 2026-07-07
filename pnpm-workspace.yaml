@@ -1,0 +1,4 @@
+allowBuilds:
+  '@next/swc-linux-x64-gnu': false
+  sharp: false
+  unrs-resolver: false

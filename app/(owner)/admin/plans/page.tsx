@@ -1,11 +1,11 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { PlanForm } from '@/components/features/investments/plan-form'
+import { DeletePlanButton } from '@/components/features/admin/delete-plan-button'
 import { formatCurrency } from '@/lib/utils'
-import { FileText, Plus, ShieldCheck, HelpCircle, Edit, Trash2 } from 'lucide-react'
+import { FileText, Plus, ShieldCheck, HelpCircle, Edit } from 'lucide-react'
 import Link from 'next/link'
 import { ROUTES } from '@/constants'
-import { deleteInvestmentPlanAction } from '@/actions/investments'
 import type { InvestmentPlan } from '@/types'
 
 export default async function AdminPlansPage() {
@@ -17,11 +17,21 @@ export default async function AdminPlansPage() {
   const { data: profile } = await supabase.from('profiles').select('role').eq('user_id', user.id).maybeSingle()
   if (!profile || profile.role !== 'owner') redirect(ROUTES.INVESTOR_DASHBOARD)
 
-  // Fetch all plans
+  // Fetch all plans with active investment count
   const { data: plans } = await supabase
     .from('investment_plans')
-    .select('id, name, description, min_amount, max_amount, roi_percentage, duration_months, is_active, created_at')
+    .select('id, name, description, min_amount, max_amount, roi_percentage, duration_months, is_active, created_at, investments(count)')
     .order('created_at', { ascending: false })
+
+  // Check which plans have active investments
+  const planIds = plans?.map(p => p.id) || []
+  const { data: activeInvestments } = await supabase
+    .from('investments')
+    .select('plan_id')
+    .eq('status', 'active')
+    .in('plan_id', planIds)
+
+  const activePlanIds = new Set(activeInvestments?.map(i => i.plan_id) || [])
 
   return (
     <div className="fade-in space-y-8">
@@ -85,22 +95,7 @@ export default async function AdminPlansPage() {
                         <Edit className="h-3.5 w-3.5" />
                         Edit
                       </Link>
-                      <form action={async () => {
-                        'use server'
-                        const result = await deleteInvestmentPlanAction(plan.id)
-                        if (!result.success) {
-                          // In a real app, you'd show an error toast
-                          console.error(result.error)
-                        }
-                      }}>
-                        <button
-                          type="submit"
-                          className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-red-500/10 text-red-400 text-xs font-medium hover:bg-red-500/20 transition-colors"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                          Delete
-                        </button>
-                      </form>
+                      <DeletePlanButton planId={plan.id} hasActiveInvestments={activePlanIds.has(plan.id)} />
                     </div>
                   </div>
                 ))}

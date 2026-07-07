@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { ArrowLeft } from 'lucide-react'
 import { ROUTES } from '@/constants'
 import Link from 'next/link'
+import { adminUpdateProfileAction } from '@/actions/auth'
 
 export default async function EditInvestorPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -25,6 +26,19 @@ export default async function EditInvestorPage({ params }: { params: Promise<{ i
     redirect(ROUTES.ADMIN_INVESTORS)
   }
 
+  async function handleUpdate(formData: FormData) {
+    'use server'
+    const result = await adminUpdateProfileAction({
+      id: formData.get('id') as string,
+      full_name: formData.get('full_name') as string,
+      email: formData.get('email') as string,
+      phone: formData.get('phone') as string | undefined,
+    })
+    if (result.success) {
+      redirect(`${ROUTES.ADMIN_INVESTORS}/${id}`)
+    }
+  }
+
   return (
     <div className="fade-in space-y-8">
       {/* Header */}
@@ -41,30 +55,36 @@ export default async function EditInvestorPage({ params }: { params: Promise<{ i
 
       {/* Edit Form */}
       <div className="glass-card p-6 max-w-2xl mx-auto">
-        <form className="space-y-4">
+        <form action={handleUpdate} className="space-y-4">
+          <input type="hidden" name="id" value={investor.id} />
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-1.5">Full Name</label>
             <input
+              name="full_name"
               type="text"
               defaultValue={investor.full_name || ''}
               className="input-base py-2.5 text-sm"
               placeholder="Enter full name"
+              required
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-1.5">Email</label>
             <input
+              name="email"
               type="email"
               defaultValue={investor.email || ''}
               className="input-base py-2.5 text-sm"
               placeholder="Enter email address"
+              required
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-1.5">Phone</label>
             <input
+              name="phone"
               type="tel"
               defaultValue={investor.phone || ''}
               className="input-base py-2.5 text-sm"

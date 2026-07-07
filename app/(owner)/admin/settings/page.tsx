@@ -55,30 +55,16 @@ export default async function AdminSettingsPage() {
           <div className="space-y-3">
             <label className="flex items-center justify-between cursor-pointer">
               <span className="text-sm text-slate-300">Email notifications for new investments</span>
-              <input type="checkbox" defaultChecked className="h-4 w-4 rounded border-slate-600 bg-slate-800 accent-green-500" />
+              <input type="checkbox" defaultChecked disabled className="h-4 w-4 rounded border-slate-600 bg-slate-800 accent-green-500 opacity-50" />
             </label>
             <label className="flex items-center justify-between cursor-pointer">
               <span className="text-sm text-slate-300">Email notifications for KYC submissions</span>
-              <input type="checkbox" defaultChecked className="h-4 w-4 rounded border-slate-600 bg-slate-800 accent-green-500" />
+              <input type="checkbox" defaultChecked disabled className="h-4 w-4 rounded border-slate-600 bg-slate-800 accent-green-500 opacity-50" />
             </label>
           </div>
+          <p className="text-xs text-slate-500 mt-3">Notification preferences will be available in a future update.</p>
         </div>
 
-        {/* Security */}
-        <div className="glass-card p-6">
-          <h2 className="font-semibold text-white mb-4 flex items-center gap-2">
-            <Shield className="h-5 w-5 text-green-400" />
-            Security
-          </h2>
-          <div className="space-y-3">
-            <button className="w-full py-2.5 px-4 rounded-lg bg-slate-800/50 text-white text-sm font-medium hover:bg-slate-700/50 transition-colors text-left">
-              Change Password
-            </button>
-            <button className="w-full py-2.5 px-4 rounded-lg bg-slate-800/50 text-white text-sm font-medium hover:bg-slate-700/50 transition-colors text-left">
-              Enable Two-Factor Authentication
-            </button>
-          </div>
-        </div>
 
         {/* Logout */}
         <form action={logoutAction}>

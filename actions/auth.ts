@@ -7,6 +7,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { loginSchema, registerSchema, forgotPasswordSchema, resetPasswordSchema } from '@/schemas'
 import type { LoginFormData, RegisterFormData, ForgotPasswordFormData, ResetPasswordFormData } from '@/schemas'
 import { ROUTES } from '@/constants'
+import { z } from 'zod'
 
 export type ActionResult = {
   success: boolean
@@ -128,13 +129,26 @@ export async function forgotPasswordAction(data: ForgotPasswordFormData): Promis
   return { success: true, message: 'Password reset email sent. Please check your inbox.' }
 }
 
-export async function resetPasswordAction(data: ResetPasswordFormData): Promise<ActionResult> {
+export async function resetPasswordAction(data: ResetPasswordFormData & { code?: string }): Promise<ActionResult> {
   const validated = resetPasswordSchema.safeParse(data)
   if (!validated.success) {
     return { success: false, error: validated.error.issues[0]?.message }
   }
 
+  if (!data.code) {
+    return { success: false, error: 'Invalid reset code' }
+  }
+
   const supabase = await createClient()
+  
+  // Exchange the code for a session
+  const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(data.code)
+  
+  if (exchangeError) {
+    return { success: false, error: 'Invalid or expired reset link' }
+  }
+
+  // Update the password
   const { error } = await supabase.auth.updateUser({
     password: validated.data.password,
   })
@@ -142,6 +156,9 @@ export async function resetPasswordAction(data: ResetPasswordFormData): Promise<
   if (error) {
     return { success: false, error: error.message }
   }
+
+  // Sign out after successful password reset
+  await supabase.auth.signOut()
 
   return { success: true, message: 'Password updated successfully!' }
 }
@@ -189,4 +206,155 @@ export async function getCurrentProfile() {
     .maybeSingle()
 
   return data
+}
+
+const updateProfileSchema = z.object({
+  full_name: z.string().min(2, 'Name must be at least 2 characters'),
+  phone: z.string().optional(),
+})
+
+export async function updateProfileAction(data: z.infer<typeof updateProfileSchema>): Promise<ActionResult> {
+  const validated = updateProfileSchema.safeParse(data)
+  if (!validated.success) {
+    return { success: false, error: validated.error.issues[0]?.message }
+  }
+
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { success: false, error: 'Not authenticated' }
+  }
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({
+      full_name: validated.data.full_name,
+      phone: validated.data.phone || null,
+    })
+    .eq('user_id', user.id)
+
+  if (error) {
+    return { success: false, error: error.message }
+  }
+
+  revalidatePath(ROUTES.INVESTOR_PROFILE)
+  return { success: true, message: 'Profile updated successfully' }
+}
+
+const adminUpdateProfileSchema = z.object({
+  id: z.string(),
+  full_name: z.string().min(2, 'Name must be at least 2 characters'),
+  email: z.string().email('Invalid email address'),
+  phone: z.string().optional(),
+})
+
+export async function adminUpdateProfileAction(data: z.infer<typeof adminUpdateProfileSchema>): Promise<ActionResult> {
+  const validated = adminUpdateProfileSchema.safeParse(data)
+  if (!validated.success) {
+    return { success: false, error: validated.error.issues[0]?.message }
+  }
+
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { success: false, error: 'Not authenticated' }
+  }
+
+  // Verify admin role
+  const { data: profile } = await supabase.from('profiles').select('role').eq('user_id', user.id).maybeSingle()
+  if (!profile || profile.role !== 'owner') {
+    return { success: false, error: 'Unauthorized' }
+  }
+
+  const adminClient = createAdminClient()
+  const { error } = await adminClient
+    .from('profiles')
+    .update({
+      full_name: validated.data.full_name,
+      email: validated.data.email,
+      phone: validated.data.phone || null,
+    })
+    .eq('id', validated.data.id)
+
+  if (error) {
+    return { success: false, error: error.message }
+  }
+
+  revalidatePath(ROUTES.ADMIN_INVESTORS)
+  return { success: true, message: 'Investor updated successfully' }
+}
+
+export async function deleteInvestorAction(profileId: string, userId: string): Promise<ActionResult> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { success: false, error: 'Not authenticated' }
+  }
+
+  // Verify admin role
+  const { data: profile } = await supabase.from('profiles').select('role').eq('user_id', user.id).maybeSingle()
+  if (!profile || profile.role !== 'owner') {
+    return { success: false, error: 'Unauthorized' }
+  }
+
+  const adminClient = createAdminClient()
+  
+  // First delete related data (investments, KYC submissions)
+  const { error: investmentsError } = await adminClient
+    .from('investments')
+    .delete()
+    .eq('user_id', userId)
+
+  if (investmentsError) {
+    return { success: false, error: investmentsError.message }
+  }
+
+  const { error: kycError } = await adminClient
+    .from('kyc_submissions')
+    .delete()
+    .eq('user_id', userId)
+
+  if (kycError) {
+    return { success: false, error: kycError.message }
+  }
+
+  // Delete KYC documents from storage
+  const { data: storageFiles } = await adminClient
+    .storage
+    .from('kyc-documents')
+    .list(`${userId}/`, { limit: 100 })
+
+  if (storageFiles && storageFiles.length > 0) {
+    const filePaths = storageFiles.map(file => `${userId}/${file.name}`)
+    const { error: storageError } = await adminClient
+      .storage
+      .from('kyc-documents')
+      .remove(filePaths)
+
+    if (storageError) {
+      console.error('Storage deletion error:', storageError)
+      // Continue with deletion even if storage fails
+    }
+  }
+
+  // Then delete the profile
+  const { error: profileError } = await adminClient
+    .from('profiles')
+    .delete()
+    .eq('id', profileId)
+
+  if (profileError) {
+    return { success: false, error: profileError.message }
+  }
+
+  // Finally delete the user from Supabase Auth
+  const { error: authError } = await adminClient.auth.admin.deleteUser(userId)
+
+  if (authError) {
+    console.error('Auth user deletion error:', authError)
+    // Continue even if auth deletion fails - profile is already deleted
+  }
+
+  revalidatePath(ROUTES.ADMIN_INVESTORS)
+  return { success: true, message: 'Investor deleted successfully' }
 }

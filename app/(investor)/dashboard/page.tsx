@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { TrendingUp, Wallet, Clock, CheckCircle, ArrowRight, AlertCircle } from 'lucide-react'
@@ -6,12 +7,14 @@ import { ROUTES } from '@/constants'
 
 export default async function InvestorDashboardPage() {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const authData = await supabase.auth.getUser()
+  const user = authData.data.user
+  if (!user) redirect(ROUTES.LOGIN)
 
   // Fetch profile and KYC status
-  const { data: profile } = await supabase.from('profiles').select('full_name, email').eq('user_id', user!.id).maybeSingle()
-  const { data: kyc } = await supabase.from('kyc_submissions').select('status').eq('user_id', user!.id).maybeSingle()
-  const { data: investments } = await supabase.from('investments').select('*, plan:investment_plans(name, roi_percentage)').eq('user_id', user!.id).order('created_at', { ascending: false })
+  const { data: profile } = await supabase.from('profiles').select('full_name, email').eq('user_id', user.id).maybeSingle()
+  const { data: kyc } = await supabase.from('kyc_submissions').select('status').eq('user_id', user.id).maybeSingle()
+  const { data: investments } = await supabase.from('investments').select('*, plan:investment_plans(name, roi_percentage)').eq('user_id', user.id).order('created_at', { ascending: false })
 
   const totalInvested = investments?.filter(i => i.status === 'active').reduce((sum, i) => sum + Number(i.amount), 0) || 0
   const totalROI = investments?.reduce((sum, i) => sum + Number(i.actual_roi), 0) || 0

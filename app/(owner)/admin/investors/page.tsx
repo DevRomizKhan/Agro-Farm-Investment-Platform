@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { Users, Mail, Calendar, CheckCircle, Clock, Edit, Trash2, Eye } from 'lucide-react'
+import { DeleteInvestorButton } from '@/components/features/admin/delete-investor-button'
+import { Users, Mail, Calendar, CheckCircle, Clock, Edit, Eye } from 'lucide-react'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { ROUTES } from '@/constants'
 import Link from 'next/link'
@@ -105,20 +106,7 @@ export default async function AdminInvestorsPage() {
                           >
                             <Edit className="h-3.5 w-3.5" />
                           </Link>
-                          <form action={async () => {
-                            'use server'
-                            // Delete investor action would go here
-                            // For now, just log
-                            console.log('Delete investor:', investor.id)
-                          }}>
-                            <button
-                              type="submit"
-                              className="p-1.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors"
-                              title="Delete Investor"
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </button>
-                          </form>
+                          <DeleteInvestorButton profileId={investor.id} userId={investor.user_id} />
                         </div>
                       </td>
                     </tr>

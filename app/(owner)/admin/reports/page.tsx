@@ -37,8 +37,8 @@ export default async function AdminReportsPage() {
   const approvedKYC = kycData?.filter(k => k.status === 'approved').length || 0
   const pendingKYC = kycData?.filter(k => k.status === 'pending').length || 0
 
-  // Monthly investment data (last 6 months)
-  const monthlyData = investments?.reduce((acc, inv) => {
+  // Monthly investment data (last 6 months) - excluding pending investments
+  const monthlyData = investments?.filter(i => i.status !== 'pending').reduce((acc, inv) => {
     const month = new Date(inv.created_at).toLocaleString('default', { month: 'short', year: 'numeric' })
     if (!acc[month]) acc[month] = { invested: 0, count: 0 }
     acc[month].invested += Number(inv.amount)
