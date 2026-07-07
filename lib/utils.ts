@@ -71,6 +71,24 @@ export function generateFileName(originalName: string): string {
   return `${timestamp}-${random}.${ext}`
 }
 
+export function createBlogSlug(input?: string | null, fallback?: string | null): string {
+  const source = (input || fallback || '').toString().trim()
+
+  const slug = source
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '')
+
+  return slug
+}
+
+export function getBlogPostHref(post: { id: string; slug?: string | null; title: string }): string {
+  const slug = createBlogSlug(post.slug, post.title)
+  return slug ? `/blog/${slug}` : `/blog/${post.id}`
+}
+
 /**
  * Calculate expected ROI
  */

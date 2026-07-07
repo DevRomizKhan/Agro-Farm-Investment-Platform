@@ -8,6 +8,7 @@ export const SUPABASE_STORAGE_BUCKETS = {
   KYC_DOCUMENTS: 'kyc-documents',
   RECEIPTS: 'receipts',
   INVESTMENT_FILES: 'investment-files',
+  BLOG_MEDIA: 'blog-media',
 } as const
 
 export const KYC_STATUS_LABELS: Record<string, string> = {
@@ -88,6 +89,9 @@ export const ROUTES = {
   ADMIN_REPORTS: '/admin/reports',
   ADMIN_NOTIFICATIONS: '/admin/notifications',
   ADMIN_SETTINGS: '/admin/settings',
+  ADMIN_BLOG: '/admin/blog',
+  ADMIN_BLOG_NEW: '/admin/blog/new',
+  ADMIN_BLOG_EDIT: '/admin/blog/edit',
 } as const
 
 export const PAGINATION_LIMIT = 10
@@ -95,3 +99,5 @@ export const PAGINATION_LIMIT = 10
 export const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 export const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 export const ALLOWED_DOCUMENT_TYPES = [...ALLOWED_IMAGE_TYPES, 'application/pdf']
+export const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/ogg']
+export const ALLOWED_BLOG_MEDIA_TYPES = [...ALLOWED_IMAGE_TYPES, ...ALLOWED_DOCUMENT_TYPES, ...ALLOWED_VIDEO_TYPES]

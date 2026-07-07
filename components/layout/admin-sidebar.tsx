@@ -9,7 +9,7 @@ import { logoutAction } from '@/actions/auth'
 import {
   Leaf, LayoutDashboard, Users, FileText, TrendingUp,
   Bell, BarChart3, Settings, LogOut, ChevronRight,
-  CreditCard, ShieldCheck, X, Menu
+  CreditCard, ShieldCheck, X, Menu, PenTool
 } from 'lucide-react'
 
 const navItems = [
@@ -19,6 +19,7 @@ const navItems = [
   { label: 'Investment Plans', href: ROUTES.ADMIN_PLANS, icon: FileText },
   { label: 'Investments', href: ROUTES.ADMIN_INVESTMENTS, icon: TrendingUp },
   { label: 'Transactions', href: ROUTES.ADMIN_TRANSACTIONS, icon: CreditCard },
+  { label: 'Blog', href: ROUTES.ADMIN_BLOG, icon: PenTool },
   { label: 'Reports', href: ROUTES.ADMIN_REPORTS, icon: BarChart3 },
   { label: 'Notifications', href: ROUTES.ADMIN_NOTIFICATIONS, icon: Bell },
   { label: 'Settings', href: ROUTES.ADMIN_SETTINGS, icon: Settings },

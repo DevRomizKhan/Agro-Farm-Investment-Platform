@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -17,15 +17,46 @@ type Props = {
 export default function ResetPasswordClient({ code }: Props) {
   const [isLoading, setIsLoading] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
+  const [isReady, setIsReady] = useState(false)
+  const [hasRecoveryContext, setHasRecoveryContext] = useState(false)
+  const [recoveryContext, setRecoveryContext] = useState({ code: code || undefined, accessToken: undefined as string | undefined, refreshToken: undefined as string | undefined })
 
   const { register, handleSubmit, formState: { errors } } = useForm<ResetPasswordFormData>({
     resolver: zodResolver(resetPasswordSchema),
   })
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const params = new URLSearchParams(window.location.search)
+    const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''))
+    const nextCode = params.get('code') || hashParams.get('code') || code || undefined
+    const nextAccessToken = params.get('access_token') || hashParams.get('access_token') || undefined
+    const nextRefreshToken = params.get('refresh_token') || hashParams.get('refresh_token') || undefined
+
+    setRecoveryContext({
+      code: nextCode || undefined,
+      accessToken: nextAccessToken || undefined,
+      refreshToken: nextRefreshToken || undefined,
+    })
+    setHasRecoveryContext(Boolean(nextCode || nextAccessToken || nextRefreshToken))
+    setIsReady(true)
+  }, [code])
+
   const onSubmit = async (data: ResetPasswordFormData) => {
+    if (!hasRecoveryContext && !recoveryContext.code && !(recoveryContext.accessToken && recoveryContext.refreshToken)) {
+      toast.error('This reset link is invalid or has expired. Please request a new one.')
+      return
+    }
+
     setIsLoading(true)
     try {
-      const result = await resetPasswordAction({ ...data, code: code || undefined })
+      const result = await resetPasswordAction({
+        ...data,
+        code: recoveryContext.code,
+        accessToken: recoveryContext.accessToken,
+        refreshToken: recoveryContext.refreshToken,
+      })
       if (result.success) {
         setIsSuccess(true)
         toast.success(result.message || 'Password reset successfully')
@@ -35,6 +66,16 @@ export default function ResetPasswordClient({ code }: Props) {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  if (!isReady) {
+    return (
+      <div className="fade-in text-center">
+        <div className="glass-card p-10">
+          <p className="text-slate-400 text-sm">Preparing your password reset link…</p>
+        </div>
+      </div>
+    )
   }
 
   if (isSuccess) {
@@ -47,6 +88,18 @@ export default function ResetPasswordClient({ code }: Props) {
           <h2 className="text-xl font-bold text-white mb-3">Password Reset!</h2>
           <p className="text-slate-400 text-sm mb-6">Your password has been successfully reset.</p>
           <Link href={ROUTES.LOGIN} className="btn-primary w-full justify-center">Sign In</Link>
+        </div>
+      </div>
+    )
+  }
+
+  if (!hasRecoveryContext) {
+    return (
+      <div className="fade-in text-center">
+        <div className="glass-card p-10">
+          <h2 className="text-xl font-bold text-white mb-3">Invalid Reset Link</h2>
+          <p className="text-slate-400 text-sm mb-6">This password reset link is invalid or has expired. Please request a new one.</p>
+          <Link href={ROUTES.FORGOT_PASSWORD} className="btn-secondary w-full justify-center">Request New Link</Link>
         </div>
       </div>
     )

@@ -2,6 +2,7 @@
 
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
+import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { loginSchema, registerSchema, forgotPasswordSchema, resetPasswordSchema } from '@/schemas'
@@ -15,6 +16,10 @@ export type ActionResult = {
   message?: string
   needsVerification?: boolean
   email?: string
+}
+
+function isEmailConfirmationEnabled() {
+  return process.env.EMAIL_CONFIRMATION_ENABLED !== 'false'
 }
 
 export async function loginAction(data: LoginFormData): Promise<ActionResult> {
@@ -33,8 +38,8 @@ export async function loginAction(data: LoginFormData): Promise<ActionResult> {
     return { success: false, error: error.message }
   }
 
-  // Check if email is confirmed
-  if (!authData.user.email_confirmed_at) {
+  // Skip email verification requirement when confirmation is disabled for testing
+  if (isEmailConfirmationEnabled() && !authData.user.email_confirmed_at) {
     return {
       success: false,
       error: 'Please verify your email before logging in. Check your inbox for the verification link.',
@@ -57,7 +62,7 @@ export async function registerAction(data: RegisterFormData): Promise<ActionResu
   const adminClient = createAdminClient()
 
   // Check if email confirmation is disabled (for development)
-  const emailConfirmationEnabled = process.env.EMAIL_CONFIRMATION_ENABLED !== 'false'
+  const emailConfirmationEnabled = isEmailConfirmationEnabled()
 
   const { data: authData, error } = await supabase.auth.signUp({
     email: validated.data.email,
@@ -111,6 +116,19 @@ export async function registerAction(data: RegisterFormData): Promise<ActionResu
   }
 }
 
+async function getAppBaseUrl() {
+  const headersList = await headers()
+  const forwardedProto = headersList.get('x-forwarded-proto')
+  const host = headersList.get('host')
+
+  if (host) {
+    const protocol = forwardedProto?.split(',')[0]?.trim() || 'https'
+    return `${protocol}://${host}`
+  }
+
+  return process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+}
+
 export async function forgotPasswordAction(data: ForgotPasswordFormData): Promise<ActionResult> {
   const validated = forgotPasswordSchema.safeParse(data)
   if (!validated.success) {
@@ -118,8 +136,9 @@ export async function forgotPasswordAction(data: ForgotPasswordFormData): Promis
   }
 
   const supabase = await createClient()
+  const baseUrl = await getAppBaseUrl()
   const { error } = await supabase.auth.resetPasswordForEmail(validated.data.email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/reset-password`,
+    redirectTo: `${baseUrl}/reset-password`,
   })
 
   if (error) {
@@ -129,26 +148,37 @@ export async function forgotPasswordAction(data: ForgotPasswordFormData): Promis
   return { success: true, message: 'Password reset email sent. Please check your inbox.' }
 }
 
-export async function resetPasswordAction(data: ResetPasswordFormData & { code?: string }): Promise<ActionResult> {
+export async function resetPasswordAction(
+  data: ResetPasswordFormData & { code?: string; accessToken?: string; refreshToken?: string },
+): Promise<ActionResult> {
   const validated = resetPasswordSchema.safeParse(data)
   if (!validated.success) {
     return { success: false, error: validated.error.issues[0]?.message }
   }
 
-  if (!data.code) {
-    return { success: false, error: 'Invalid reset code' }
+  if (!data.code && !(data.accessToken && data.refreshToken)) {
+    return { success: false, error: 'Invalid reset link' }
   }
 
   const supabase = await createClient()
-  
-  // Exchange the code for a session
-  const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(data.code)
-  
-  if (exchangeError) {
-    return { success: false, error: 'Invalid or expired reset link' }
+
+  if (data.accessToken && data.refreshToken) {
+    const { error: sessionError } = await supabase.auth.setSession({
+      access_token: data.accessToken,
+      refresh_token: data.refreshToken,
+    })
+
+    if (sessionError) {
+      return { success: false, error: 'Invalid or expired reset link' }
+    }
+  } else if (data.code) {
+    const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(data.code)
+
+    if (exchangeError) {
+      return { success: false, error: 'Invalid or expired reset link' }
+    }
   }
 
-  // Update the password
   const { error } = await supabase.auth.updateUser({
     password: validated.data.password,
   })

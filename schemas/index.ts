@@ -107,3 +107,21 @@ export type InvestmentPlanFormData = z.infer<typeof investmentPlanSchema>
 export type InvestFormData = z.infer<typeof investSchema>
 export type UpdateProfileFormData = z.infer<typeof updateProfileSchema>
 export type KYCReviewFormData = z.infer<typeof kycReviewSchema>
+
+// ─── Blog Schemas ───────────────────────────────────────────────────────────────
+
+export const blogPostSchema = z.object({
+  title: z.string().min(3, 'Title must be at least 3 characters'),
+  slug: z.string().min(3, 'Slug must be at least 3 characters'),
+  excerpt: z.string().optional(),
+  content: z.string().min(10, 'Content must be at least 10 characters'),
+  featured_image: z.string().optional(),
+  category: z.string().optional(),
+  tags: z.array(z.string()).optional(),
+  meta_title: z.string().optional(),
+  meta_description: z.string().optional(),
+  meta_keywords: z.array(z.string()).optional(),
+  status: z.enum(['draft', 'published', 'archived']),
+})
+
+export type BlogPostFormData = z.infer<typeof blogPostSchema>
