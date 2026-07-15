@@ -6,11 +6,11 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { blogPostSchema, type BlogPostFormData } from '@/schemas'
 import { createBlogSlug } from '@/lib/utils'
 
-export type ActionResult = {
+export type ActionResult<TData = unknown> = {
   success: boolean
   error?: string
   message?: string
-  data?: any
+  data?: TData
 }
 
 export async function getBlogPosts(status?: 'published' | 'draft' | 'archived') {
@@ -18,10 +18,7 @@ export async function getBlogPosts(status?: 'published' | 'draft' | 'archived') 
   
   let query = supabase
     .from('blog_posts')
-    .select(`
-      *,
-      author:profiles(full_name, avatar_url)
-    `)
+    .select('*')
     .order('created_at', { ascending: false })
   
   if (status) {
@@ -31,14 +28,44 @@ export async function getBlogPosts(status?: 'published' | 'draft' | 'archived') 
     query = query.eq('status', 'published')
   }
   
-  const { data, error } = await query
+  const { data: posts, error } = await query
   
   if (error) {
     console.error('Error fetching blog posts:', error)
     return []
   }
-  
-  return data
+
+  // Fetch authors separately to keep response shape consistent with getBlogPostBySlug
+  type Author = { id: string; full_name: string | null; avatar_url: string | null }
+  type BlogPostRow = { author_id: string | null }
+  type BlogPostWithAuthor = Record<string, unknown> & { author: Author | null }
+
+  const authorIds = Array.from(new Set((posts || []).map((p: BlogPostRow) => p.author_id).filter(Boolean)))
+  const authorsById: Record<string, Author> = {}
+
+  if (authorIds.length > 0) {
+    const { data: authorsData, error: authorsError } = await supabase
+      .from('profiles')
+      .select('id, full_name, avatar_url')
+      .in('id', authorIds)
+
+    if (authorsError) {
+      console.error('Error fetching blog post authors:', authorsError)
+    } else {
+      ;(authorsData || []).forEach((a: Author) => {
+        authorsById[a.id] = a
+      })
+    }
+  }
+
+  return (posts || []).map((p: BlogPostRow) => {
+    const { author_id, ...rest } = p as unknown as Record<string, unknown>
+    return {
+      ...(rest as Record<string, unknown>),
+      author_id,
+      author: author_id ? authorsById[String(author_id)] || null : null,
+    }
+  }) as BlogPostWithAuthor[]
 }
 
 export async function getBlogPostBySlug(slug: string) {
@@ -277,7 +304,7 @@ const { data: currentPost, error: currentPostError } = await adminClient
 
   revalidatePath('/admin/blog')
   revalidatePath('/blog')
-  revalidatePath(`/blog/${validated.data.slug}`)
+  revalidatePath(`/blog/${nextSlug}`)
   
   return { success: true, message: 'Blog post updated successfully' }
 }
