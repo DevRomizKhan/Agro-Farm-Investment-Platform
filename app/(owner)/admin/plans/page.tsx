@@ -3,10 +3,9 @@ import { createClient } from '@/lib/supabase/server'
 import { PlanForm } from '@/components/features/investments/plan-form'
 import { DeletePlanButton } from '@/components/features/admin/delete-plan-button'
 import { formatCurrency } from '@/lib/utils'
-import { FileText, Plus, ShieldCheck, HelpCircle, Edit } from 'lucide-react'
+import { FileText, Plus, Edit } from 'lucide-react'
 import Link from 'next/link'
 import { ROUTES } from '@/constants'
-import type { InvestmentPlan } from '@/types'
 
 export default async function AdminPlansPage() {
   const supabase = await createClient()
@@ -17,21 +16,19 @@ export default async function AdminPlansPage() {
   const { data: profile } = await supabase.from('profiles').select('role').eq('user_id', user.id).maybeSingle()
   if (!profile || profile.role !== 'owner') redirect(ROUTES.INVESTOR_DASHBOARD)
 
-  // Fetch all plans with active investment count
+  // Fetch all plans
   const { data: plans } = await supabase
     .from('investment_plans')
-    .select('id, name, description, min_amount, max_amount, roi_percentage, duration_months, is_active, created_at, investments(count)')
+    .select('id, name, description, min_amount, max_amount, roi_percentage, duration_months, is_active, created_at')
     .order('created_at', { ascending: false })
 
-  // Check which plans have active investments
-  const planIds = plans?.map(p => p.id) || []
-  const { data: activeInvestments } = await supabase
-    .from('investments')
-    .select('plan_id')
-    .eq('status', 'active')
-    .in('plan_id', planIds)
+  // A plan can only be deleted while no investment references it
+  const planIds = plans?.map((p) => p.id) || []
+  const { data: linkedInvestments } = planIds.length
+    ? await supabase.from('investments').select('plan_id').in('plan_id', planIds)
+    : { data: [] }
 
-  const activePlanIds = new Set(activeInvestments?.map(i => i.plan_id) || [])
+  const usedPlanIds = new Set(linkedInvestments?.map((i) => i.plan_id) || [])
 
   return (
     <div className="fade-in space-y-8">
@@ -95,7 +92,7 @@ export default async function AdminPlansPage() {
                         <Edit className="h-3.5 w-3.5" />
                         Edit
                       </Link>
-                      <DeletePlanButton planId={plan.id} hasActiveInvestments={activePlanIds.has(plan.id)} />
+                      <DeletePlanButton planId={plan.id} hasInvestments={usedPlanIds.has(plan.id)} />
                     </div>
                   </div>
                 ))}

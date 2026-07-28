@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
@@ -14,10 +15,21 @@ interface PlanFormProps {
   onSuccess?: () => void
 }
 
+const EMPTY_PLAN: InvestmentPlanFormData = {
+  name: '',
+  description: '',
+  min_amount: 10000,
+  max_amount: 1000000,
+  roi_percentage: 12,
+  duration_months: 12,
+  is_active: true,
+}
+
 export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
+  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
 
-  const { register, handleSubmit, formState: { errors } } = useForm<InvestmentPlanFormData>({
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<InvestmentPlanFormData>({
     resolver: zodResolver(investmentPlanSchema),
     defaultValues: initialPlan
       ? {
@@ -29,15 +41,7 @@ export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
           duration_months: initialPlan.duration_months,
           is_active: initialPlan.is_active,
         }
-      : {
-          name: '',
-          description: '',
-          min_amount: 10000,
-          max_amount: 1000000,
-          roi_percentage: 12,
-          duration_months: 12,
-          is_active: true,
-        },
+      : EMPTY_PLAN,
   })
 
   const onSubmit = async (data: InvestmentPlanFormData) => {
@@ -46,12 +50,13 @@ export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
       const result = await manageInvestmentPlanAction(data, initialPlan?.id)
       if (result.success) {
         toast.success(initialPlan ? 'Investment plan updated successfully' : 'New investment plan created')
-        if (onSuccess) onSuccess()
-        window.location.reload()
+        if (!initialPlan) reset(EMPTY_PLAN)
+        onSuccess?.()
+        router.refresh()
       } else {
         toast.error(result.error || 'Failed to save plan')
       }
-    } catch (err) {
+    } catch {
       toast.error('An unexpected error occurred')
     } finally {
       setIsLoading(false)
@@ -75,12 +80,12 @@ export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-slate-300 mb-1.5">Min Investment (৳)</label>
-          <input {...register('min_amount')} type="number" className="input-base py-2.5 text-sm" />
+          <input {...register('min_amount')} type="number" min={1000} step={100} className="input-base py-2.5 text-sm" />
           {errors.min_amount && <p className="mt-1 text-xs text-red-400">{errors.min_amount.message}</p>}
         </div>
         <div>
           <label className="block text-sm font-medium text-slate-300 mb-1.5">Max Investment (৳)</label>
-          <input {...register('max_amount')} type="number" className="input-base py-2.5 text-sm" />
+          <input {...register('max_amount')} type="number" min={1000} step={100} className="input-base py-2.5 text-sm" />
           {errors.max_amount && <p className="mt-1 text-xs text-red-400">{errors.max_amount.message}</p>}
         </div>
       </div>
@@ -88,12 +93,12 @@ export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-slate-300 mb-1.5">ROI Percentage (%)</label>
-          <input {...register('roi_percentage')} type="number" step="0.1" className="input-base py-2.5 text-sm" />
+          <input {...register('roi_percentage')} type="number" step="0.1" min={0.1} max={100} className="input-base py-2.5 text-sm" />
           {errors.roi_percentage && <p className="mt-1 text-xs text-red-400">{errors.roi_percentage.message}</p>}
         </div>
         <div>
           <label className="block text-sm font-medium text-slate-300 mb-1.5">Duration (Months)</label>
-          <input {...register('duration_months')} type="number" className="input-base py-2.5 text-sm" />
+          <input {...register('duration_months')} type="number" step={1} min={1} max={120} className="input-base py-2.5 text-sm" />
           {errors.duration_months && <p className="mt-1 text-xs text-red-400">{errors.duration_months.message}</p>}
         </div>
       </div>

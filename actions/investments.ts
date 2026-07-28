@@ -4,8 +4,8 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { investSchema, investmentPlanSchema } from '@/schemas'
-import type { InvestFormData, InvestmentPlanFormData } from '@/schemas'
-import { SUPABASE_STORAGE_BUCKETS } from '@/constants'
+import type { InvestmentPlanFormData } from '@/schemas'
+import { SUPABASE_STORAGE_BUCKETS, MAX_FILE_SIZE, ALLOWED_DOCUMENT_TYPES } from '@/constants'
 import { generateFileName, calculateROI } from '@/lib/utils'
 import { addMonths } from 'date-fns'
 
@@ -24,18 +24,25 @@ export async function createInvestmentAction(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: 'Unauthorized' }
 
-  const planId = formData.get('plan_id') as string
-  const amount = Number(formData.get('amount'))
-  const receiptFile = formData.get('receipt') as File | null
+  const planId = formData.get('plan_id')
+  const rawAmount = formData.get('amount')
+  const receiptFile = formData.get('receipt')
 
   // Validate
-  const validated = investSchema.safeParse({ plan_id: planId, amount })
+  const validated = investSchema.safeParse({ plan_id: planId, amount: rawAmount })
   if (!validated.success) {
     return { success: false, error: validated.error.issues[0]?.message }
   }
+  const { amount } = validated.data
 
-  if (!receiptFile || receiptFile.size === 0) {
+  if (!(receiptFile instanceof File) || receiptFile.size === 0) {
     return { success: false, error: 'Bank transfer/deposit receipt file is required' }
+  }
+  if (!ALLOWED_DOCUMENT_TYPES.includes(receiptFile.type)) {
+    return { success: false, error: 'Invalid receipt file type. Upload a JPEG, PNG, WebP image or a PDF' }
+  }
+  if (receiptFile.size > MAX_FILE_SIZE) {
+    return { success: false, error: 'Receipt file exceeds the 5MB size limit' }
   }
 
   // Check KYC verification status
@@ -56,18 +63,24 @@ export async function createInvestmentAction(
   const { data: plan } = await supabase
     .from('investment_plans')
     .select('*')
-    .eq('id', planId)
+    .eq('id', validated.data.plan_id)
     .maybeSingle()
 
   if (!plan) return { success: false, error: 'Plan not found' }
+  if (!plan.is_active) {
+    return { success: false, error: 'This investment plan is no longer available' }
+  }
   if (amount < Number(plan.min_amount) || amount > Number(plan.max_amount)) {
-    return { success: false, error: `Investment must be between ৳${plan.min_amount} and ৳${plan.max_amount}` }
+    return {
+      success: false,
+      error: `Investment must be between ৳${Number(plan.min_amount).toLocaleString()} and ৳${Number(plan.max_amount).toLocaleString()}`,
+    }
   }
 
   try {
     // 1. Upload receipt to Storage
     const uniqueName = `${user.id}/receipt-${generateFileName(receiptFile.name)}`
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    const { error: uploadError } = await supabase.storage
       .from(SUPABASE_STORAGE_BUCKETS.RECEIPTS)
       .upload(uniqueName, receiptFile, {
         cacheControl: '3600',
@@ -81,14 +94,14 @@ export async function createInvestmentAction(
       .getPublicUrl(uniqueName)
 
     // Calculate expected profit/ROI
-    const expectedROI = calculateROI(amount, plan.roi_percentage, plan.duration_months)
+    const expectedROI = calculateROI(amount, Number(plan.roi_percentage), Number(plan.duration_months))
 
     // 2. Insert Investment
     const { data: inv, error: invError } = await supabase
       .from('investments')
       .insert({
         user_id: user.id,
-        plan_id: planId,
+        plan_id: validated.data.plan_id,
         amount,
         status: 'pending',
         expected_roi: expectedROI,
@@ -100,13 +113,15 @@ export async function createInvestmentAction(
     if (invError || !inv) throw new Error(invError?.message || 'Failed to create investment')
 
     // 3. Create Transaction log
-    await supabase.from('transactions').insert({
+    const { error: txError } = await supabase.from('transactions').insert({
       investment_id: inv.id,
       user_id: user.id,
       type: 'deposit',
       amount,
       description: `Pending deposit for ${plan.name} plan`,
     })
+
+    if (txError) throw new Error(`Failed to record deposit transaction: ${txError.message}`)
 
     // Notify admins/owners
     const adminSupabase = createAdminClient()
@@ -115,7 +130,7 @@ export async function createInvestmentAction(
       .select('user_id')
       .eq('role', 'owner')
 
-    if (owners) {
+    if (owners && owners.length > 0) {
       const ownerNotifications = owners.map((owner) => ({
         user_id: owner.user_id,
         title: 'New Investment Pending',
@@ -127,9 +142,10 @@ export async function createInvestmentAction(
     }
 
     revalidatePath('/dashboard/investments')
+    revalidatePath('/admin/investments')
     return { success: true }
-  } catch (err: any) {
-    return { success: false, error: err.message || 'Failed to submit investment' }
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : 'Failed to submit investment' }
   }
 }
 
@@ -157,8 +173,13 @@ export async function approveInvestmentAction(
   if (!inv) return { success: false, error: 'Investment not found' }
   if (inv.status !== 'pending') return { success: false, error: 'Only pending investments can be approved' }
 
+  const plan = (Array.isArray(inv.plan) ? inv.plan[0] : inv.plan) as
+    | { name: string; roi_percentage: number; duration_months: number }
+    | null
+  if (!plan) return { success: false, error: 'Investment plan not found for this investment' }
+
   const startDate = new Date()
-  const endDate = addMonths(startDate, inv.plan.duration_months)
+  const endDate = addMonths(startDate, Number(plan.duration_months))
 
   // Update investment status
   const { error: updateError } = await supabase
@@ -169,9 +190,11 @@ export async function approveInvestmentAction(
       end_date: endDate.toISOString().split('T')[0],
       approved_by: profile.id,
       notes: notes || null,
+      expected_roi: calculateROI(Number(inv.amount), Number(plan.roi_percentage), Number(plan.duration_months)),
       updated_at: new Date().toISOString(),
     })
     .eq('id', investmentId)
+    .eq('status', 'pending')
 
   if (updateError) return { success: false, error: updateError.message }
 
@@ -180,7 +203,7 @@ export async function approveInvestmentAction(
   await adminSupabase.from('notifications').insert({
     user_id: inv.user_id,
     title: 'Investment Activated! 📈',
-    message: `Your investment of ৳${Number(inv.amount).toLocaleString()} for ${inv.plan.name} is now active.`,
+    message: `Your investment of ৳${Number(inv.amount).toLocaleString()} for ${plan.name} is now active.`,
     type: 'investment',
     action_url: '/dashboard/investments',
   })
@@ -248,9 +271,10 @@ export async function manageInvestmentPlanAction(
 
     revalidatePath('/plans')
     revalidatePath('/admin/plans')
+    revalidatePath('/dashboard/investments')
     return { success: true }
-  } catch (err: any) {
-    return { success: false, error: err.message || 'Failed to save plan' }
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : 'Failed to save plan' }
   }
 }
 
@@ -274,16 +298,20 @@ export async function deleteInvestmentPlanAction(planId: string): Promise<{ succ
       return { success: false, error: 'Unauthorized' }
     }
 
-    // Check if plan has any active investments
-    const { data: activeInvestments } = await supabase
+    // A plan referenced by any investment cannot be removed without breaking history
+    const { data: linkedInvestments, error: linkedError } = await supabase
       .from('investments')
       .select('id')
       .eq('plan_id', planId)
-      .eq('status', 'active')
       .limit(1)
 
-    if (activeInvestments && activeInvestments.length > 0) {
-      return { success: false, error: 'Cannot delete plan with active investments' }
+    if (linkedError) throw linkedError
+
+    if (linkedInvestments && linkedInvestments.length > 0) {
+      return {
+        success: false,
+        error: 'Cannot delete a plan that has investments. Deactivate it instead to hide it from investors.',
+      }
     }
 
     // Delete the plan
@@ -296,8 +324,9 @@ export async function deleteInvestmentPlanAction(planId: string): Promise<{ succ
 
     revalidatePath('/plans')
     revalidatePath('/admin/plans')
+    revalidatePath('/dashboard/investments')
     return { success: true }
-  } catch (err: any) {
-    return { success: false, error: err.message || 'Failed to delete plan' }
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : 'Failed to delete plan' }
   }
 }

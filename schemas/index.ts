@@ -68,19 +68,38 @@ export const kycSchema = z.object({
 
 // ─── Investment Plan Schemas ───────────────────────────────────────────────────
 
-export const investmentPlanSchema = z.object({
-  name: z.string().min(3, 'Plan name is required'),
-  description: z.string().optional(),
-  min_amount: z.coerce.number().min(1000, 'Minimum amount must be at least ৳1,000'),
-  max_amount: z.coerce.number().min(1000, 'Maximum amount must be at least ৳1,000'),
-  roi_percentage: z.coerce.number().min(0.1).max(100),
-  duration_months: z.coerce.number().int().min(1).max(120),
-  is_active: z.boolean().default(true),
-})
+export const investmentPlanSchema = z
+  .object({
+    name: z.string().min(3, 'Plan name is required'),
+    description: z.string().optional(),
+    min_amount: z.coerce
+      .number({ invalid_type_error: 'Minimum amount is required' })
+      .min(1000, 'Minimum amount must be at least ৳1,000'),
+    max_amount: z.coerce
+      .number({ invalid_type_error: 'Maximum amount is required' })
+      .min(1000, 'Maximum amount must be at least ৳1,000'),
+    roi_percentage: z.coerce
+      .number({ invalid_type_error: 'ROI percentage is required' })
+      .min(0.1, 'ROI must be at least 0.1%')
+      .max(100, 'ROI cannot exceed 100%'),
+    duration_months: z.coerce
+      .number({ invalid_type_error: 'Duration is required' })
+      .int('Duration must be a whole number of months')
+      .min(1, 'Duration must be at least 1 month')
+      .max(120, 'Duration cannot exceed 120 months'),
+    is_active: z.boolean().default(true),
+  })
+  .refine((data) => data.max_amount >= data.min_amount, {
+    message: 'Maximum amount must be greater than or equal to the minimum amount',
+    path: ['max_amount'],
+  })
 
 export const investSchema = z.object({
-  plan_id: z.string().uuid('Invalid plan'),
-  amount: z.coerce.number().min(1000, 'Minimum investment is ৳1,000'),
+  plan_id: z.string().uuid('Please select an investment plan'),
+  amount: z.coerce
+    .number({ invalid_type_error: 'Investment amount is required' })
+    .positive('Investment amount must be greater than zero')
+    .min(1000, 'Minimum investment is ৳1,000'),
 })
 
 // ─── Profile Schema ────────────────────────────────────────────────────────────

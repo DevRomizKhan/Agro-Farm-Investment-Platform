@@ -1,13 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
-import { Loader2, Upload, DollarSign, Wallet } from 'lucide-react'
+import { Loader2, Upload, Wallet } from 'lucide-react'
 import { investSchema, type InvestFormData } from '@/schemas'
 import { createInvestmentAction } from '@/actions/investments'
-import { formatCurrency } from '@/lib/utils'
+import { formatCurrency, calculateROI } from '@/lib/utils'
 import { MAX_FILE_SIZE, ALLOWED_DOCUMENT_TYPES } from '@/constants'
 import type { InvestmentPlan } from '@/types'
 
@@ -16,11 +17,13 @@ interface InvestFormProps {
 }
 
 export function InvestForm({ plans }: InvestFormProps) {
+  const router = useRouter()
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [selectedPlan, setSelectedPlan] = useState<InvestmentPlan | null>(null)
   const [receiptFile, setReceiptFile] = useState<File | null>(null)
 
-  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<InvestFormData>({
+  const { register, handleSubmit, setValue, setError, watch, reset, formState: { errors } } = useForm<InvestFormData>({
     resolver: zodResolver(investSchema),
     defaultValues: {
       plan_id: '',
@@ -29,11 +32,19 @@ export function InvestForm({ plans }: InvestFormProps) {
   })
 
   const amountWatch = watch('amount')
+  const amountValue = Number(amountWatch)
+  const hasAmount = Number.isFinite(amountValue) && amountValue > 0
+
+  const clearReceipt = () => {
+    setReceiptFile(null)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
 
   const handlePlanChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const plan = plans.find((p) => p.id === e.target.value) || null
     setSelectedPlan(plan)
     setValue('plan_id', e.target.value, { shouldValidate: true })
+    setValue('amount', 0)
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,12 +64,26 @@ export function InvestForm({ plans }: InvestFormProps) {
         e.target.value = ''
         return
       }
-      
+
       setReceiptFile(file)
     }
   }
 
   const onSubmit = async (data: InvestFormData) => {
+    if (!selectedPlan) {
+      setError('plan_id', { message: 'Please select an investment plan' })
+      return
+    }
+
+    const min = Number(selectedPlan.min_amount)
+    const max = Number(selectedPlan.max_amount)
+    if (data.amount < min || data.amount > max) {
+      setError('amount', {
+        message: `Amount must be between ${formatCurrency(min)} and ${formatCurrency(max)} for this plan`,
+      })
+      return
+    }
+
     if (!receiptFile) return toast.error('Deposit receipt image or PDF is required')
 
     setIsLoading(true)
@@ -71,11 +96,14 @@ export function InvestForm({ plans }: InvestFormProps) {
       const result = await createInvestmentAction(formData)
       if (result.success) {
         toast.success('Investment requested successfully! Awaiting review.')
-        window.location.reload()
+        reset({ plan_id: '', amount: 0 })
+        setSelectedPlan(null)
+        clearReceipt()
+        router.refresh()
       } else {
         toast.error(result.error || 'Failed to submit investment')
       }
-    } catch (err) {
+    } catch {
       toast.error('An unexpected error occurred')
     } finally {
       setIsLoading(false)
@@ -83,13 +111,10 @@ export function InvestForm({ plans }: InvestFormProps) {
   }
 
   // Calculate expected profit based on inputs
-  const calculateExpectedProfit = () => {
-    if (!selectedPlan || !amountWatch) return 0
-    const amount = Number(amountWatch)
-    if (isNaN(amount) || amount <= 0) return 0
-    const monthlyRate = selectedPlan.roi_percentage / 100 / 12
-    return amount * monthlyRate * selectedPlan.duration_months
-  }
+  const expectedProfit =
+    selectedPlan && hasAmount
+      ? calculateROI(amountValue, Number(selectedPlan.roi_percentage), Number(selectedPlan.duration_months))
+      : 0
 
   return (
     <div className="glass-card p-6 max-w-xl mx-auto space-y-6">
@@ -102,7 +127,7 @@ export function InvestForm({ plans }: InvestFormProps) {
         {/* Choose Plan */}
         <div>
           <label className="block text-sm font-medium text-slate-300 mb-2">Select Investment Plan</label>
-          <select onChange={handlePlanChange} className="input-base" defaultValue="">
+          <select onChange={handlePlanChange} value={selectedPlan?.id ?? ''} className="input-base">
             <option value="" disabled>Choose an active plan</option>
             {plans.map((plan) => (
               <option key={plan.id} value={plan.id}>
@@ -117,11 +142,11 @@ export function InvestForm({ plans }: InvestFormProps) {
           <div className="grid grid-cols-2 gap-4 p-4 rounded-xl bg-slate-800/40 border border-white/5 text-sm">
             <div>
               <span className="text-slate-400 block text-xs">Min Investment</span>
-              <span className="text-white font-medium">{formatCurrency(selectedPlan.min_amount)}</span>
+              <span className="text-white font-medium">{formatCurrency(Number(selectedPlan.min_amount))}</span>
             </div>
             <div>
               <span className="text-slate-400 block text-xs">Max Investment</span>
-              <span className="text-white font-medium">{formatCurrency(selectedPlan.max_amount)}</span>
+              <span className="text-white font-medium">{formatCurrency(Number(selectedPlan.max_amount))}</span>
             </div>
             <div>
               <span className="text-slate-400 block text-xs">Expected Return Rate</span>
@@ -141,6 +166,9 @@ export function InvestForm({ plans }: InvestFormProps) {
             <input
               {...register('amount')}
               type="number"
+              min={selectedPlan ? Number(selectedPlan.min_amount) : undefined}
+              max={selectedPlan ? Number(selectedPlan.max_amount) : undefined}
+              step={100}
               className="input-base pl-12"
               placeholder="e.g. 50000"
               disabled={!selectedPlan}
@@ -153,18 +181,18 @@ export function InvestForm({ plans }: InvestFormProps) {
         </div>
 
         {/* Expected profit calculation */}
-        {selectedPlan && amountWatch && (
+        {selectedPlan && hasAmount && (
           <div className="p-4 rounded-xl bg-green-500/5 border border-green-500/10 text-sm flex justify-between items-center">
             <div>
               <span className="text-slate-400 text-xs block">Expected Return at Maturity</span>
               <span className="text-green-400 font-bold text-lg">
-                {formatCurrency(calculateExpectedProfit())}
+                {formatCurrency(expectedProfit)}
               </span>
             </div>
             <div className="text-right">
               <span className="text-slate-400 text-xs block">Total Capital + ROI</span>
               <span className="text-white font-semibold">
-                {formatCurrency(Number(amountWatch) + calculateExpectedProfit())}
+                {formatCurrency(amountValue + expectedProfit)}
               </span>
             </div>
           </div>
@@ -177,8 +205,9 @@ export function InvestForm({ plans }: InvestFormProps) {
           </label>
           <div className="relative border border-dashed border-slate-700 hover:border-green-500/50 rounded-xl p-6 flex flex-col items-center justify-center bg-slate-800/20 transition-colors">
             <input
+              ref={fileInputRef}
               type="file"
-              accept="image/*,application/pdf"
+              accept={ALLOWED_DOCUMENT_TYPES.join(',')}
               onChange={handleFileChange}
               className="absolute inset-0 opacity-0 cursor-pointer"
               disabled={!selectedPlan}
@@ -190,7 +219,7 @@ export function InvestForm({ plans }: InvestFormProps) {
           </div>
         </div>
 
-        <button type="submit" disabled={isLoading || !selectedPlan} className="btn-primary w-full py-3.5">
+        <button type="submit" disabled={isLoading || !selectedPlan || !receiptFile} className="btn-primary w-full py-3.5">
           {isLoading ? (
             <><Loader2 className="h-4 w-4 animate-spin" /> Submitting Request...</>
           ) : (
