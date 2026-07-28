@@ -4,6 +4,12 @@ import { Users, TrendingUp, Clock, ShieldCheck, ArrowRight, DollarSign } from 'l
 import Link from 'next/link'
 import { ROUTES } from '@/constants'
 
+type ProfileSummary = {
+  user_id: string
+  full_name: string | null
+  email: string | null
+}
+
 export default async function AdminDashboardPage() {
   const supabase = await createClient()
 
@@ -28,7 +34,7 @@ export default async function AdminDashboardPage() {
     .from('profiles')
     .select('id, user_id, full_name, email')
     .in('user_id', kycUserIds)
-  const kycProfileMap = new Map(kycProfiles?.map((p: any) => [p.user_id, p]) || [])
+  const kycProfileMap = new Map((kycProfiles as ProfileSummary[] | null)?.map((p) => [p.user_id, p]) || [])
 
   // Fetch profiles for investments
   const investmentUserIds = recentInvestments?.map(i => i.user_id) || []
@@ -36,7 +42,7 @@ export default async function AdminDashboardPage() {
     .from('profiles')
     .select('id, user_id, full_name, email')
     .in('user_id', investmentUserIds)
-  const investmentProfileMap = new Map(investmentProfiles?.map((p: any) => [p.user_id, p]) || [])
+  const investmentProfileMap = new Map((investmentProfiles as ProfileSummary[] | null)?.map((p) => [p.user_id, p]) || [])
 
   const { data: investmentAgg } = await supabase.from('investments').select('amount, status')
   const totalInvested = investmentAgg?.filter(i => i.status === 'active').reduce((s, i) => s + Number(i.amount), 0) || 0

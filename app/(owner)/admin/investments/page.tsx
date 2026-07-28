@@ -6,6 +6,12 @@ import Link from 'next/link'
 import { ROUTES } from '@/constants'
 import { approveInvestmentAction } from '@/actions/investments'
 
+type InvestorProfileSummary = {
+  user_id: string
+  full_name: string | null
+  email: string | null
+}
+
 export default async function AdminInvestmentsPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -29,7 +35,7 @@ export default async function AdminInvestmentsPage() {
     .in('user_id', userIds)
 
   // Create a map of user_id to profile data
-  const profileMap = new Map(profiles?.map((p: any) => [p.user_id, p]) || [])
+  const profileMap = new Map((profiles as InvestorProfileSummary[] | null)?.map((p) => [p.user_id, p]) || [])
 
   const pendingInvestments = investments?.filter(i => i.status === 'pending') || []
   const activeInvestments = investments?.filter(i => i.status === 'active') || []

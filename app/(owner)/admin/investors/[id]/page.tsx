@@ -4,6 +4,11 @@ import { ArrowLeft, User, Mail, Phone, Calendar, TrendingUp } from 'lucide-react
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { ROUTES } from '@/constants'
 import Link from 'next/link'
+import type { Investment, InvestmentPlan } from '@/types'
+
+type InvestmentWithPlan = Investment & {
+  plan: Pick<InvestmentPlan, 'name'> | null
+}
 
 export default async function InvestorDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -119,7 +124,7 @@ export default async function InvestorDetailPage({ params }: { params: Promise<{
               <p className="text-sm text-slate-500 text-center py-8">No investments yet</p>
             ) : (
               <div className="space-y-3">
-                {investments.map((inv: any) => (
+                {(investments as InvestmentWithPlan[]).map((inv) => (
                   <div key={inv.id} className="p-4 rounded-xl bg-slate-800/30 border border-white/5">
                     <div className="flex justify-between items-start mb-2">
                       <div>

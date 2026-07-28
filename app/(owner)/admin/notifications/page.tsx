@@ -3,6 +3,14 @@ import { createClient } from '@/lib/supabase/server'
 import { Bell, Clock, Trash2 } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 import { ROUTES } from '@/constants'
+import type { Notification } from '@/types'
+
+type AdminNotification = Notification & {
+  profile: {
+    full_name: string | null
+    email: string | null
+  } | null
+}
 
 export default async function AdminNotificationsPage() {
   const supabase = await createClient()
@@ -46,7 +54,7 @@ export default async function AdminNotificationsPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {notifications.map((notification: any) => (
+            {(notifications as AdminNotification[]).map((notification) => (
               <div
                 key={notification.id}
                 className="p-4 rounded-xl border border-white/5 bg-slate-900/40 hover:border-green-500/20 transition-colors"

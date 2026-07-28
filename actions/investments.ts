@@ -4,16 +4,18 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { investSchema, investmentPlanSchema } from '@/schemas'
-import type { InvestFormData, InvestmentPlanFormData } from '@/schemas'
+import type { InvestmentPlanFormData } from '@/schemas'
 import { SUPABASE_STORAGE_BUCKETS } from '@/constants'
 import { generateFileName, calculateROI, isPlanCurrentlyActive } from '@/lib/utils'
 import { addMonths } from 'date-fns'
-import type { InvestmentPlan } from '@/types'
-
 
 export type InvestmentResult = {
   success: boolean
   error?: string
+}
+
+function getErrorMessage(error: unknown, fallback: string) {
+  return error instanceof Error ? error.message : fallback
 }
 
 /**
@@ -75,7 +77,7 @@ export async function createInvestmentAction(
   try {
     // 1. Upload receipt to Storage
     const uniqueName = `${user.id}/receipt-${generateFileName(receiptFile.name)}`
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    const { error: uploadError } = await supabase.storage
       .from(SUPABASE_STORAGE_BUCKETS.RECEIPTS)
       .upload(uniqueName, receiptFile, {
         cacheControl: '3600',
@@ -136,8 +138,8 @@ export async function createInvestmentAction(
 
     revalidatePath('/dashboard/investments')
     return { success: true }
-  } catch (err: any) {
-    return { success: false, error: err.message || 'Failed to submit investment' }
+  } catch (err: unknown) {
+    return { success: false, error: getErrorMessage(err, 'Failed to submit investment') }
   }
 }
 
@@ -261,8 +263,8 @@ export async function manageInvestmentPlanAction(
     revalidatePath('/plans')
     revalidatePath('/admin/plans')
     return { success: true }
-  } catch (err: any) {
-    return { success: false, error: err.message || 'Failed to save plan' }
+  } catch (err: unknown) {
+    return { success: false, error: getErrorMessage(err, 'Failed to save plan') }
   }
 }
 
@@ -309,7 +311,7 @@ export async function deleteInvestmentPlanAction(planId: string): Promise<{ succ
     revalidatePath('/plans')
     revalidatePath('/admin/plans')
     return { success: true }
-  } catch (err: any) {
-    return { success: false, error: err.message || 'Failed to delete plan' }
+  } catch (err: unknown) {
+    return { success: false, error: getErrorMessage(err, 'Failed to delete plan') }
   }
 }

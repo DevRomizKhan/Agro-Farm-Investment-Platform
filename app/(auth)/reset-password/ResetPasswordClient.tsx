@@ -34,6 +34,8 @@ export default function ResetPasswordClient({ code }: Props) {
     const nextAccessToken = params.get('access_token') || hashParams.get('access_token') || undefined
     const nextRefreshToken = params.get('refresh_token') || hashParams.get('refresh_token') || undefined
 
+    // Tokens can arrive in the URL hash after hydration, so this client-only sync is required.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setRecoveryContext({
       code: nextCode || undefined,
       accessToken: nextAccessToken || undefined,

@@ -80,7 +80,7 @@ export function KYCForm() {
       } else {
         toast.error(result.error || 'Failed to submit KYC')
       }
-    } catch (err: any) {
+    } catch {
       toast.error('An unexpected error occurred')
     } finally {
       setIsLoading(false)

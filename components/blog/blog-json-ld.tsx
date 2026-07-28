@@ -1,5 +1,7 @@
+import type { BlogPostWithAuthor } from '@/types'
+
 interface BlogJsonLdProps {
-  post: any
+  post: BlogPostWithAuthor
 }
 
 export default function BlogJsonLd({ post }: BlogJsonLdProps) {

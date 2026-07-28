@@ -5,6 +5,12 @@ import { ShieldAlert, Clock, CheckCircle, XCircle } from 'lucide-react'
 import Link from 'next/link'
 import { ROUTES } from '@/constants'
 
+type ProfileSummary = {
+  user_id: string
+  full_name: string | null
+  email: string | null
+}
+
 export default async function AdminKYCManagementPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -28,7 +34,7 @@ export default async function AdminKYCManagementPage() {
     .in('user_id', userIds)
 
   // Create a map of user_id to profile data
-  const profileMap = new Map(profiles?.map((p: any) => [p.user_id, p]) || [])
+  const profileMap = new Map((profiles as ProfileSummary[] | null)?.map((p) => [p.user_id, p]) || [])
 
   const pendingSubmissions = submissions?.filter(s => s.status === 'pending') || []
   const verifiedSubmissions = submissions?.filter(s => s.status === 'approved') || []

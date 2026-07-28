@@ -176,3 +176,15 @@ export interface BlogPostWithAuthor extends BlogPost {
   } | null
 }
 
+export interface BlogMedia {
+  id: string
+  blog_post_id: string
+  file_url: string
+  file_name: string
+  file_type: string
+  file_size: number
+  mime_type: string | null
+  alt_text: string | null
+  display_order: number
+  created_at: string
+}

@@ -1,0 +1,2 @@
+-- Historical migration placeholder.
+-- This version is already applied to the remote Supabase project.

@@ -1,92 +1,105 @@
+'use client'
+
+import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Youtube } from 'lucide-react'
+import { Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Youtube, Send, CheckCircle2, TrendingUp, ArrowRight } from 'lucide-react'
 import { APP_NAME, ROUTES } from '@/constants'
 
-const footerLinks = {
+const links = {
   company: [
+    { label: 'Home', href: ROUTES.HOME },
     { label: 'About Us', href: ROUTES.ABOUT },
     { label: 'Investment Plans', href: ROUTES.PLANS },
-    { label: 'Farm Gallery', href: ROUTES.GALLERY },
     { label: 'Blog', href: ROUTES.BLOG },
-    { label: 'Contact', href: ROUTES.CONTACT },
-  ],
-  legal: [
-    { label: 'Privacy Policy', href: ROUTES.PRIVACY },
-    { label: 'Terms & Conditions', href: ROUTES.TERMS },
+    { label: 'Gallery', href: ROUTES.GALLERY },
+    { label: 'Contact Us', href: ROUTES.CONTACT },
   ],
   investors: [
     { label: 'Register', href: ROUTES.REGISTER },
-    { label: 'Sign In', href: ROUTES.LOGIN },
-    { label: 'My Dashboard', href: ROUTES.INVESTOR_DASHBOARD },
+    { label: 'Investor Login', href: ROUTES.LOGIN },
+    { label: 'Dashboard', href: ROUTES.INVESTOR_DASHBOARD },
+    { label: 'KYC Verification', href: ROUTES.INVESTOR_KYC },
+    { label: 'Privacy Policy', href: ROUTES.PRIVACY },
+    { label: 'Terms & Conditions', href: ROUTES.TERMS },
   ],
 }
 
 export function PublicFooter() {
+  const [email, setEmail] = useState('')
+  const [subscribed, setSubscribed] = useState(false)
+
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (email) { setSubscribed(true); setEmail('') }
+  }
+
   return (
-    <footer className="bg-slate-950 border-t border-white/5">
-      {/* CTA Banner */}
-      <div className="border-b border-white/5">
-        <div className="section-container py-16">
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-green-900/40 to-emerald-900/30 border border-green-500/20 p-10 text-center">
-            {/* Background glow */}
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(34,197,94,0.1),transparent_70%)]" />
-            <div className="relative">
-              <p className="badge-green mb-6 mx-auto w-fit">Join 500+ Investors</p>
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                Ready to Grow Your Wealth?
+    <footer className="bg-slate-950 border-t border-emerald-500/10">
+
+      {/* ── CTA Banner ──────────────────────────────── */}
+      <div className="border-b border-white/5 py-14">
+        <div className="section-container">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-950 via-slate-900 to-teal-950 border border-emerald-500/30 p-8 sm:p-12 text-center">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.12),transparent_70%)]" />
+            <div className="relative z-10 max-w-xl mx-auto space-y-5">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold uppercase tracking-widest">
+                <TrendingUp className="h-3.5 w-3.5" />
+                Start Growing Wealth
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-black text-white">
+                Join 1,250+ Smart Investors
               </h2>
-              <p className="text-slate-400 max-w-xl mx-auto mb-8">
-                Start your agricultural investment journey today and earn consistent returns from Bangladesh&apos;s thriving farm economy.
+              <p className="text-slate-300 text-sm">
+                Earn 12–18% annual returns with 100% asset-backed cattle farming.
               </p>
-              <Link href={ROUTES.REGISTER} className="btn-primary text-base px-8 py-4">
-                Get Started — It&apos;s Free
-              </Link>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+                <Link href={ROUTES.REGISTER} className="btn-primary px-7 py-3 rounded-xl text-sm font-bold flex items-center gap-2 group w-full sm:w-auto justify-center">
+                  Create Free Account
+                  <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                </Link>
+                <Link href={ROUTES.CONTACT} className="px-7 py-3 rounded-xl text-sm font-semibold text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-all w-full sm:w-auto text-center">
+                  Contact Us
+                </Link>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Main Footer */}
+      {/* ── Footer Body ─────────────────────────────── */}
       <div className="section-container py-14">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
-          {/* Brand */}
-          <div className="lg:col-span-2">
-            <Link href={ROUTES.HOME} className="flex items-center mb-5 group w-fit">
-              <Image
-                src="/logo.png"
-                alt={APP_NAME}
-                width={140}
-                height={41}
-                className="h-10 w-auto object-contain group-hover:opacity-80 transition-opacity"
-              />
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
+
+          {/* Brand (4 cols) */}
+          <div className="md:col-span-4 space-y-5">
+            <Link href={ROUTES.HOME}>
+              <Image src="/logo.png" alt={APP_NAME} width={150} height={44} className="h-11 w-auto object-contain" />
             </Link>
-            <p className="text-sm text-slate-400 leading-relaxed mb-6 max-w-xs">
-              Bangladesh&apos;s most trusted agricultural investment platform. Secure, transparent, and profitable farming investments for everyone.
+            <p className="text-sm text-slate-400 leading-relaxed max-w-xs">
+              Bangladesh&apos;s premier Shariah-compliant agricultural investment platform — secure, transparent, and profitable.
             </p>
             <div className="space-y-2.5">
-              <div className="flex items-center gap-3 text-sm text-slate-400">
-                <MapPin className="h-4 w-4 text-green-500 flex-shrink-0" />
-                <span>Dhaka, Bangladesh</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm text-slate-400">
-                <Phone className="h-4 w-4 text-green-500 flex-shrink-0" />
-                <span>+880 1700-000000</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm text-slate-400">
-                <Mail className="h-4 w-4 text-green-500 flex-shrink-0" />
-                <span>info@nhkagroinvest.com</span>
-              </div>
+              {[
+                { Icon: MapPin, text: 'House 42, Road 11, Banani, Dhaka' },
+                { Icon: Phone, text: '+880 1700-000000' },
+                { Icon: Mail, text: 'info@nhkagroinvest.com' },
+              ].map(({ Icon, text }) => (
+                <div key={text} className="flex items-center gap-3 text-xs text-slate-300">
+                  <Icon className="h-4 w-4 text-emerald-400 shrink-0" />
+                  {text}
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Company */}
-          <div>
-            <h3 className="text-sm font-semibold text-white mb-4">Company</h3>
+          {/* Company links (2 cols) */}
+          <div className="md:col-span-2">
+            <p className="text-xs font-black text-white uppercase tracking-widest mb-4">Company</p>
             <ul className="space-y-2.5">
-              {footerLinks.company.map((l) => (
-                <li key={l.href}>
-                  <Link href={l.href} className="text-sm text-slate-400 hover:text-green-400 transition-colors">
+              {links.company.map((l) => (
+                <li key={l.label}>
+                  <Link href={l.href} className="text-sm text-slate-400 hover:text-emerald-400 transition-colors">
                     {l.label}
                   </Link>
                 </li>
@@ -94,13 +107,13 @@ export function PublicFooter() {
             </ul>
           </div>
 
-          {/* Investors */}
-          <div>
-            <h3 className="text-sm font-semibold text-white mb-4">Investors</h3>
+          {/* Investor links (2 cols) */}
+          <div className="md:col-span-2">
+            <p className="text-xs font-black text-white uppercase tracking-widest mb-4">Investors</p>
             <ul className="space-y-2.5">
-              {footerLinks.investors.map((l) => (
-                <li key={l.href}>
-                  <Link href={l.href} className="text-sm text-slate-400 hover:text-green-400 transition-colors">
+              {links.investors.map((l) => (
+                <li key={l.label}>
+                  <Link href={l.href} className="text-sm text-slate-400 hover:text-emerald-400 transition-colors">
                     {l.label}
                   </Link>
                 </li>
@@ -108,38 +121,59 @@ export function PublicFooter() {
             </ul>
           </div>
 
-          {/* Legal */}
-          <div>
-            <h3 className="text-sm font-semibold text-white mb-4">Legal</h3>
-            <ul className="space-y-2.5">
-              {footerLinks.legal.map((l) => (
-                <li key={l.href}>
-                  <Link href={l.href} className="text-sm text-slate-400 hover:text-green-400 transition-colors">
-                    {l.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+          {/* Newsletter (4 cols) */}
+          <div className="md:col-span-4">
+            <p className="text-xs font-black text-white uppercase tracking-widest mb-4">Newsletter</p>
+            <p className="text-xs text-slate-400 mb-4 leading-relaxed">
+              Get monthly farm updates and investor return reports.
+            </p>
+            {subscribed ? (
+              <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 shrink-0" />
+                Subscribed successfully!
+              </div>
+            ) : (
+              <form onSubmit={handleSubscribe} className="relative">
+                <input
+                  type="email"
+                  required
+                  placeholder="Your email address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full pl-4 pr-12 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs placeholder:text-slate-500 focus:outline-none focus:border-emerald-500"
+                />
+                <button
+                  type="submit"
+                  aria-label="Subscribe"
+                  className="absolute right-2 top-2 bottom-2 px-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-lg transition-colors flex items-center"
+                >
+                  <Send className="h-3.5 w-3.5" />
+                </button>
+              </form>
+            )}
           </div>
+
         </div>
 
-        {/* Bottom Bar */}
-        <div className="mt-12 pt-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
+        {/* Bottom bar */}
+        <div className="mt-12 pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-slate-500">
             © {new Date().getFullYear()} {APP_NAME}. All rights reserved.
           </p>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             {[
-              { Icon: Facebook, label: 'Facebook' },
-              { Icon: Twitter, label: 'Twitter' },
-              { Icon: Linkedin, label: 'LinkedIn' },
-              { Icon: Youtube, label: 'YouTube' },
-            ].map(({ Icon, label }) => (
+              { Icon: Facebook, href: 'https://facebook.com', label: 'Facebook' },
+              { Icon: Twitter, href: 'https://twitter.com', label: 'Twitter' },
+              { Icon: Linkedin, href: 'https://linkedin.com', label: 'LinkedIn' },
+              { Icon: Youtube, href: 'https://youtube.com', label: 'YouTube' },
+            ].map(({ Icon, href, label }) => (
               <a
                 key={label}
-                href="#"
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label={label}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:text-green-400 hover:bg-green-500/10 transition-all"
+                className="h-9 w-9 flex items-center justify-center rounded-xl bg-slate-900 text-slate-400 hover:text-emerald-400 hover:bg-emerald-500/10 border border-white/5 hover:border-emerald-500/30 transition-all"
               >
                 <Icon className="h-4 w-4" />
               </a>

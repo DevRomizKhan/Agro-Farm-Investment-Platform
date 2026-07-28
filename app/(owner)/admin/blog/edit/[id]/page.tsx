@@ -9,6 +9,7 @@ import { ArrowLeft, Save, Eye, Upload, X, Image as ImageIcon, FileText, Video, L
 import { getBlogPostById, updateBlogPost, uploadBlogMedia, deleteBlogMedia } from '@/actions/blog'
 import { ROUTES, ALLOWED_BLOG_MEDIA_TYPES, MAX_FILE_SIZE } from '@/constants'
 import { blogPostSchema, type BlogPostFormData } from '@/schemas'
+import type { BlogMedia, BlogPostWithAuthor } from '@/types'
 
 export default function EditBlogPostPage() {
   const router = useRouter()
@@ -18,7 +19,7 @@ export default function EditBlogPostPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
-  const [post, setPost] = useState<any>(null)
+  const [post, setPost] = useState<(BlogPostWithAuthor & { media: BlogMedia[] }) | null>(null)
   const [submitStatus, setSubmitStatus] = useState<'draft' | 'published'>('draft')
 
   const { register, handleSubmit, watch, formState: { errors }, reset } = useForm<BlogPostFormData>({
@@ -52,7 +53,7 @@ export default function EditBlogPostPage() {
         toast.error('Blog post not found')
         router.push(ROUTES.ADMIN_BLOG)
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to load blog post')
       router.push(ROUTES.ADMIN_BLOG)
     } finally {
@@ -70,7 +71,7 @@ export default function EditBlogPostPage() {
       } else {
         toast.error(result.error || 'Failed to update blog post')
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to update blog post')
     } finally {
       setIsSaving(false)
@@ -79,6 +80,14 @@ export default function EditBlogPostPage() {
 
   const handleSaveDraft = handleSubmit(async (data) => {
     await onSubmit({ ...data, status: 'draft' })
+  })
+
+  const handleSaveChanges = handleSubmit(async (data) => {
+    await onSubmit(data)
+  })
+
+  const handleArchive = handleSubmit(async (data) => {
+    await onSubmit({ ...data, status: 'archived' })
   })
 
   const handlePublish = handleSubmit(async (data) => {
@@ -116,7 +125,7 @@ export default function EditBlogPostPage() {
       } else {
         toast.error(result.error)
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to upload file')
     } finally {
       setIsUploading(false)
@@ -132,7 +141,7 @@ export default function EditBlogPostPage() {
       } else {
         toast.error(result.error)
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to delete media')
     }
   }
@@ -183,6 +192,20 @@ export default function EditBlogPostPage() {
             className="px-4 py-2 rounded-lg border border-slate-600 text-slate-300 hover:bg-slate-700/50 transition-colors disabled:opacity-50"
           >
             Save Draft
+          </button>
+          <button
+            onClick={handleArchive}
+            disabled={isSaving}
+            className="px-4 py-2 rounded-lg border border-slate-600 text-slate-300 hover:bg-slate-700/50 transition-colors disabled:opacity-50"
+          >
+            Archive
+          </button>
+          <button
+            onClick={handleSaveChanges}
+            disabled={isSaving}
+            className="px-4 py-2 rounded-lg border border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/10 transition-colors disabled:opacity-50"
+          >
+            Save Changes
           </button>
           <button
             onClick={handlePublish}
@@ -281,7 +304,7 @@ export default function EditBlogPostPage() {
 
             {post?.media && post.media.length > 0 && (
               <div className="mt-4 grid grid-cols-2 gap-4">
-                {post.media.map((media: any) => (
+                {post.media.map((media) => (
                   <div key={media.id} className="relative group">
                     {media.mime_type?.startsWith('image') ? (
                       <img
@@ -358,7 +381,7 @@ export default function EditBlogPostPage() {
             </div>
             <div className="mt-4 pt-4 border-t border-slate-700">
               <p className="text-xs text-slate-500">
-                Created: {new Date(post?.created_at).toLocaleDateString()}
+                Created: {post ? new Date(post.created_at).toLocaleDateString() : '—'}
               </p>
               {post?.published_at && (
                 <p className="text-xs text-slate-500 mt-1">

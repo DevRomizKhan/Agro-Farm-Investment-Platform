@@ -3,6 +3,12 @@ import { createClient } from '@/lib/supabase/server'
 import { CreditCard, ArrowUp, ArrowDown, Clock } from 'lucide-react'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { ROUTES } from '@/constants'
+import type { Investment, InvestmentPlan, Profile } from '@/types'
+
+type TransactionRow = Investment & {
+  plan: Pick<InvestmentPlan, 'name'> | null
+  profile: Pick<Profile, 'full_name' | 'email'> | null
+}
 
 export default async function AdminTransactionsPage() {
   const supabase = await createClient()
@@ -56,7 +62,7 @@ export default async function AdminTransactionsPage() {
                 </tr>
               </thead>
               <tbody>
-                {transactions.map((tx: any) => (
+                {(transactions as TransactionRow[]).map((tx) => (
                   <tr key={tx.id}>
                     <td className="text-slate-400 text-xs">{formatDate(tx.created_at)}</td>
                     <td>
