@@ -1,63 +1,17 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { APP_NAME, ROUTES } from '@/constants'
-import { Check, ArrowRight, Sparkles } from 'lucide-react'
-import { formatCurrency } from '@/lib/utils'
+import { Check, ArrowRight, Sparkles, TrendingUp } from 'lucide-react'
+import { createClient } from '@/lib/supabase/server'
+import { formatCurrency, calculateROI, isPlanCurrentlyActive } from '@/lib/utils'
+import type { InvestmentPlan } from '@/types'
 
 export const metadata: Metadata = {
   title: `Investment Plans — ${APP_NAME}`,
   description: 'Explore Shariah-compliant, asset-backed cattle farm investment packages in Bangladesh.',
 }
 
-const plans = [
-  {
-    name: 'Starter',
-    tag: 'Beginner Friendly',
-    minAmount: 10000,
-    maxAmount: 100000,
-    roi: '12–14%',
-    duration: 12,
-    popular: false,
-    features: [
-      'Monthly dividend bank deposits',
-      '24/7 investor portal access',
-      'Digital investment certificate',
-      'Email & phone support',
-    ],
-  },
-  {
-    name: 'Growth',
-    tag: 'Most Popular',
-    minAmount: 100000,
-    maxAmount: 500000,
-    roi: '15–17%',
-    duration: 18,
-    popular: true,
-    features: [
-      'Monthly dividend payouts',
-      'Priority support hotline',
-      'Physical investment agreement',
-      'Quarterly farm video reports',
-      'Reinvestment option',
-    ],
-  },
-  {
-    name: 'Premium',
-    tag: 'Maximum Yield',
-    minAmount: 500000,
-    maxAmount: 5000000,
-    roi: '18–22%',
-    duration: 24,
-    popular: false,
-    features: [
-      'Monthly dividend payouts',
-      'Dedicated financial advisor',
-      'VIP farm visit & tour',
-      'Custom investment terms',
-      'Annual profit-sharing bonus',
-    ],
-  },
-]
+export const revalidate = 60
 
 const steps = [
   { n: '01', title: 'Register & KYC', desc: 'Create your account and complete identity verification in under 5 minutes.' },
@@ -66,7 +20,16 @@ const steps = [
   { n: '04', title: 'Receive Dividends', desc: 'Monthly returns are deposited directly to your bank account or mobile wallet.' },
 ]
 
-export default function PlansPage() {
+export default async function PlansPage() {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('investment_plans')
+    .select('*')
+    .eq('is_active', true)
+    .order('min_amount', { ascending: true })
+
+  const plans = ((data || []) as InvestmentPlan[]).filter(isPlanCurrentlyActive)
+
   return (
     <div className="min-h-screen bg-slate-950">
 
@@ -89,63 +52,90 @@ export default function PlansPage() {
 
       {/* ── Plans Grid ────────────────────────────────── */}
       <section className="max-w-6xl mx-auto px-4 pb-20">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
-          {plans.map((plan) => (
-            <div
-              key={plan.name}
-              className={`relative rounded-3xl p-8 flex flex-col ${
-                plan.popular
-                  ? 'bg-slate-900 border-2 border-emerald-500/60 shadow-2xl shadow-emerald-950/40 md:scale-105'
-                  : 'bg-slate-900/50 border border-white/8 hover:border-white/20'
-              } transition-all`}
-            >
-              {plan.popular && (
-                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                  <span className="px-4 py-1 bg-emerald-500 text-slate-950 text-xs font-black rounded-full uppercase tracking-wide">
-                    ⭐ Most Popular
-                  </span>
+        {plans.length === 0 ? (
+          <div className="glass-card p-12 text-center">
+            <TrendingUp className="h-8 w-8 text-emerald-400 mx-auto mb-3" />
+            <p className="text-slate-300 font-medium">No investment plans are open right now</p>
+            <p className="text-sm text-slate-500 mt-1">
+              New agricultural packages are published regularly — please check back soon.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+            {plans.map((plan) => {
+              const minAmount = Number(plan.min_amount)
+              const maxAmount = Number(plan.max_amount)
+              const roiPercentage = Number(plan.roi_percentage)
+              const durationMonths = Number(plan.duration_months)
+              const expectedReturnAtMin = calculateROI(minAmount, roiPercentage, durationMonths)
+
+              return (
+                <div
+                  key={plan.id}
+                  className="relative rounded-3xl p-8 flex flex-col bg-slate-900/50 border border-white/8 hover:border-white/20 transition-all"
+                >
+                  <h2 className="text-2xl font-black text-white mb-5">{plan.name}</h2>
+
+                  {/* ROI */}
+                  <div className="flex items-baseline gap-1 bg-slate-950/60 rounded-2xl px-4 py-4 mb-4 border border-white/5">
+                    <span className="text-4xl font-black text-emerald-400 font-mono">{roiPercentage}%</span>
+                    <span className="text-slate-400 text-xs ml-1">/ yr ROI</span>
+                  </div>
+
+                  {/* Range */}
+                  <div className="bg-slate-950/80 rounded-xl px-4 py-3 mb-6 border border-white/5 space-y-3">
+                    <div>
+                      <p className="text-[10px] text-slate-400 mb-0.5">Capital Range</p>
+                      <p className="text-sm font-bold text-white font-mono">
+                        {formatCurrency(minAmount)} – {formatCurrency(maxAmount)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-slate-400 mb-0.5">
+                        Expected return on {formatCurrency(minAmount)}
+                      </p>
+                      <p className="text-sm font-bold text-emerald-400 font-mono">
+                        {formatCurrency(expectedReturnAtMin)}
+                      </p>
+                    </div>
+                  </div>
+
+                  {plan.description && (
+                    <p className="text-xs text-slate-400 leading-relaxed mb-6">{plan.description}</p>
+                  )}
+
+                  {/* Features */}
+                  <ul className="space-y-2.5 mb-8 flex-1">
+                    <li className="flex items-center gap-2.5 text-xs text-slate-300">
+                      <Check className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                      Investor dashboard access
+                    </li>
+                    <li className="flex items-center gap-2.5 text-xs text-slate-300">
+                      <Check className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                      Digital deposit receipts
+                    </li>
+                    <li className="flex items-center gap-2.5 text-xs text-slate-300">
+                      <Check className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                      ROI paid at maturity after {durationMonths} months
+                    </li>
+                  </ul>
+
+                  <Link
+                    href={ROUTES.REGISTER}
+                    className="btn-secondary justify-center rounded-xl py-3.5 text-sm font-bold"
+                  >
+                    Start Investing
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
                 </div>
-              )}
+              )
+            })}
+          </div>
+        )}
 
-              <p className="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-1">{plan.tag}</p>
-              <h2 className="text-2xl font-black text-white mb-5">{plan.name} Plan</h2>
-
-              {/* ROI */}
-              <div className="flex items-baseline gap-1 bg-slate-950/60 rounded-2xl px-4 py-4 mb-4 border border-white/5">
-                <span className="text-4xl font-black text-emerald-400 font-mono">{plan.roi}</span>
-                <span className="text-slate-400 text-xs ml-1">/ yr ROI</span>
-              </div>
-
-              {/* Range */}
-              <div className="bg-slate-950/80 rounded-xl px-4 py-3 mb-6 border border-white/5">
-                <p className="text-[10px] text-slate-400 mb-0.5">Capital Range</p>
-                <p className="text-sm font-bold text-white font-mono">
-                  {formatCurrency(plan.minAmount)} – {formatCurrency(plan.maxAmount)}
-                </p>
-              </div>
-
-              {/* Features */}
-              <ul className="space-y-2.5 mb-8 flex-1">
-                {plan.features.map((f) => (
-                  <li key={f} className="flex items-center gap-2.5 text-xs text-slate-300">
-                    <Check className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-
-              <Link
-                href={ROUTES.REGISTER}
-                className={plan.popular
-                  ? 'btn-primary justify-center rounded-xl py-3.5 text-sm font-bold'
-                  : 'btn-secondary justify-center rounded-xl py-3.5 text-sm font-bold'}
-              >
-                Start Investing
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
-          ))}
-        </div>
+        <p className="text-center text-sm text-slate-500 mt-10">
+          All plans require KYC verification before an investment request can be submitted.
+        </p>
       </section>
 
       {/* ── How It Works ──────────────────────────────── */}

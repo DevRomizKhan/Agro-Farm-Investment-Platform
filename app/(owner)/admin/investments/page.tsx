@@ -1,10 +1,9 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { formatCurrency, formatDate } from '@/lib/utils'
-import { TrendingUp, Clock, CheckCircle, ExternalLink, ShieldCheck } from 'lucide-react'
-import Link from 'next/link'
+import { Clock, CheckCircle, ExternalLink } from 'lucide-react'
 import { ROUTES } from '@/constants'
-import { approveInvestmentAction } from '@/actions/investments'
+import { ApproveInvestmentButton } from '@/components/features/admin/approve-investment-button'
 
 type InvestorProfileSummary = {
   user_id: string
@@ -37,16 +36,8 @@ export default async function AdminInvestmentsPage() {
   // Create a map of user_id to profile data
   const profileMap = new Map((profiles as InvestorProfileSummary[] | null)?.map((p) => [p.user_id, p]) || [])
 
-  const pendingInvestments = investments?.filter(i => i.status === 'pending') || []
-  const activeInvestments = investments?.filter(i => i.status === 'active') || []
-  const completedInvestments = investments?.filter(i => i.status === 'completed' || i.status === 'cancelled') || []
-
-  // Wrap approval logic in an inline server action since it's inside a Server Component
-  const handleApprove = async (formData: FormData) => {
-    'use server'
-    const id = formData.get('id') as string
-    await approveInvestmentAction(id)
-  }
+  const pendingInvestments = investments?.filter((i) => i.status === 'pending') || []
+  const activeInvestments = investments?.filter((i) => i.status === 'active') || []
 
   return (
     <div className="fade-in space-y-8">
@@ -71,7 +62,7 @@ export default async function AdminInvestmentsPage() {
           ) : (
             <div className="space-y-3">
               {pendingInvestments.map((inv) => {
-                const invProfile = profileMap.get(inv.user_id) as { full_name?: string; email?: string } | undefined
+                const invProfile = profileMap.get(inv.user_id)
                 const plan = inv.plan as { name?: string; roi_percentage?: number; duration_months?: number } | null
                 return (
                   <div key={inv.id} className="p-4 rounded-xl bg-slate-900/40 border border-white/5 space-y-3">
@@ -92,12 +83,7 @@ export default async function AdminInvestmentsPage() {
                       <span className="text-slate-600">{formatDate(inv.created_at)}</span>
                     </div>
 
-                    <form action={handleApprove}>
-                      <input type="hidden" name="id" value={inv.id} />
-                      <button type="submit" className="btn-primary w-full py-2 text-xs justify-center mt-1">
-                        <ShieldCheck className="h-3.5 w-3.5" /> Approve &amp; Activate
-                      </button>
-                    </form>
+                    <ApproveInvestmentButton investmentId={inv.id} />
                   </div>
                 )
               })}
@@ -128,7 +114,7 @@ export default async function AdminInvestmentsPage() {
                 </thead>
                 <tbody>
                   {activeInvestments.map((inv) => {
-                    const invProfile = profileMap.get(inv.user_id) as { full_name?: string; email?: string } | undefined
+                    const invProfile = profileMap.get(inv.user_id)
                     const plan = inv.plan as { name?: string; roi_percentage?: number; duration_months?: number } | null
                     return (
                       <tr key={inv.id}>

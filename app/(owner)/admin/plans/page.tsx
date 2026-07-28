@@ -81,15 +81,13 @@ export default async function AdminPlansPage() {
     )
     .order('created_at', { ascending: false })
 
-  // Check which plans have active investments (blocks deletion)
+  // A plan can only be deleted while no investment references it
   const planIds = plans?.map((p) => p.id) || []
-  const { data: activeInvestments } = await supabase
-    .from('investments')
-    .select('plan_id')
-    .eq('status', 'active')
-    .in('plan_id', planIds)
+  const { data: linkedInvestments } = planIds.length
+    ? await supabase.from('investments').select('plan_id').in('plan_id', planIds)
+    : { data: [] }
 
-  const activePlanIds = new Set(activeInvestments?.map((i) => i.plan_id) || [])
+  const usedPlanIds = new Set(linkedInvestments?.map((i) => i.plan_id) || [])
 
   return (
     <div className="fade-in space-y-8">
@@ -231,7 +229,7 @@ export default async function AdminPlansPage() {
                         </Link>
                         <DeletePlanButton
                           planId={plan.id}
-                          hasActiveInvestments={activePlanIds.has(plan.id)}
+                          hasInvestments={usedPlanIds.has(plan.id)}
                         />
                       </div>
                     </div>

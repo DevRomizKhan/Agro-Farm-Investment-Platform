@@ -149,6 +149,12 @@ export interface AuditLog {
   created_at: string
 }
 
+export interface BlogPostAuthor {
+  id?: string
+  full_name: string | null
+  avatar_url: string | null
+}
+
 export interface BlogPost {
   id: string
   title: string
@@ -168,14 +174,6 @@ export interface BlogPost {
   updated_at: string
 }
 
-export interface BlogPostWithAuthor extends BlogPost {
-  author: {
-    id: string
-    full_name: string | null
-    avatar_url: string | null
-  } | null
-}
-
 export interface BlogMedia {
   id: string
   blog_post_id: string
@@ -183,8 +181,13 @@ export interface BlogMedia {
   file_name: string
   file_type: string
   file_size: number
-  mime_type: string | null
+  mime_type: string
   alt_text: string | null
   display_order: number
   created_at: string
+}
+
+export interface BlogPostWithAuthor extends BlogPost {
+  author: BlogPostAuthor | null
+  media?: BlogMedia[]
 }

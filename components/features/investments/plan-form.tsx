@@ -9,6 +9,7 @@ import { Loader2, Plus, Edit3, CalendarClock, Info } from 'lucide-react'
 import { investmentPlanSchema, type InvestmentPlanFormData } from '@/schemas'
 import { manageInvestmentPlanAction } from '@/actions/investments'
 import type { InvestmentPlan } from '@/types'
+import { ROUTES } from '@/constants'
 
 interface PlanFormProps {
   initialPlan?: InvestmentPlan | null
@@ -30,6 +31,18 @@ function fromDatetimeLocal(local: string): string | null {
   const d = new Date(local)
   if (isNaN(d.getTime())) return null
   return d.toISOString()
+}
+
+const EMPTY_PLAN: InvestmentPlanFormData = {
+  name: '',
+  description: '',
+  min_amount: 10000,
+  max_amount: 1000000,
+  roi_percentage: 12,
+  duration_months: 12,
+  is_active: true,
+  starts_at: '',
+  ends_at: '',
 }
 
 export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
@@ -55,17 +68,7 @@ export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
           starts_at: toDatetimeLocal(initialPlan.starts_at) || undefined,
           ends_at: toDatetimeLocal(initialPlan.ends_at) || undefined,
         }
-      : {
-          name: '',
-          description: '',
-          min_amount: 10000,
-          max_amount: 1000000,
-          roi_percentage: 12,
-          duration_months: 12,
-          is_active: true,
-          starts_at: undefined,
-          ends_at: undefined,
-        },
+      : EMPTY_PLAN,
   })
 
   const onSubmit = async (data: InvestmentPlanFormData) => {
@@ -83,18 +86,17 @@ export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
         toast.success(
           initialPlan ? 'Investment plan updated successfully' : 'New investment plan created'
         )
-        if (onSuccess) onSuccess()
+        onSuccess?.()
         if (initialPlan) {
-          router.push('/admin/plans')
-          router.refresh()
+          router.push(ROUTES.ADMIN_PLANS)
         } else {
-          reset()
-          router.refresh()
+          reset(EMPTY_PLAN)
         }
+        router.refresh()
       } else {
         toast.error(result.error || 'Failed to save plan')
       }
-    } catch (err) {
+    } catch {
       toast.error('An unexpected error occurred')
     } finally {
       setIsLoading(false)
@@ -135,7 +137,7 @@ export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
           <label className="block text-sm font-medium text-slate-300 mb-1.5">
             Min Investment (৳)
           </label>
-          <input {...register('min_amount')} type="number" className="input-base py-2.5 text-sm" />
+          <input {...register('min_amount')} type="number" min={1000} step={100} className="input-base py-2.5 text-sm" />
           {errors.min_amount && (
             <p className="mt-1 text-xs text-red-400">{errors.min_amount.message}</p>
           )}
@@ -144,7 +146,7 @@ export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
           <label className="block text-sm font-medium text-slate-300 mb-1.5">
             Max Investment (৳)
           </label>
-          <input {...register('max_amount')} type="number" className="input-base py-2.5 text-sm" />
+          <input {...register('max_amount')} type="number" min={1000} step={100} className="input-base py-2.5 text-sm" />
           {errors.max_amount && (
             <p className="mt-1 text-xs text-red-400">{errors.max_amount.message}</p>
           )}
@@ -161,6 +163,8 @@ export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
             {...register('roi_percentage')}
             type="number"
             step="0.1"
+            min={0.1}
+            max={100}
             className="input-base py-2.5 text-sm"
           />
           {errors.roi_percentage && (
@@ -174,6 +178,9 @@ export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
           <input
             {...register('duration_months')}
             type="number"
+            step={1}
+            min={1}
+            max={120}
             className="input-base py-2.5 text-sm"
           />
           {errors.duration_months && (
