@@ -1,42 +1,41 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { toast } from 'sonner'
 import { Plus, Pencil, Trash2, Eye, Calendar, FolderOpen, Search, Filter } from 'lucide-react'
 import { getBlogPosts, deleteBlogPost } from '@/actions/blog'
 import { ROUTES } from '@/constants'
-import type { BlogPost, BlogPostWithAuthor } from '@/types'
+import type { BlogPostWithAuthor } from '@/types'
+
+type StatusFilter = 'all' | 'published' | 'draft' | 'archived'
 
 export default function BlogManagementPage() {
   const [posts, setPosts] = useState<BlogPostWithAuthor[]>([])
-  const [filteredPosts, setFilteredPosts] = useState<BlogPostWithAuthor[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
-  const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'draft' | 'archived'>('all')
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [deleteDialog, setDeleteDialog] = useState<{ show: boolean; post: BlogPostWithAuthor | null }>({ show: false, post: null })
 
-  useEffect(() => {
-    loadPosts()
-  }, [])
-
-  useEffect(() => {
-    filterPosts()
-  }, [posts, searchQuery, statusFilter])
-
-  const loadPosts = async () => {
+  const loadPosts = useCallback(async () => {
     setIsLoading(true)
     try {
-      const data = await getBlogPosts()
+      const data = await getBlogPosts('all')
       setPosts(data)
-    } catch (error) {
+    } catch {
       toast.error('Failed to load blog posts')
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [])
 
-  const filterPosts = () => {
+  useEffect(() => {
+    // Initial data load for this client-only admin table.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void loadPosts()
+  }, [loadPosts])
+
+  const filteredPosts = useMemo(() => {
     let filtered = [...posts]
 
     if (statusFilter !== 'all') {
@@ -52,8 +51,8 @@ export default function BlogManagementPage() {
       )
     }
 
-    setFilteredPosts(filtered)
-  }
+    return filtered
+  }, [posts, searchQuery, statusFilter])
 
   const handleDelete = async (post: BlogPostWithAuthor) => {
     setDeleteDialog({ show: true, post })
@@ -71,7 +70,7 @@ export default function BlogManagementPage() {
       } else {
         toast.error(result.error)
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to delete blog post')
     }
   }
@@ -125,7 +124,7 @@ export default function BlogManagementPage() {
         </div>
         <select
           value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as any)}
+          onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
           className="input-base sm:w-48"
         >
           <option value="all">All Status</option>
@@ -218,7 +217,7 @@ export default function BlogManagementPage() {
           <div className="glass-card p-6 max-w-md w-full">
             <h3 className="text-xl font-bold text-white mb-2">Delete Blog Post</h3>
             <p className="text-slate-400 mb-6">
-              Are you sure you want to delete "{deleteDialog.post?.title}"? This action cannot be undone.
+              Are you sure you want to delete &quot;{deleteDialog.post?.title}&quot;? This action cannot be undone.
             </p>
             <div className="flex gap-3 justify-end">
               <button

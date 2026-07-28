@@ -1,5 +1,7 @@
+import type { BlogPostWithAuthor } from '@/types'
+
 interface BlogJsonLdProps {
-  post: any
+  post: BlogPostWithAuthor
 }
 
 export default function BlogJsonLd({ post }: BlogJsonLdProps) {
@@ -19,7 +21,7 @@ export default function BlogJsonLd({ post }: BlogJsonLdProps) {
     dateModified: post.updated_at,
     publisher: {
       '@type': 'Organization',
-      name: 'NHK Agro Invest',
+      name: 'Amanah Farm',
       logo: {
         '@type': 'ImageObject',
         url: '/logo.png',

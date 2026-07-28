@@ -245,24 +245,6 @@ export default async function BlogPostPage({ params }: BlogPageProps) {
         </section>
       )}
 
-      {/* CTA */}
-      <section className="max-w-4xl mx-auto px-4 py-16">
-        <div className="glass-card p-8 md:p-12 text-center bg-gradient-to-br from-green-500/10 to-transparent">
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
-            Ready to Start Investing?
-          </h2>
-          <p className="text-slate-400 mb-6 max-w-2xl mx-auto">
-            Join thousands of investors growing wealth through sustainable agricultural investments in Bangladesh.
-          </p>
-          <Link
-            href="/plans"
-            className="btn-primary inline-flex items-center gap-2"
-          >
-            View Investment Plans
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
-      </section>
     </div>
   )
 }

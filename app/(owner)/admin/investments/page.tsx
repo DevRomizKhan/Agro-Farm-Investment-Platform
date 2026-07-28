@@ -5,6 +5,12 @@ import { Clock, CheckCircle, ExternalLink } from 'lucide-react'
 import { ROUTES } from '@/constants'
 import { ApproveInvestmentButton } from '@/components/features/admin/approve-investment-button'
 
+type InvestorProfileSummary = {
+  user_id: string
+  full_name: string | null
+  email: string | null
+}
+
 export default async function AdminInvestmentsPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -28,9 +34,7 @@ export default async function AdminInvestmentsPage() {
     .in('user_id', userIds)
 
   // Create a map of user_id to profile data
-  const profileMap = new Map(
-    profiles?.map((p) => [p.user_id, p as { full_name?: string; email?: string }]) || []
-  )
+  const profileMap = new Map((profiles as InvestorProfileSummary[] | null)?.map((p) => [p.user_id, p]) || [])
 
   const pendingInvestments = investments?.filter((i) => i.status === 'pending') || []
   const activeInvestments = investments?.filter((i) => i.status === 'active') || []

@@ -1,37 +1,30 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
 import { Toaster } from 'sonner'
 import { Providers } from '@/components/shared/providers'
 import { NavigationProgressBar } from '@/components/ui/navigation-progress'
 import './globals.css'
 
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
-  display: 'swap',
-})
-
 export const metadata: Metadata = {
   title: {
-    default: 'NHK Agro Invest — Invest in Agriculture. Harvest the Future.',
-    template: '%s | NHK Agro Invest',
+    default: 'Amanah Farm — Invest in Agriculture. Harvest the Future.',
+    template: '%s | Amanah Farm',
   },
   description:
     'Join thousands of investors growing wealth through sustainable agricultural investments in Bangladesh. Transparent, secure, and profitable.',
   keywords: ['agro investment', 'farm investment', 'Bangladesh investment', 'agricultural returns'],
-  authors: [{ name: 'NHK Agro Invest' }],
-  creator: 'NHK Agro Invest',
+  authors: [{ name: 'Amanah Farm' }],
+  creator: 'Amanah Farm',
   openGraph: {
     type: 'website',
     locale: 'en_BD',
     url: process.env.NEXT_PUBLIC_APP_URL,
-    title: 'NHK Agro Invest — Invest in Agriculture. Harvest the Future.',
+    title: 'Amanah Farm — Invest in Agriculture. Harvest the Future.',
     description: 'Grow your wealth through sustainable agriculture investments.',
-    siteName: 'NHK Agro Invest',
+    siteName: 'Amanah Farm',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'NHK Agro Invest',
+    title: 'Amanah Farm',
     description: 'Grow your wealth through sustainable agriculture investments.',
   },
   robots: {
@@ -47,7 +40,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} font-sans antialiased`}>
+      <body className="font-sans antialiased">
         <NavigationProgressBar />
         <Providers>
           {children}

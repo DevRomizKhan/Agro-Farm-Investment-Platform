@@ -5,6 +5,7 @@ import { formatDate } from '@/lib/utils'
 import { User, MapPin, Building2, Eye, ShieldAlert, HeartHandshake } from 'lucide-react'
 import Link from 'next/link'
 import { ROUTES } from '@/constants'
+import type { KYCDocument } from '@/types'
 
 export default async function AdminKYCDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -32,10 +33,11 @@ export default async function AdminKYCDetailPage({ params }: { params: Promise<{
   }
 
   // Group files by type
-  const photo = kyc.documents?.find((d: any) => d.document_type === 'photo')?.file_url
-  const selfie = kyc.documents?.find((d: any) => d.document_type === 'selfie')?.file_url
-  const nidFront = kyc.documents?.find((d: any) => d.document_type === 'nid_front')?.file_url
-  const nidBack = kyc.documents?.find((d: any) => d.document_type === 'nid_back')?.file_url
+  const documents = (kyc.documents || []) as KYCDocument[]
+  const photo = documents.find((d) => d.document_type === 'photo')?.file_url
+  const selfie = documents.find((d) => d.document_type === 'selfie')?.file_url
+  const nidFront = documents.find((d) => d.document_type === 'nid_front')?.file_url
+  const nidBack = documents.find((d) => d.document_type === 'nid_back')?.file_url
 
   return (
     <div className="fade-in space-y-8 max-w-5xl mx-auto">

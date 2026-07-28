@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { blogPostSchema, type BlogPostFormData } from '@/schemas'
 import { createBlogSlug } from '@/lib/utils'
-import type { BlogPost, BlogPostAuthor, BlogPostWithAuthor } from '@/types'
+import type { BlogMedia, BlogPost, BlogPostAuthor, BlogPostWithAuthor } from '@/types'
 
 export type ActionResult<TData = unknown> = {
   success: boolean
@@ -14,7 +14,7 @@ export type ActionResult<TData = unknown> = {
   data?: TData
 }
 
-export async function getBlogPosts(status?: 'published' | 'draft' | 'archived') {
+export async function getBlogPosts(status?: 'published' | 'draft' | 'archived' | 'all') {
   const supabase = await createClient()
   
   let query = supabase
@@ -22,10 +22,10 @@ export async function getBlogPosts(status?: 'published' | 'draft' | 'archived') 
     .select('*')
     .order('created_at', { ascending: false })
   
-  if (status) {
+  if (status && status !== 'all') {
     query = query.eq('status', status)
-  } else {
-    // For public view, only show published
+  } else if (!status) {
+    // Public callers omit the status and must only receive published posts.
     query = query.eq('status', 'published')
   }
   
@@ -68,7 +68,7 @@ export async function getBlogPosts(status?: 'published' | 'draft' | 'archived') 
   }) as unknown as BlogPostWithAuthor[]
 }
 
-export async function getBlogPostBySlug(slug: string): Promise<(BlogPostWithAuthor & { media: any[] }) | null> {
+export async function getBlogPostBySlug(slug: string): Promise<(BlogPostWithAuthor & { media: BlogMedia[] }) | null> {
   const supabase = await createClient()
 
   const { data: posts, error: postsError } = await supabase
@@ -119,10 +119,10 @@ export async function getBlogPostBySlug(slug: string): Promise<(BlogPostWithAuth
     ...(postData as BlogPost),
     author: author ? { id: postData.author_id!, ...author } : null,
     media: mediaData || [],
-  } as BlogPostWithAuthor & { media: any[] }
+  } as BlogPostWithAuthor & { media: BlogMedia[] }
 }
 
-export async function getBlogPostById(id: string): Promise<(BlogPostWithAuthor & { media: any[] }) | null> {
+export async function getBlogPostById(id: string): Promise<(BlogPostWithAuthor & { media: BlogMedia[] }) | null> {
   const supabase = await createClient()
   
   // First try without author relationship
@@ -168,7 +168,7 @@ export async function getBlogPostById(id: string): Promise<(BlogPostWithAuthor &
     ...(postData as BlogPost),
     author: author ? { id: postData.author_id!, ...author } : null,
     media: mediaData || [],
-  } as BlogPostWithAuthor & { media: any[] }
+  } as BlogPostWithAuthor & { media: BlogMedia[] }
 }
 
 export async function createBlogPost(data: BlogPostFormData): Promise<ActionResult> {
@@ -245,6 +245,7 @@ export async function createBlogPost(data: BlogPostFormData): Promise<ActionResu
 
   revalidatePath('/admin/blog')
   revalidatePath('/blog')
+  revalidatePath('/')
   
   return { success: true, message: 'Blog post created successfully' }
 }
@@ -304,6 +305,7 @@ const { data: currentPost, error: currentPostError } = await adminClient
 
   revalidatePath('/admin/blog')
   revalidatePath('/blog')
+  revalidatePath('/')
   revalidatePath(`/blog/${nextSlug}`)
   
   return { success: true, message: 'Blog post updated successfully' }
@@ -343,6 +345,7 @@ export async function deleteBlogPost(id: string): Promise<ActionResult> {
 
   revalidatePath('/admin/blog')
   revalidatePath('/blog')
+  revalidatePath('/')
   if (post?.slug) {
     revalidatePath(`/blog/${post.slug}`)
   }

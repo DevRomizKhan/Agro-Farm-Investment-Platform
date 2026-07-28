@@ -45,6 +45,7 @@ export function InvestForm({ plans }: InvestFormProps) {
     setSelectedPlan(plan)
     setValue('plan_id', e.target.value, { shouldValidate: true })
     setValue('amount', 0)
+    clearReceipt()
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -166,8 +167,6 @@ export function InvestForm({ plans }: InvestFormProps) {
             <input
               {...register('amount')}
               type="number"
-              min={selectedPlan ? Number(selectedPlan.min_amount) : undefined}
-              max={selectedPlan ? Number(selectedPlan.max_amount) : undefined}
               step={100}
               className="input-base pl-12"
               placeholder="e.g. 50000"

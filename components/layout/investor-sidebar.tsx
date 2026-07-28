@@ -2,12 +2,13 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { ROUTES, APP_NAME } from '@/constants'
 import { logoutAction } from '@/actions/auth'
 import {
-  Leaf, LayoutDashboard, FileText, TrendingUp, Bell,
+  LayoutDashboard, FileText, TrendingUp, Bell,
   FolderOpen, Settings, User, LogOut, ChevronRight, X, Menu
 } from 'lucide-react'
 
@@ -60,10 +61,14 @@ export function InvestorSidebar({ userName, userEmail }: InvestorSidebarProps) {
         {/* Logo */}
         <div className="flex items-center justify-between p-5 border-b border-white/5">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 shadow-lg shadow-green-500/30">
-              <Leaf className="h-5 w-5 text-white" />
-            </div>
-            <span className="text-base font-bold text-white">{APP_NAME}</span>
+            <Image
+              src="/logo.png"
+              alt={APP_NAME}
+              width={120}
+              height={35}
+              className="h-8 w-auto object-contain"
+              priority
+            />
           </div>
           <button
             onClick={() => setIsOpen(false)}

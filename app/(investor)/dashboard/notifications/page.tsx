@@ -32,7 +32,7 @@ export default async function NotificationsPage() {
             <Bell className="h-12 w-12 text-slate-600 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-white mb-2">No Notifications</h3>
             <p className="text-slate-400 text-sm max-w-md mx-auto">
-              You're all caught up! New notifications will appear here.
+              You&apos;re all caught up! New notifications will appear here.
             </p>
           </div>
         ) : (

@@ -41,8 +41,8 @@ const EMPTY_PLAN: InvestmentPlanFormData = {
   roi_percentage: 12,
   duration_months: 12,
   is_active: true,
-  starts_at: undefined,
-  ends_at: undefined,
+  starts_at: '',
+  ends_at: '',
 }
 
 export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {

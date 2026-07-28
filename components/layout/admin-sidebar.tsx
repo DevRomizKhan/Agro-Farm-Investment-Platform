@@ -2,12 +2,13 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { ROUTES, APP_NAME } from '@/constants'
 import { logoutAction } from '@/actions/auth'
 import {
-  Leaf, LayoutDashboard, Users, FileText, TrendingUp,
+  LayoutDashboard, Users, FileText, TrendingUp,
   Bell, BarChart3, Settings, LogOut, ChevronRight,
   CreditCard, ShieldCheck, X, Menu, PenTool
 } from 'lucide-react'
@@ -64,13 +65,14 @@ export function AdminSidebar({ userName, userEmail }: AdminSidebarProps) {
         {/* Logo */}
        <div className="flex items-center justify-between p-5 border-b border-white/5">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 shadow-lg shadow-green-500/30">
-              <Leaf className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <span className="text-base font-bold text-white">{APP_NAME}</span>
-              <p className="text-[10px] text-green-400 font-medium uppercase tracking-wider">Owner Portal</p>
-            </div>
+            <Image
+              src="/logo.png"
+              alt={APP_NAME}
+              width={120}
+              height={35}
+              className="h-8 w-auto object-contain"
+              priority
+            />
           </div>
           <button
             onClick={() => setIsOpen(false)}

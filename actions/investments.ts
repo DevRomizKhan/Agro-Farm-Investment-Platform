@@ -6,14 +6,17 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { investSchema, investmentPlanSchema } from '@/schemas'
 import type { InvestmentPlanFormData } from '@/schemas'
 import { SUPABASE_STORAGE_BUCKETS, MAX_FILE_SIZE, ALLOWED_DOCUMENT_TYPES } from '@/constants'
+
 import { generateFileName, calculateROI, isPlanCurrentlyActive } from '@/lib/utils'
 import { addMonths } from 'date-fns'
-import type { InvestmentPlan } from '@/types'
-
 
 export type InvestmentResult = {
   success: boolean
   error?: string
+}
+
+function getErrorMessage(error: unknown, fallback: string) {
+  return error instanceof Error ? error.message : fallback
 }
 
 /**
@@ -114,8 +117,9 @@ export async function createInvestmentAction(
 
     if (invError || !inv) throw new Error(invError?.message || 'Failed to create investment')
 
-    // 3. Create Transaction log
-    const { error: txError } = await supabase.from('transactions').insert({
+    // 3. Create Transaction log (ledger rows are system-owned; investors have no insert policy)
+    const adminSupabase = createAdminClient()
+    const { error: txError } = await adminSupabase.from('transactions').insert({
       investment_id: inv.id,
       user_id: user.id,
       type: 'deposit',
@@ -126,7 +130,6 @@ export async function createInvestmentAction(
     if (txError) throw new Error(`Failed to record deposit transaction: ${txError.message}`)
 
     // Notify admins/owners
-    const adminSupabase = createAdminClient()
     const { data: owners } = await adminSupabase
       .from('profiles')
       .select('user_id')
@@ -146,8 +149,9 @@ export async function createInvestmentAction(
     revalidatePath('/dashboard/investments')
     revalidatePath('/admin/investments')
     return { success: true }
-  } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : 'Failed to submit investment' }
+  } catch (err: unknown) {
+    return { success: false, error: getErrorMessage(err, 'Failed to submit investment') }
+
   }
 }
 
@@ -279,8 +283,9 @@ export async function manageInvestmentPlanAction(
     revalidatePath('/admin/plans')
     revalidatePath('/dashboard/investments')
     return { success: true }
-  } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : 'Failed to save plan' }
+  } catch (err: unknown) {
+    return { success: false, error: getErrorMessage(err, 'Failed to save plan') }
+
   }
 }
 
@@ -332,7 +337,8 @@ export async function deleteInvestmentPlanAction(planId: string): Promise<{ succ
     revalidatePath('/admin/plans')
     revalidatePath('/dashboard/investments')
     return { success: true }
-  } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : 'Failed to delete plan' }
+  } catch (err: unknown) {
+    return { success: false, error: getErrorMessage(err, 'Failed to delete plan') }
+
   }
 }

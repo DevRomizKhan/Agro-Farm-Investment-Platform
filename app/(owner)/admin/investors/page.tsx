@@ -5,6 +5,22 @@ import { Users, Mail, Calendar, CheckCircle, Clock, Edit, Eye } from 'lucide-rea
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { ROUTES } from '@/constants'
 import Link from 'next/link'
+import type { KYCStatus } from '@/types'
+
+type InvestorRow = {
+  id: string
+  user_id: string
+  full_name: string | null
+  email: string | null
+  phone: string | null
+  created_at: string
+  investments?: { count: number }[]
+}
+
+type KYCStatusRow = {
+  user_id: string
+  status: KYCStatus
+}
 
 export default async function AdminInvestorsPage() {
   const supabase = await createClient()
@@ -28,7 +44,7 @@ export default async function AdminInvestorsPage() {
     .select('user_id, status')
 
   // Create a map of user_id to KYC status
-  const kycStatusMap = new Map(kycSubmissions?.map((k: any) => [k.user_id, k.status]) || [])
+  const kycStatusMap = new Map((kycSubmissions as KYCStatusRow[] | null)?.map((k) => [k.user_id, k.status]) || [])
 
   return (
     <div className="fade-in space-y-8">
@@ -70,7 +86,7 @@ export default async function AdminInvestorsPage() {
                 </tr>
               </thead>
               <tbody>
-                {investors.map((investor: any) => {
+                {(investors as InvestorRow[]).map((investor) => {
                   const kycStatus = kycStatusMap.get(investor.user_id) || 'not_submitted'
                   return (
                     <tr key={investor.id}>
