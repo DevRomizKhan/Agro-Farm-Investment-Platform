@@ -137,7 +137,7 @@ export default async function BlogPostPage({ params }: BlogPageProps) {
               {post.author.avatar_url ? (
                 <img
                   src={post.author.avatar_url}
-                  alt={post.author.full_name}
+                  alt={post.author.full_name ?? 'Author'}
                   className="w-12 h-12 rounded-full object-cover"
                 />
               ) : (

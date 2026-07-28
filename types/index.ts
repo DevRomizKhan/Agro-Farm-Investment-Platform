@@ -143,3 +143,46 @@ export interface AuditLog {
   ip_address: string | null
   created_at: string
 }
+
+export interface BlogPostAuthor {
+  id?: string
+  full_name: string | null
+  avatar_url: string | null
+}
+
+export interface BlogPost {
+  id: string
+  title: string
+  slug: string
+  excerpt: string | null
+  content: string
+  featured_image: string | null
+  author_id: string | null
+  category: string | null
+  tags: string[] | null
+  meta_title: string | null
+  meta_description: string | null
+  meta_keywords: string[] | null
+  status: 'draft' | 'published' | 'archived'
+  published_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface BlogMedia {
+  id: string
+  blog_post_id: string
+  file_url: string
+  file_name: string
+  file_type: string
+  file_size: number
+  mime_type: string
+  alt_text: string | null
+  display_order: number
+  created_at: string
+}
+
+export interface BlogPostWithAuthor extends BlogPost {
+  author: BlogPostAuthor | null
+  media?: BlogMedia[]
+}

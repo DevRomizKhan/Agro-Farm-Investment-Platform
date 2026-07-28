@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { blogPostSchema, type BlogPostFormData } from '@/schemas'
 import { createBlogSlug } from '@/lib/utils'
+import type { BlogPostAuthor, BlogPostWithAuthor } from '@/types'
 
 export type ActionResult<TData = unknown> = {
   success: boolean
@@ -36,9 +37,8 @@ export async function getBlogPosts(status?: 'published' | 'draft' | 'archived') 
   }
 
   // Fetch authors separately to keep response shape consistent with getBlogPostBySlug
-  type Author = { id: string; full_name: string | null; avatar_url: string | null }
+  type Author = BlogPostAuthor & { id: string }
   type BlogPostRow = { author_id: string | null }
-  type BlogPostWithAuthor = Record<string, unknown> & { author: Author | null }
 
   const authorIds = Array.from(new Set((posts || []).map((p: BlogPostRow) => p.author_id).filter(Boolean)))
   const authorsById: Record<string, Author> = {}
@@ -58,14 +58,14 @@ export async function getBlogPosts(status?: 'published' | 'draft' | 'archived') 
     }
   }
 
-  return (posts || []).map((p: BlogPostRow) => {
+  return (posts || []).map((p) => {
     const { author_id, ...rest } = p as unknown as Record<string, unknown>
     return {
       ...(rest as Record<string, unknown>),
       author_id,
       author: author_id ? authorsById[String(author_id)] || null : null,
     }
-  }) as BlogPostWithAuthor[]
+  }) as unknown as BlogPostWithAuthor[]
 }
 
 export async function getBlogPostBySlug(slug: string) {
@@ -119,7 +119,7 @@ export async function getBlogPostBySlug(slug: string) {
     ...postData,
     author,
     media: mediaData || [],
-  }
+  } as unknown as BlogPostWithAuthor
 }
 
 export async function getBlogPostById(id: string) {
