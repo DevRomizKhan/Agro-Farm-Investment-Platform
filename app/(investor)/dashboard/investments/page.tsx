@@ -1,8 +1,8 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { InvestForm } from '@/components/features/investments/invest-form'
-import { formatCurrency, formatDate } from '@/lib/utils'
-import { TrendingUp, Award, Calendar, ExternalLink, ShieldAlert } from 'lucide-react'
+import { formatCurrency, formatDate, isPlanCurrentlyActive } from '@/lib/utils'
+import { TrendingUp, Award, Calendar, ExternalLink, ShieldAlert, Clock } from 'lucide-react'
 import Link from 'next/link'
 import { ROUTES } from '@/constants'
 import type { InvestmentPlan } from '@/types'
@@ -21,11 +21,14 @@ export default async function InvestmentsPage() {
 
   const isKYCApproved = kycSubmission?.status === 'approved'
 
-  // Fetch plans (active)
-  const { data: plans } = await supabase
+  // Fetch ALL active-flagged plans (includes starts_at / ends_at) then filter client-side
+  const { data: allPlans } = await supabase
     .from('investment_plans')
     .select('*')
     .eq('is_active', true)
+
+  // Only show plans that are within their scheduled window right now
+  const plans = (allPlans || []).filter((p) => isPlanCurrentlyActive(p)) as InvestmentPlan[]
 
   // Fetch investor's investments
   const { data: investments } = await supabase
@@ -56,49 +59,100 @@ export default async function InvestmentsPage() {
             {!investments || investments.length === 0 ? (
               <div className="text-center py-12 text-slate-500">
                 <p className="text-sm">No investment contracts found</p>
-                <p className="text-xs text-slate-600 mt-1">Submit the investment request form on the right to begin.</p>
+                <p className="text-xs text-slate-600 mt-1">
+                  Submit the investment request form on the right to begin.
+                </p>
               </div>
             ) : (
               <div className="space-y-4">
                 {investments.map((inv) => {
-                  const plan = inv.plan as { name?: string; roi_percentage?: number; duration_months?: number } | null
+                  const plan = inv.plan as {
+                    name?: string
+                    roi_percentage?: number
+                    duration_months?: number
+                  } | null
+
+                  // Estimated ROI: principal × rate × duration (simple interest)
+                  const estimatedROI =
+                    plan?.roi_percentage && plan?.duration_months && Number(inv.amount) > 0
+                      ? Math.floor(
+                          Number(inv.amount) *
+                            (plan.roi_percentage / 100) *
+                            (plan.duration_months / 12)
+                        )
+                      : Number(inv.expected_roi)
+
                   return (
-                    <div key={inv.id} className="p-5 rounded-xl border border-white/5 bg-slate-900/40 hover:border-green-500/20 transition-colors space-y-4">
+                    <div
+                      key={inv.id}
+                      className="p-5 rounded-xl border border-white/5 bg-slate-900/40 hover:border-green-500/20 transition-colors space-y-4"
+                    >
                       <div className="flex justify-between items-start gap-4">
                         <div>
-                          <h3 className="font-semibold text-white text-base">{plan?.name || 'Unknown Plan'}</h3>
-                          <p className="text-xs text-slate-500 mt-1">Contract ID: {inv.id.slice(0, 8).toUpperCase()}</p>
+                          <h3 className="font-semibold text-white text-base">
+                            {plan?.name || 'Unknown Plan'}
+                          </h3>
+                          <p className="text-xs text-slate-500 mt-1">
+                            Contract ID: {inv.id.slice(0, 8).toUpperCase()}
+                          </p>
                         </div>
-                        <span className={
-                          inv.status === 'active' ? 'badge-green' :
-                          inv.status === 'pending' ? 'badge-yellow' :
-                          inv.status === 'completed' ? 'badge-blue' : 'badge-red'
-                        }>{inv.status}</span>
+                        <span
+                          className={
+                            inv.status === 'active'
+                              ? 'badge-green'
+                              : inv.status === 'pending'
+                              ? 'badge-yellow'
+                              : inv.status === 'completed'
+                              ? 'badge-blue'
+                              : 'badge-red'
+                          }
+                        >
+                          {inv.status}
+                        </span>
                       </div>
 
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 py-3 border-t border-b border-white/5 text-sm">
                         <div>
                           <span className="text-slate-500 text-xs block">Invested Amount</span>
-                          <span className="text-white font-medium">{formatCurrency(Number(inv.amount))}</span>
+                          <span className="text-white font-medium">
+                            {formatCurrency(Number(inv.amount))}
+                          </span>
                         </div>
                         <div>
-                          <span className="text-slate-500 text-xs block">Expected ROI {plan?.roi_percentage ? `(${plan.roi_percentage}%)` : ''}</span>
-                          <span className="text-green-400 font-semibold">{formatCurrency(Number(inv.expected_roi))}</span>
+                          <span className="text-slate-500 text-xs block">
+                            Estimated ROI
+                            {plan?.roi_percentage ? ` (${plan.roi_percentage}%+)` : ''}
+                          </span>
+                          {/* Show ROI as "৳1,200+" to communicate it's a floor, not exact */}
+                          <span className="text-green-400 font-semibold">
+                            {formatCurrency(estimatedROI)}+
+                          </span>
                         </div>
                         <div>
                           <span className="text-slate-500 text-xs block">Start Date</span>
-                          <span className="text-white font-medium">{inv.start_date ? formatDate(inv.start_date) : '—'}</span>
+                          <span className="text-white font-medium">
+                            {inv.start_date ? formatDate(inv.start_date) : '—'}
+                          </span>
                         </div>
                         <div>
                           <span className="text-slate-500 text-xs block">End Date</span>
-                          <span className="text-white font-medium">{inv.end_date ? formatDate(inv.end_date) : '—'}</span>
+                          <span className="text-white font-medium">
+                            {inv.end_date ? formatDate(inv.end_date) : '—'}
+                          </span>
                         </div>
                       </div>
 
                       <div className="flex justify-between items-center text-xs">
-                        <span className="text-slate-500">Submitted on {formatDate(inv.created_at)}</span>
+                        <span className="text-slate-500">
+                          Submitted on {formatDate(inv.created_at)}
+                        </span>
                         {inv.receipt_url && (
-                          <a href={inv.receipt_url} target="_blank" rel="noopener noreferrer" className="text-green-400 hover:underline inline-flex items-center gap-1">
+                          <a
+                            href={inv.receipt_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-green-400 hover:underline inline-flex items-center gap-1"
+                          >
                             <ExternalLink className="h-3 w-3" /> View Deposit Receipt
                           </a>
                         )}
@@ -111,7 +165,7 @@ export default async function InvestmentsPage() {
           </div>
         </div>
 
-        {/* Right: Investment Form */}
+        {/* Right: Investment Form or KYC gate */}
         <div>
           {!isKYCApproved ? (
             <div className="glass-card p-6">
@@ -130,13 +184,17 @@ export default async function InvestmentsPage() {
                 ) : (
                   <div className="p-4 rounded-xl bg-slate-800/40 border border-white/5">
                     <p className="text-sm text-slate-400 mb-2">
-                      Your KYC status is: <span className="font-semibold text-white">{kycSubmission.status}</span>
+                      Your KYC status is:{' '}
+                      <span className="font-semibold text-white">{kycSubmission.status}</span>
                     </p>
                     {kycSubmission.status === 'pending' && (
                       <p className="text-xs text-slate-500">Please wait for admin approval.</p>
                     )}
                     {kycSubmission.status === 'rejected' && (
-                      <Link href={ROUTES.INVESTOR_KYC} className="text-green-400 hover:underline text-sm font-medium">
+                      <Link
+                        href={ROUTES.INVESTOR_KYC}
+                        className="text-green-400 hover:underline text-sm font-medium"
+                      >
                         Resubmit KYC Documents
                       </Link>
                     )}
@@ -144,8 +202,25 @@ export default async function InvestmentsPage() {
                 )}
               </div>
             </div>
+          ) : plans.length === 0 ? (
+            /* No currently-open plans */
+            <div className="glass-card p-6">
+              <div className="flex items-center gap-3 pb-4 border-b border-white/5">
+                <Clock className="h-5 w-5 text-slate-400" />
+                <h2 className="text-base font-semibold text-white">No Plans Available</h2>
+              </div>
+              <div className="py-8 text-center">
+                <Clock className="h-12 w-12 text-slate-600 mx-auto mb-3" />
+                <p className="text-slate-400 text-sm">
+                  There are no investment plans open for subscription right now.
+                </p>
+                <p className="text-xs text-slate-500 mt-2">
+                  Please check back later or contact support for upcoming plan schedules.
+                </p>
+              </div>
+            </div>
           ) : (
-            <InvestForm plans={(plans || []) as InvestmentPlan[]} />
+            <InvestForm plans={plans} />
           )}
         </div>
       </div>

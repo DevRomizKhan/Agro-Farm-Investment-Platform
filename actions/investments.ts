@@ -6,8 +6,10 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { investSchema, investmentPlanSchema } from '@/schemas'
 import type { InvestmentPlanFormData } from '@/schemas'
 import { SUPABASE_STORAGE_BUCKETS, MAX_FILE_SIZE, ALLOWED_DOCUMENT_TYPES } from '@/constants'
-import { generateFileName, calculateROI } from '@/lib/utils'
+import { generateFileName, calculateROI, isPlanCurrentlyActive } from '@/lib/utils'
 import { addMonths } from 'date-fns'
+import type { InvestmentPlan } from '@/types'
+
 
 export type InvestmentResult = {
   success: boolean
@@ -67,8 +69,8 @@ export async function createInvestmentAction(
     .maybeSingle()
 
   if (!plan) return { success: false, error: 'Plan not found' }
-  if (!plan.is_active) {
-    return { success: false, error: 'This investment plan is no longer available' }
+  if (!isPlanCurrentlyActive(plan)) {
+    return { success: false, error: 'This investment plan is not currently available' }
   }
   if (amount < Number(plan.min_amount) || amount > Number(plan.max_amount)) {
     return {
@@ -243,6 +245,8 @@ export async function manageInvestmentPlanAction(
           roi_percentage: validated.data.roi_percentage,
           duration_months: validated.data.duration_months,
           is_active: validated.data.is_active,
+          starts_at: validated.data.starts_at ?? null,
+          ends_at: validated.data.ends_at ?? null,
           updated_at: new Date().toISOString(),
         })
         .eq('id', planId)
@@ -260,6 +264,8 @@ export async function manageInvestmentPlanAction(
           roi_percentage: validated.data.roi_percentage,
           duration_months: validated.data.duration_months,
           is_active: validated.data.is_active,
+          starts_at: validated.data.starts_at ?? null,
+          ends_at: validated.data.ends_at ?? null,
           created_by: profile.id,
         })
         .select('id')

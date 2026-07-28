@@ -6,32 +6,15 @@ import { toast } from 'sonner'
 import { Plus, Pencil, Trash2, Eye, Calendar, FolderOpen, Search, Filter } from 'lucide-react'
 import { getBlogPosts, deleteBlogPost } from '@/actions/blog'
 import { ROUTES } from '@/constants'
-
-type BlogPost = {
-  id: string
-  title: string
-  slug: string
-  excerpt?: string | null
-  content: string
-  featured_image?: string | null
-  author_id?: string | null
-  category?: string | null
-  tags?: string[] | null
-  meta_title?: string | null
-  meta_description?: string | null
-  meta_keywords?: string[] | null
-  status: 'published' | 'draft' | 'archived'
-  published_at?: string | null
-  created_at: string
-}
+import type { BlogPost, BlogPostWithAuthor } from '@/types'
 
 export default function BlogManagementPage() {
-  const [posts, setPosts] = useState<BlogPost[]>([])
-  const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>([])
+  const [posts, setPosts] = useState<BlogPostWithAuthor[]>([])
+  const [filteredPosts, setFilteredPosts] = useState<BlogPostWithAuthor[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'draft' | 'archived'>('all')
-  const [deleteDialog, setDeleteDialog] = useState<{ show: boolean; post: BlogPost | null }>({ show: false, post: null })
+  const [deleteDialog, setDeleteDialog] = useState<{ show: boolean; post: BlogPostWithAuthor | null }>({ show: false, post: null })
 
   useEffect(() => {
     loadPosts()
@@ -72,7 +55,7 @@ export default function BlogManagementPage() {
     setFilteredPosts(filtered)
   }
 
-  const handleDelete = async (post: BlogPost) => {
+  const handleDelete = async (post: BlogPostWithAuthor) => {
     setDeleteDialog({ show: true, post })
   }
 

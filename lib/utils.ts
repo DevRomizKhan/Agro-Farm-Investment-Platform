@@ -1,6 +1,7 @@
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import { format } from 'date-fns'
+import type { InvestmentPlan } from '@/types'
 
 /**
  * Merge Tailwind CSS classes safely
@@ -130,3 +131,19 @@ export function isValidFileType(file: File, allowedTypes: string[]): boolean {
 export function isValidFileSize(file: File, maxSizeBytes: number): boolean {
   return file.size <= maxSizeBytes
 }
+
+/**
+ * Returns true if the plan is currently open for investors.
+ * Rules:
+ *  1. is_active must be true (manual kill-switch)
+ *  2. If starts_at is set, current time must be ≥ starts_at
+ *  3. If ends_at is set, current time must be < ends_at
+ */
+export function isPlanCurrentlyActive(plan: Pick<InvestmentPlan, 'is_active' | 'starts_at' | 'ends_at'>): boolean {
+  if (!plan.is_active) return false
+  const now = Date.now()
+  if (plan.starts_at && now < new Date(plan.starts_at).getTime()) return false
+  if (plan.ends_at && now >= new Date(plan.ends_at).getTime()) return false
+  return true
+}
+

@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import { ArrowRight, Check, TrendingUp } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
-import { formatCurrency, calculateROI } from '@/lib/utils'
+import { formatCurrency, calculateROI, isPlanCurrentlyActive } from '@/lib/utils'
 import { APP_NAME, APP_DESCRIPTION, ROUTES } from '@/constants'
 import type { InvestmentPlan } from '@/types'
 
@@ -21,7 +21,7 @@ export default async function PlansPage() {
     .eq('is_active', true)
     .order('min_amount', { ascending: true })
 
-  const plans = (data || []) as InvestmentPlan[]
+  const plans = ((data || []) as InvestmentPlan[]).filter(isPlanCurrentlyActive)
 
   return (
     <div className="min-h-screen">

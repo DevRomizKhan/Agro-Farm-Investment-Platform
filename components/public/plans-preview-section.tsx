@@ -98,7 +98,7 @@ export function PlansPreviewSection() {
                 <span className="badge-green text-xs mb-3">{plan.tag}</span>
                 <h3 className="text-xl font-bold text-white mb-1">{plan.name}</h3>
                 <div className="flex items-end gap-1 mt-4">
-                  <span className="text-4xl font-bold text-white">{plan.roi}%</span>
+                  <span className="text-4xl font-bold text-white">{plan.roi}%+</span>
                   <span className="text-slate-400 text-sm mb-1.5">/ year ROI</span>
                 </div>
                 <p className="text-sm text-slate-400 mt-1">{plan.duration} months duration</p>

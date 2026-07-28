@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { blogPostSchema, type BlogPostFormData } from '@/schemas'
 import { createBlogSlug } from '@/lib/utils'
-import type { BlogPostAuthor, BlogPostWithAuthor } from '@/types'
+import type { BlogPost, BlogPostAuthor, BlogPostWithAuthor } from '@/types'
 
 export type ActionResult<TData = unknown> = {
   success: boolean
@@ -68,7 +68,7 @@ export async function getBlogPosts(status?: 'published' | 'draft' | 'archived') 
   }) as unknown as BlogPostWithAuthor[]
 }
 
-export async function getBlogPostBySlug(slug: string) {
+export async function getBlogPostBySlug(slug: string): Promise<(BlogPostWithAuthor & { media: any[] }) | null> {
   const supabase = await createClient()
 
   const { data: posts, error: postsError } = await supabase
@@ -116,13 +116,13 @@ export async function getBlogPostBySlug(slug: string) {
     .order('display_order', { ascending: true })
   
   return {
-    ...postData,
-    author,
+    ...(postData as BlogPost),
+    author: author ? { id: postData.author_id!, ...author } : null,
     media: mediaData || [],
-  } as unknown as BlogPostWithAuthor
+  } as BlogPostWithAuthor & { media: any[] }
 }
 
-export async function getBlogPostById(id: string) {
+export async function getBlogPostById(id: string): Promise<(BlogPostWithAuthor & { media: any[] }) | null> {
   const supabase = await createClient()
   
   // First try without author relationship
@@ -165,10 +165,10 @@ export async function getBlogPostById(id: string) {
     .order('display_order', { ascending: true })
   
   return {
-    ...postData,
-    author,
+    ...(postData as BlogPost),
+    author: author ? { id: postData.author_id!, ...author } : null,
     media: mediaData || [],
-  }
+  } as BlogPostWithAuthor & { media: any[] }
 }
 
 export async function createBlogPost(data: BlogPostFormData): Promise<ActionResult> {

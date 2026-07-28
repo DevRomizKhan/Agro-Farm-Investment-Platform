@@ -88,6 +88,23 @@ export const investmentPlanSchema = z
       .min(1, 'Duration must be at least 1 month')
       .max(120, 'Duration cannot exceed 120 months'),
     is_active: z.boolean().default(true),
+    /** ISO datetime string – when the plan opens for investors (inclusive) */
+    starts_at: z.string().nullable().optional(),
+    /** ISO datetime string – when the plan closes for investors (exclusive) */
+    ends_at: z.string().nullable().optional(),
+  })
+  .refine((data) => {
+    if (data.starts_at && data.ends_at) {
+      const start = new Date(data.starts_at)
+      const end = new Date(data.ends_at)
+      if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
+        return end > start
+      }
+    }
+    return true
+  }, {
+    message: 'End date/time must be after start date/time',
+    path: ['ends_at'],
   })
   .refine((data) => data.max_amount >= data.min_amount, {
     message: 'Maximum amount must be greater than or equal to the minimum amount',
