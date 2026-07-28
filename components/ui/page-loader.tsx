@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Leaf } from 'lucide-react'
+import Image from 'next/image'
 
 interface PageLoaderProps {
   /** Custom message shown below the logo */
@@ -42,20 +42,27 @@ export function PageLoader({ message = 'Loading your dashboard…', static: isSt
       {/* Logo mark */}
       <div className="relative mb-8">
         {/* Outer rotating ring */}
-        <span className="absolute inset-0 -m-4 block rounded-full border border-green-500/20 border-t-green-400/70 animate-spin [animation-duration:2s]" />
+        <span className="absolute inset-0 -m-6 block rounded-full border border-green-500/20 border-t-green-400/70 animate-spin [animation-duration:2s]" />
         {/* Middle pulsing ring */}
-        <span className="absolute inset-0 -m-1.5 block rounded-full border border-green-500/10 animate-ping [animation-duration:2s]" />
-        {/* Icon container */}
-        <div className="relative flex items-center justify-center w-16 h-16
-          rounded-2xl bg-gradient-to-br from-green-500/20 to-emerald-600/10
-          border border-green-500/25 shadow-[0_0_30px_rgba(34,197,94,0.2)]">
-          <Leaf className="w-8 h-8 text-green-400" strokeWidth={1.5} />
+        <span className="absolute inset-0 -m-2 block rounded-full border border-green-500/10 animate-ping [animation-duration:2s]" />
+        {/* Logo container */}
+        <div className="relative flex items-center justify-center px-4 py-2
+          rounded-2xl bg-slate-900/80
+          border border-green-500/20 shadow-[0_0_30px_rgba(34,197,94,0.15)]">
+          <Image
+            src="/logo.png"
+            alt="Amanah Farm"
+            width={160}
+            height={47}
+            className="h-12 w-auto object-contain"
+            priority
+          />
         </div>
       </div>
 
       {/* Brand name */}
       <h1 className="text-xl font-bold tracking-tight text-white mb-1">
-        NHK <span className="text-green-400">Agro</span> Invest
+        Amanah <span className="text-green-400">Farm</span>
       </h1>
       <p className="text-xs text-slate-500 mb-8 tracking-widest uppercase">
         Agricultural Investment Platform

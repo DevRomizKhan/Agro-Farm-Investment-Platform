@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { Leaf, Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Youtube } from 'lucide-react'
+import Image from 'next/image'
+import { Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Youtube } from 'lucide-react'
 import { APP_NAME, ROUTES } from '@/constants'
 
 const footerLinks = {
@@ -51,11 +52,14 @@ export function PublicFooter() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
           {/* Brand */}
           <div className="lg:col-span-2">
-            <Link href={ROUTES.HOME} className="flex items-center gap-2.5 mb-5 group w-fit">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 shadow-lg shadow-green-500/30">
-                <Leaf className="h-5 w-5 text-white" />
-              </div>
-              <span className="text-lg font-bold text-white">{APP_NAME}</span>
+            <Link href={ROUTES.HOME} className="flex items-center mb-5 group w-fit">
+              <Image
+                src="/logo.png"
+                alt={APP_NAME}
+                width={140}
+                height={41}
+                className="h-10 w-auto object-contain group-hover:opacity-80 transition-opacity"
+              />
             </Link>
             <p className="text-sm text-slate-400 leading-relaxed mb-6 max-w-xs">
               Bangladesh&apos;s most trusted agricultural investment platform. Secure, transparent, and profitable farming investments for everyone.

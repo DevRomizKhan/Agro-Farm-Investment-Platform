@@ -1,4 +1,4 @@
-export const APP_NAME = 'NHK Agro Invest'
+export const APP_NAME = 'Amanah Farm'
 export const APP_TAGLINE = 'Invest in Agriculture. Harvest the Future.'
 export const APP_DESCRIPTION =
   'Join thousands of investors growing wealth through sustainable agricultural investments in Bangladesh.'

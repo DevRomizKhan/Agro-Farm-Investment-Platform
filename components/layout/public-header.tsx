@@ -1,8 +1,9 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useState, useEffect } from 'react'
-import { Menu, X, Leaf, ChevronDown } from 'lucide-react'
+import { Menu, X, ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { ROUTES, APP_NAME } from '@/constants'
 
@@ -36,11 +37,15 @@ export function PublicHeader() {
       <div className="section-container">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link href={ROUTES.HOME} className="flex items-center gap-2.5 group">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 shadow-lg shadow-green-500/30 group-hover:shadow-green-500/50 transition-shadow">
-              <Leaf className="h-5 w-5 text-white" />
-            </div>
-            <span className="text-lg font-bold text-white">{APP_NAME}</span>
+          <Link href={ROUTES.HOME} className="flex items-center group">
+            <Image
+              src="/logo.png"
+              alt={APP_NAME}
+              width={140}
+              height={41}
+              className="h-10 w-auto object-contain group-hover:opacity-90 transition-opacity"
+              priority
+            />
           </Link>
 
           {/* Desktop Nav */}

@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
 import Link from 'next/link'
-import { Leaf } from 'lucide-react'
+import Image from 'next/image'
 import { ROUTES, APP_NAME } from '@/constants'
 
 export const metadata: Metadata = {
-  title: { default: 'Sign In', template: '%s | NHK Agro Invest' },
+  title: { default: 'Sign In', template: '%s | Amanah Farm' },
 }
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
@@ -14,11 +14,15 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
       {/* Auth Header */}
       <header className="border-b border-white/5 py-4">
         <div className="section-container flex items-center justify-between">
-          <Link href={ROUTES.HOME} className="flex items-center gap-2.5 group">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 shadow-lg shadow-green-500/30">
-              <Leaf className="h-5 w-5 text-white" />
-            </div>
-            <span className="text-lg font-bold text-white">{APP_NAME}</span>
+          <Link href={ROUTES.HOME} className="flex items-center group">
+            <Image
+              src="/logo.png"
+              alt={APP_NAME}
+              width={140}
+              height={41}
+              className="h-10 w-auto object-contain group-hover:opacity-90 transition-opacity"
+              priority
+            />
           </Link>
           <Link href={ROUTES.HOME} className="text-sm text-slate-400 hover:text-white transition-colors">
             ← Back to home

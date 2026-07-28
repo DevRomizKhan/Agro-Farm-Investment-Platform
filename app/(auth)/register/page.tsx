@@ -107,7 +107,7 @@ export default function RegisterPage() {
     <div className="fade-in">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-white mb-3">Create Your Account</h1>
-        <p className="text-slate-400 text-base">Join NHK Agro and start your investment journey today</p>
+        <p className="text-slate-400 text-base">Join Amanah Farm and start your investment journey today</p>
         {emailConfirmationDisabled && (
           <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20">
             <span className="text-xs text-amber-400 font-medium">Email verification disabled for testing</span>

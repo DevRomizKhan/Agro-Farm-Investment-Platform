@@ -7,13 +7,13 @@ export function AboutSection() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           {/* Left: Content */}
           <div>
-            <p className="badge-green mb-4 w-fit">About NHK Agro</p>
+            <p className="badge-green mb-4 w-fit">About Amanah Farm</p>
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
               Building Bangladesh&apos;s Future Through{' '}
               <span className="gradient-text">Agricultural Investment</span>
             </h2>
             <p className="text-slate-400 mb-6 leading-relaxed">
-              NHK Agro Invest was founded with a singular mission: to democratize agricultural investment in Bangladesh. We connect urban capital with rural farming expertise, creating a win-win for investors and farmers alike.
+              Amanah Farm was founded with a singular mission: to democratize agricultural investment in Bangladesh. We connect urban capital with rural farming expertise, creating a win-win for investors and farmers alike.
             </p>
             <p className="text-slate-400 mb-8 leading-relaxed">
               Our farms span across Rajshahi, Comilla, and Rangpur — cultivating rice, vegetables, fish, and poultry. With over 5 years of operational experience, we have delivered consistent returns to our growing investor community.

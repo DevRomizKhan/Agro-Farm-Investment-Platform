@@ -19,7 +19,7 @@ export default function BlogJsonLd({ post }: BlogJsonLdProps) {
     dateModified: post.updated_at,
     publisher: {
       '@type': 'Organization',
-      name: 'NHK Agro Invest',
+      name: 'Amanah Farm',
       logo: {
         '@type': 'ImageObject',
         url: '/logo.png',

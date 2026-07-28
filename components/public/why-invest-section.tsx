@@ -48,7 +48,7 @@ export function WhyInvestSection() {
           <p className="badge-green mb-4 mx-auto w-fit">Why Choose Us</p>
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
             Why Invest with{' '}
-            <span className="gradient-text">NHK Agro</span>?
+            <span className="gradient-text">Amanah Farm</span>?
           </h2>
           <p className="text-slate-400 max-w-2xl mx-auto">
             We combine modern fintech transparency with time-tested agricultural expertise to deliver
