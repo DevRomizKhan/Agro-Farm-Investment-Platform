@@ -9,6 +9,7 @@ import { Loader2, Plus, Edit3, CalendarClock, Info } from 'lucide-react'
 import { investmentPlanSchema, type InvestmentPlanFormData } from '@/schemas'
 import { manageInvestmentPlanAction } from '@/actions/investments'
 import type { InvestmentPlan } from '@/types'
+import { ROUTES } from '@/constants'
 
 interface PlanFormProps {
   initialPlan?: InvestmentPlan | null
@@ -18,14 +19,18 @@ interface PlanFormProps {
 /** Convert a stored ISO string → "datetime-local" input value (YYYY-MM-DDTHH:mm) */
 function toDatetimeLocal(iso: string | null | undefined): string {
   if (!iso) return ''
-  // datetime-local expects exactly "YYYY-MM-DDTHH:mm"
-  return iso.slice(0, 16)
+  const d = new Date(iso)
+  if (isNaN(d.getTime())) return ''
+  const pad = (n: number) => n.toString().padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
 }
 
 /** Convert a "datetime-local" value → full ISO string (UTC) */
 function fromDatetimeLocal(local: string): string | null {
   if (!local) return null
-  return new Date(local).toISOString()
+  const d = new Date(local)
+  if (isNaN(d.getTime())) return null
+  return d.toISOString()
 }
 
 const EMPTY_PLAN: InvestmentPlanFormData = {
@@ -81,8 +86,12 @@ export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
         toast.success(
           initialPlan ? 'Investment plan updated successfully' : 'New investment plan created'
         )
-        if (!initialPlan) reset(EMPTY_PLAN)
         onSuccess?.()
+        if (initialPlan) {
+          router.push(ROUTES.ADMIN_PLANS)
+        } else {
+          reset(EMPTY_PLAN)
+        }
         router.refresh()
       } else {
         toast.error(result.error || 'Failed to save plan')
