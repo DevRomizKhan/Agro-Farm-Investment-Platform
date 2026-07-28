@@ -76,6 +76,29 @@ export const investmentPlanSchema = z.object({
   roi_percentage: z.coerce.number().min(0.1).max(100),
   duration_months: z.coerce.number().int().min(1).max(120),
   is_active: z.boolean().default(true),
+  /** ISO datetime string – when the plan opens for investors (inclusive) */
+  starts_at: z.string().nullable().optional(),
+  /** ISO datetime string – when the plan closes for investors (exclusive) */
+  ends_at: z.string().nullable().optional(),
+})
+.refine((data) => {
+  if (data.starts_at && data.ends_at) {
+    const start = new Date(data.starts_at)
+    const end = new Date(data.ends_at)
+    if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
+      return end > start
+    }
+  }
+  return true
+}, {
+  message: 'End date/time must be after start date/time',
+  path: ['ends_at'],
+})
+.refine((data) => {
+  return data.max_amount >= data.min_amount
+}, {
+  message: 'Maximum investment must be greater than or equal to minimum investment',
+  path: ['max_amount'],
 })
 
 export const investSchema = z.object({

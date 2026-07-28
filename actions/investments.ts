@@ -6,8 +6,10 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { investSchema, investmentPlanSchema } from '@/schemas'
 import type { InvestFormData, InvestmentPlanFormData } from '@/schemas'
 import { SUPABASE_STORAGE_BUCKETS } from '@/constants'
-import { generateFileName, calculateROI } from '@/lib/utils'
+import { generateFileName, calculateROI, isPlanCurrentlyActive } from '@/lib/utils'
 import { addMonths } from 'date-fns'
+import type { InvestmentPlan } from '@/types'
+
 
 export type InvestmentResult = {
   success: boolean
@@ -60,6 +62,12 @@ export async function createInvestmentAction(
     .maybeSingle()
 
   if (!plan) return { success: false, error: 'Plan not found' }
+
+  // Ensure the plan is currently active (time-gated)
+  if (!isPlanCurrentlyActive(plan)) {
+    return { success: false, error: 'This investment plan is not currently available' }
+  }
+
   if (amount < Number(plan.min_amount) || amount > Number(plan.max_amount)) {
     return { success: false, error: `Investment must be between ৳${plan.min_amount} and ৳${plan.max_amount}` }
   }
@@ -220,6 +228,8 @@ export async function manageInvestmentPlanAction(
           roi_percentage: validated.data.roi_percentage,
           duration_months: validated.data.duration_months,
           is_active: validated.data.is_active,
+          starts_at: validated.data.starts_at ?? null,
+          ends_at: validated.data.ends_at ?? null,
           updated_at: new Date().toISOString(),
         })
         .eq('id', planId)
@@ -237,6 +247,8 @@ export async function manageInvestmentPlanAction(
           roi_percentage: validated.data.roi_percentage,
           duration_months: validated.data.duration_months,
           is_active: validated.data.is_active,
+          starts_at: validated.data.starts_at ?? null,
+          ends_at: validated.data.ends_at ?? null,
           created_by: profile.id,
         })
         .select('id')

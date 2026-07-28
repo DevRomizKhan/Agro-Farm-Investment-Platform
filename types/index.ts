@@ -83,7 +83,12 @@ export interface InvestmentPlan {
   max_amount: number
   roi_percentage: number
   duration_months: number
+  /** Manual override — can force-disable a plan regardless of dates */
   is_active: boolean
+  /** ISO datetime — plan becomes visible to investors from this moment */
+  starts_at: string | null
+  /** ISO datetime — plan becomes invisible to investors after this moment */
+  ends_at: string | null
   created_by: string
   created_at: string
   updated_at: string
@@ -143,3 +148,31 @@ export interface AuditLog {
   ip_address: string | null
   created_at: string
 }
+
+export interface BlogPost {
+  id: string
+  title: string
+  slug: string
+  excerpt: string | null
+  content: string
+  featured_image: string | null
+  author_id: string | null
+  category: string | null
+  tags: string[] | null
+  meta_title: string | null
+  meta_description: string | null
+  meta_keywords: string[] | null
+  status: 'draft' | 'published' | 'archived'
+  published_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface BlogPostWithAuthor extends BlogPost {
+  author: {
+    id: string
+    full_name: string | null
+    avatar_url: string | null
+  } | null
+}
+
