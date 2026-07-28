@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
@@ -17,22 +18,28 @@ interface PlanFormProps {
 /** Convert a stored ISO string → "datetime-local" input value (YYYY-MM-DDTHH:mm) */
 function toDatetimeLocal(iso: string | null | undefined): string {
   if (!iso) return ''
-  // datetime-local expects exactly "YYYY-MM-DDTHH:mm"
-  return iso.slice(0, 16)
+  const d = new Date(iso)
+  if (isNaN(d.getTime())) return ''
+  const pad = (n: number) => n.toString().padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
 }
 
 /** Convert a "datetime-local" value → full ISO string (UTC) */
 function fromDatetimeLocal(local: string): string | null {
   if (!local) return null
-  return new Date(local).toISOString()
+  const d = new Date(local)
+  if (isNaN(d.getTime())) return null
+  return d.toISOString()
 }
 
 export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
+  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
 
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<InvestmentPlanFormData>({
     resolver: zodResolver(investmentPlanSchema),
@@ -77,7 +84,13 @@ export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
           initialPlan ? 'Investment plan updated successfully' : 'New investment plan created'
         )
         if (onSuccess) onSuccess()
-        window.location.reload()
+        if (initialPlan) {
+          router.push('/admin/plans')
+          router.refresh()
+        } else {
+          reset()
+          router.refresh()
+        }
       } else {
         toast.error(result.error || 'Failed to save plan')
       }
