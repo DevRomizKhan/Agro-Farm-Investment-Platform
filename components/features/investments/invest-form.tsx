@@ -13,9 +13,10 @@ import type { InvestmentPlan } from '@/types'
 
 interface InvestFormProps {
   plans: InvestmentPlan[]
+  planSharesSold?: Record<string, number>
 }
 
-export function InvestForm({ plans }: InvestFormProps) {
+export function InvestForm({ plans, planSharesSold = {} }: InvestFormProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [selectedPlan, setSelectedPlan] = useState<InvestmentPlan | null>(null)
   const [receiptFile, setReceiptFile] = useState<File | null>(null)
@@ -24,11 +25,11 @@ export function InvestForm({ plans }: InvestFormProps) {
     resolver: zodResolver(investSchema),
     defaultValues: {
       plan_id: '',
-      amount: 0,
+      shares: 0,
     },
   })
 
-  const amountWatch = watch('amount')
+  const sharesWatch = watch('shares')
 
   const handlePlanChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const plan = plans.find((p) => p.id === e.target.value) || null
@@ -65,7 +66,7 @@ export function InvestForm({ plans }: InvestFormProps) {
     try {
       const formData = new FormData()
       formData.append('plan_id', data.plan_id)
-      formData.append('amount', String(data.amount))
+      formData.append('shares', String(data.shares))
       formData.append('receipt', receiptFile)
 
       const result = await createInvestmentAction(formData)
@@ -82,13 +83,30 @@ export function InvestForm({ plans }: InvestFormProps) {
     }
   }
 
-  // Calculate expected profit based on inputs
+  // Calculate expected profit based on shares
   const calculateExpectedProfit = () => {
-    if (!selectedPlan || !amountWatch) return 0
-    const amount = Number(amountWatch)
-    if (isNaN(amount) || amount <= 0) return 0
+    if (!selectedPlan || !sharesWatch) return 0
+    const shares = Number(sharesWatch)
+    if (isNaN(shares) || shares <= 0) return 0
+    const amount = shares * (selectedPlan.shares_per_amount || 10000)
     const monthlyRate = selectedPlan.roi_percentage / 100 / 12
     return amount * monthlyRate * selectedPlan.duration_months
+  }
+
+  // Calculate total investment amount from shares
+  const calculateInvestmentAmount = () => {
+    if (!selectedPlan || !sharesWatch) return 0
+    const shares = Number(sharesWatch)
+    if (isNaN(shares) || shares <= 0) return 0
+    return shares * (selectedPlan.shares_per_amount || 10000)
+  }
+
+  // Calculate available shares for selected plan
+  const getAvailableShares = () => {
+    if (!selectedPlan) return 0
+    const totalShares = selectedPlan.total_shares || 150
+    const soldShares = planSharesSold[selectedPlan.id] || 0
+    return totalShares - soldShares
   }
 
   return (
@@ -116,44 +134,66 @@ export function InvestForm({ plans }: InvestFormProps) {
         {selectedPlan && (
           <div className="grid grid-cols-2 gap-4 p-4 rounded-xl bg-slate-800/40 border border-white/5 text-sm">
             <div>
-              <span className="text-slate-400 block text-xs">Min Investment</span>
-              <span className="text-white font-medium">{formatCurrency(selectedPlan.min_amount)}</span>
+              <span className="text-slate-400 block text-xs">Total Shares</span>
+              <span className="text-white font-medium">{selectedPlan.total_shares || 150}</span>
             </div>
             <div>
-              <span className="text-slate-400 block text-xs">Max Investment</span>
-              <span className="text-white font-medium">{formatCurrency(selectedPlan.max_amount)}</span>
+              <span className="text-slate-400 block text-xs">Available Shares</span>
+              <span className="text-green-400 font-medium">{getAvailableShares()}</span>
             </div>
             <div>
-              <span className="text-slate-400 block text-xs">Expected Return Rate</span>
-              <span className="text-green-400 font-semibold">{selectedPlan.roi_percentage}% / Year</span>
+              <span className="text-slate-400 block text-xs">Per Share Amount</span>
+              <span className="text-white font-medium">{formatCurrency(selectedPlan.shares_per_amount || 10000)}</span>
             </div>
             <div>
+              <span className="text-slate-400 block text-xs">Max Shares/Investor</span>
+              <span className="text-white font-medium">{selectedPlan.max_shares_per_investor || 30}</span>
+            </div>
+            <div className="col-span-2">
               <span className="text-slate-400 block text-xs">Duration</span>
               <span className="text-white font-medium">{selectedPlan.duration_months} Months</span>
             </div>
           </div>
         )}
 
-        {/* Amount */}
+        {/* Shares */}
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">Investment Amount (BDT)</label>
+          <label className="block text-sm font-medium text-slate-300 mb-2">Number of Shares</label>
           <div className="relative">
             <input
-              {...register('amount')}
+              {...register('shares')}
               type="number"
-              className="input-base pl-12"
-              placeholder="e.g. 50000"
+              className="input-base"
+              placeholder="e.g. 10"
               disabled={!selectedPlan}
+              min="1"
+              max={selectedPlan?.max_shares_per_investor || 30}
             />
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-semibold text-lg">
-              ৳
-            </div>
           </div>
-          {errors.amount && <p className="mt-1.5 text-xs text-red-400">{errors.amount.message}</p>}
+          {errors.shares && <p className="mt-1.5 text-xs text-red-400">{errors.shares.message}</p>}
+          {selectedPlan && (
+            <p className="mt-1.5 text-xs text-slate-500">
+              Maximum {selectedPlan.max_shares_per_investor || 30} shares per investor
+            </p>
+          )}
         </div>
 
+        {/* Investment amount calculation */}
+        {selectedPlan && sharesWatch && (
+          <div className="p-4 rounded-xl bg-slate-800/40 border border-white/5 text-sm">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-slate-400 text-xs">Investment Amount</span>
+              <span className="text-white font-bold">{formatCurrency(calculateInvestmentAmount())}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-slate-400 text-xs">Expected Return Rate</span>
+              <span className="text-green-400 font-semibold">{selectedPlan.roi_percentage}% / Year</span>
+            </div>
+          </div>
+        )}
+
         {/* Expected profit calculation */}
-        {selectedPlan && amountWatch && (
+        {selectedPlan && sharesWatch && (
           <div className="p-4 rounded-xl bg-green-500/5 border border-green-500/10 text-sm flex justify-between items-center">
             <div>
               <span className="text-slate-400 text-xs block">Expected Return at Maturity</span>
@@ -164,7 +204,7 @@ export function InvestForm({ plans }: InvestFormProps) {
             <div className="text-right">
               <span className="text-slate-400 text-xs block">Total Capital + ROI</span>
               <span className="text-white font-semibold">
-                {formatCurrency(Number(amountWatch) + calculateExpectedProfit())}
+                {formatCurrency(calculateInvestmentAmount() + calculateExpectedProfit())}
               </span>
             </div>
           </div>

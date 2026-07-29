@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { InvestForm } from '@/components/features/investments/invest-form'
 import { formatCurrency, formatDate, isPlanCurrentlyActive } from '@/lib/utils'
-import { TrendingUp, Award, Calendar, ExternalLink, ShieldAlert, Clock } from 'lucide-react'
+import { TrendingUp, Award, Calendar, ExternalLink, ShieldAlert, Clock, Lock, Unlock } from 'lucide-react'
 import Link from 'next/link'
 import { ROUTES } from '@/constants'
 import type { InvestmentPlan } from '@/types'
@@ -30,12 +30,25 @@ export default async function InvestmentsPage() {
   // Only show plans that are within their scheduled window right now
   const plans = (allPlans || []).filter((p) => isPlanCurrentlyActive(p)) as InvestmentPlan[]
 
-  // Fetch investor's investments
+  // Fetch investor's investments with withdrawal requests
   const { data: investments } = await supabase
     .from('investments')
-    .select('*, plan:investment_plans(name, roi_percentage, duration_months)')
+    .select('*, plan:investment_plans(*), withdrawal_requests(*)')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
+
+  // Calculate sold shares for each plan
+  const planIds = plans.map(p => p.id)
+  const { data: planInvestments } = await supabase
+    .from('investments')
+    .select('plan_id, shares_purchased')
+    .in('plan_id', planIds)
+    .eq('status', 'active')
+
+  const planSharesSold: Record<string, number> = {}
+  planInvestments?.forEach(inv => {
+    planSharesSold[inv.plan_id] = (planSharesSold[inv.plan_id] || 0) + inv.shares_purchased
+  })
 
   return (
     <div className="fade-in space-y-8">
@@ -70,6 +83,7 @@ export default async function InvestmentsPage() {
                     name?: string
                     roi_percentage?: number
                     duration_months?: number
+                    shares_per_amount?: number
                   } | null
 
                   // Estimated ROI: principal × rate × duration (simple interest)
@@ -81,6 +95,22 @@ export default async function InvestmentsPage() {
                             (plan.duration_months / 12)
                         )
                       : Number(inv.expected_roi)
+
+                  // Check lock status
+                  const now = new Date()
+                  const lockExpiresAt = inv.lock_expires_at ? new Date(inv.lock_expires_at) : null
+                  const isLocked = lockExpiresAt && now < lockExpiresAt
+                  const daysUntilUnlock = lockExpiresAt && isLocked
+                    ? Math.ceil((lockExpiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+                    : 0
+
+                  // Check for pending withdrawal request
+                  const pendingWithdrawal = inv.withdrawal_requests?.find(
+                    (wr: { status: string }) => wr.status === 'pending'
+                  )
+                  const approvedWithdrawal = inv.withdrawal_requests?.find(
+                    (wr: { status: string }) => wr.status === 'approved'
+                  )
 
                   return (
                     <div
@@ -113,6 +143,12 @@ export default async function InvestmentsPage() {
 
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 py-3 border-t border-b border-white/5 text-sm">
                         <div>
+                          <span className="text-slate-500 text-xs block">Shares Owned</span>
+                          <span className="text-white font-medium">
+                            {inv.shares_purchased || 0}
+                          </span>
+                        </div>
+                        <div>
                           <span className="text-slate-500 text-xs block">Invested Amount</span>
                           <span className="text-white font-medium">
                             {formatCurrency(Number(inv.amount))}
@@ -123,24 +159,48 @@ export default async function InvestmentsPage() {
                             Estimated ROI
                             {plan?.roi_percentage ? ` (${plan.roi_percentage}%+)` : ''}
                           </span>
-                          {/* Show ROI as "৳1,200+" to communicate it's a floor, not exact */}
                           <span className="text-green-400 font-semibold">
                             {formatCurrency(estimatedROI)}+
                           </span>
                         </div>
                         <div>
-                          <span className="text-slate-500 text-xs block">Start Date</span>
-                          <span className="text-white font-medium">
-                            {inv.start_date ? formatDate(inv.start_date) : '—'}
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-slate-500 text-xs block">End Date</span>
-                          <span className="text-white font-medium">
-                            {inv.end_date ? formatDate(inv.end_date) : '—'}
-                          </span>
+                          <span className="text-slate-500 text-xs block">Lock Status</span>
+                          <div className="flex items-center gap-1">
+                            {isLocked ? (
+                              <>
+                                <Lock className="h-3 w-3 text-yellow-400" />
+                                <span className="text-yellow-400 font-medium text-xs">
+                                  {daysUntilUnlock} days
+                                </span>
+                              </>
+                            ) : (
+                              <>
+                                <Unlock className="h-3 w-3 text-green-400" />
+                                <span className="text-green-400 font-medium text-xs">
+                                  Unlocked
+                                </span>
+                              </>
+                            )}
+                          </div>
                         </div>
                       </div>
+
+                      {/* Withdrawal Request Status */}
+                      {pendingWithdrawal && (
+                        <div className="p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
+                          <p className="text-xs text-yellow-400 font-medium">
+                            Pending withdrawal request of {formatCurrency(pendingWithdrawal.amount)} ({pendingWithdrawal.withdrawal_type})
+                          </p>
+                        </div>
+                      )}
+
+                      {approvedWithdrawal && (
+                        <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+                          <p className="text-xs text-green-400 font-medium">
+                            Withdrawal approved - Payment processing within 3 months
+                          </p>
+                        </div>
+                      )}
 
                       <div className="flex justify-between items-center text-xs">
                         <span className="text-slate-500">
@@ -220,7 +280,7 @@ export default async function InvestmentsPage() {
               </div>
             </div>
           ) : (
-            <InvestForm plans={plans} />
+            <InvestForm plans={plans} planSharesSold={planSharesSold} />
           )}
         </div>
       </div>

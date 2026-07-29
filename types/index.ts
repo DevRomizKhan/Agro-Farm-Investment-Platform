@@ -8,6 +8,10 @@ export type NotificationType = 'kyc' | 'investment' | 'transaction' | 'system' |
 
 export type TransactionType = 'deposit' | 'withdrawal' | 'roi' | 'refund'
 
+export type WithdrawalStatus = 'pending' | 'approved' | 'rejected' | 'completed' | 'cancelled'
+
+export type WithdrawalType = 'profit_only' | 'full_amount'
+
 export interface Profile {
   id: string
   user_id: string
@@ -79,8 +83,14 @@ export interface InvestmentPlan {
   id: string
   name: string
   description: string | null
-  min_amount: number
-  max_amount: number
+  /** Total shares available for this plan */
+  total_shares: number
+  /** Amount per share in BDT */
+  shares_per_amount: number
+  /** Percentage of shares reserved for owner (e.g., 40 for 40%) */
+  owner_share_percentage: number
+  /** Maximum shares a single investor can purchase (e.g., 30 for 1/3 of remaining) */
+  max_shares_per_investor: number
   roi_percentage: number
   duration_months: number
   /** Manual override — can force-disable a plan regardless of dates */
@@ -99,6 +109,8 @@ export interface Investment {
   user_id: string
   plan_id: string
   amount: number
+  /** Number of shares purchased by this investor */
+  shares_purchased: number
   status: InvestmentStatus
   start_date: string | null
   end_date: string | null
@@ -107,12 +119,17 @@ export interface Investment {
   receipt_url: string | null
   notes: string | null
   approved_by: string | null
+  /** Lock period in days (default 366) */
+  lock_period_days: number
+  /** When the lock period expires */
+  lock_expires_at: string | null
   created_at: string
   updated_at: string
   // Relations
   profile?: Profile
   plan?: InvestmentPlan
   transactions?: Transaction[]
+  withdrawal_requests?: WithdrawalRequest[]
 }
 
 export interface Transaction {
@@ -124,6 +141,23 @@ export interface Transaction {
   description: string | null
   reference: string | null
   created_at: string
+}
+
+export interface WithdrawalRequest {
+  id: string
+  investment_id: string
+  user_id: string
+  amount: number
+  withdrawal_type: WithdrawalType
+  status: WithdrawalStatus
+  request_reason: string | null
+  owner_response: string | null
+  owner_response_at: string | null
+  completed_at: string | null
+  created_at: string
+  updated_at: string
+  // Relations
+  investment?: Investment
 }
 
 export interface Notification {

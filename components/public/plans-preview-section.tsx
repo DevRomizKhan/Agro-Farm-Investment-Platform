@@ -2,55 +2,107 @@ import Link from 'next/link'
 import { ArrowRight, Check, Sparkles } from 'lucide-react'
 import { ROUTES } from '@/constants'
 import { formatCurrency } from '@/lib/utils'
+import { createClient } from '@/lib/supabase/server'
 
-const plans = [
+const staticPlans = [
   {
-    name: 'Starter Plan',
-    tag: 'Beginner Friendly',
-    minAmount: 10000,
-    maxAmount: 100000,
-    roi: 12,
+    name: 'Basic Investment',
+    tag: 'Entry Level',
+    totalShares: 150,
+    sharesPerAmount: 10000,
+    ownerSharePercentage: 40,
+    maxSharesPerInvestor: 30,
+    roi: 10,
     duration: 12,
     popular: false,
     features: [
-      'Monthly dividend payouts',
-      '24/7 Investor portal access',
-      'Digital receipts & certificates',
+      '10% annual ROI',
+      '366-day lock period',
+      'Share-based ownership',
+      'Digital certificates',
     ],
   },
   {
-    name: 'Growth Plan',
+    name: 'Standard Investment',
     tag: 'Most Popular',
-    minAmount: 100000,
-    maxAmount: 500000,
-    roi: 15,
-    duration: 18,
+    totalShares: 150,
+    sharesPerAmount: 10000,
+    ownerSharePercentage: 40,
+    maxSharesPerInvestor: 30,
+    roi: 14,
+    duration: 12,
     popular: true,
     features: [
-      'Monthly dividend payouts',
-      'Priority investor support',
-      'Physical investment certificates',
-      'Quarterly farm video reports',
+      '14% annual ROI',
+      '366-day lock period',
+      'Up to 30 shares per investor',
+      'Priority support',
     ],
   },
   {
-    name: 'Premium Plan',
-    tag: 'Maximum Returns',
-    minAmount: 500000,
-    maxAmount: 5000000,
+    name: 'Premium Investment',
+    tag: 'High Returns',
+    totalShares: 150,
+    sharesPerAmount: 10000,
+    ownerSharePercentage: 40,
+    maxSharesPerInvestor: 30,
     roi: 18,
-    duration: 24,
+    duration: 12,
     popular: false,
     features: [
-      'Monthly dividend payouts',
+      '18% annual ROI',
+      '366-day lock period',
+      'Maximum share allocation',
       'Dedicated account manager',
-      'Farm site visits & tours',
-      'Custom investment terms',
     ],
   },
 ]
 
-export function PlansPreviewSection() {
+type DisplayPlan = {
+  id?: string
+  name: string
+  tag?: string
+  totalShares?: number
+  sharesPerAmount?: number
+  ownerSharePercentage?: number
+  maxSharesPerInvestor?: number
+  total_shares?: number
+  shares_per_amount?: number
+  max_shares_per_investor?: number
+  roi?: string | number
+  roi_percentage?: number
+  duration?: number
+  duration_months?: number
+  popular?: boolean
+  features?: string[]
+}
+
+export async function PlansPreviewSection() {
+  const supabase = await createClient()
+
+  // Fetch all active plans
+  const { data: plans } = await supabase
+    .from('investment_plans')
+    .select('id, name, total_shares, shares_per_amount, max_shares_per_investor, roi_percentage, duration_months, created_at')
+    .eq('is_active', true)
+    .order('created_at', { ascending: false })
+    .limit(3)
+
+  // Calculate sold shares for each plan
+  const planIds = plans?.map(p => p.id) || []
+  const { data: planInvestments } = await supabase
+    .from('investments')
+    .select('plan_id, shares_purchased')
+    .in('plan_id', planIds)
+    .eq('status', 'active')
+
+  const planSharesSold: Record<string, number> = {}
+  planInvestments?.forEach(inv => {
+    planSharesSold[inv.plan_id] = (planSharesSold[inv.plan_id] || 0) + inv.shares_purchased
+  })
+
+  // Use real plans if available, otherwise use static plans
+  const displayPlans = (plans && plans.length > 0 ? plans : staticPlans) as DisplayPlan[]
   return (
     <section id="plans" className="py-20 bg-slate-950 border-t border-white/5 relative">
       <div className="section-container">
@@ -71,49 +123,69 @@ export function PlansPreviewSection() {
 
         {/* Plans Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch max-w-5xl mx-auto">
-          {plans.map((plan) => (
-            <div
-              key={plan.name}
-              className={`relative p-6 sm:p-8 rounded-3xl flex flex-col transition-all duration-300 ${
-                plan.popular
-                  ? 'bg-slate-900 border-2 border-emerald-500/60 shadow-xl shadow-emerald-950/40'
-                  : 'bg-slate-900/40 border border-white/10 hover:border-white/20'
-              }`}
-            >
-              {plan.popular && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <span className="px-3 py-0.5 bg-emerald-500 text-slate-950 text-[11px] font-bold rounded-full uppercase tracking-wider">
-                    Most Popular
-                  </span>
-                </div>
-              )}
+          {displayPlans.map((plan) => {
+            const availableShares = plan.id ? (plan.total_shares || 150) - (planSharesSold[plan.id] || 0) : plan.totalShares
+            const isRealPlan = !!plan.id
 
-              {/* Plan Header */}
-              <div className="mb-6 text-center sm:text-left">
-                <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider block mb-1">
-                  {plan.tag}
-                </span>
-                <h3 className="text-xl font-bold text-white mb-2">{plan.name}</h3>
-                <div className="flex items-baseline justify-center sm:justify-start gap-1">
-                  <span className="text-4xl font-extrabold text-white font-mono">
-                    {plan.roi}%
-                  </span>
-                  <span className="text-slate-400 text-xs font-medium">/ year ROI</span>
-                </div>
-                <p className="text-xs text-slate-400 mt-1">{plan.duration} months duration</p>
-              </div>
+            return (
+              <div
+                key={isRealPlan ? plan.id : plan.name}
+                className={`relative p-6 sm:p-8 rounded-3xl flex flex-col transition-all duration-300 ${
+                  plan.popular
+                    ? 'bg-slate-900 border-2 border-emerald-500/60 shadow-xl shadow-emerald-950/40'
+                    : 'bg-slate-900/40 border border-white/10 hover:border-white/20'
+                }`}
+              >
+                {plan.popular && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                    <span className="px-3 py-0.5 bg-emerald-500 text-slate-950 text-[11px] font-bold rounded-full uppercase tracking-wider">
+                      Most Popular
+                    </span>
+                  </div>
+                )}
 
-              {/* Investment Range */}
-              <div className="bg-slate-950/80 rounded-xl p-3.5 mb-6 border border-white/5 text-center sm:text-left">
-                <p className="text-[11px] text-slate-400 mb-0.5">Investment Range</p>
-                <p className="text-white font-bold font-mono text-sm">
-                  {formatCurrency(plan.minAmount)} — {formatCurrency(plan.maxAmount)}
-                </p>
-              </div>
+                {/* Plan Header */}
+                <div className="mb-6 text-center sm:text-left">
+                  <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider block mb-1">
+                    {plan.tag}
+                  </span>
+                  <h3 className="text-xl font-bold text-white mb-2">{plan.name}</h3>
+                  <div className="flex items-baseline justify-center sm:justify-start gap-1">
+                    <span className="text-4xl font-extrabold text-white font-mono">
+                      {plan.roi || plan.roi_percentage}%
+                    </span>
+                    <span className="text-slate-400 text-xs font-medium">/ year ROI</span>
+                  </div>
+                  <p className="text-xs text-slate-400 mt-1">{plan.duration || plan.duration_months} months duration</p>
+                </div>
+
+                {/* Share Information */}
+                <div className="bg-slate-950/80 rounded-xl p-3.5 mb-6 border border-white/5 text-center sm:text-left">
+                  <p className="text-[11px] text-slate-400 mb-0.5">Share Details</p>
+                  <p className="text-white font-bold font-mono text-sm">
+                    {formatCurrency(isRealPlan ? (plan.shares_per_amount || 10000) : (plan.sharesPerAmount || 10000))} per share
+                  </p>
+                  <div className="flex justify-between items-center mt-1">
+                    <p className="text-[10px] text-green-400">
+                      {availableShares} available
+                    </p>
+                    <p className="text-[10px] text-slate-500">
+                      Total: {isRealPlan ? (plan.total_shares || 150) : plan.totalShares}
+                    </p>
+                  </div>
+                  <p className="text-[10px] text-slate-500 mt-1">
+                    Max per investor: {isRealPlan ? (plan.max_shares_per_investor || 30) : plan.maxSharesPerInvestor} shares
+                  </p>
+                </div>
 
               {/* Features */}
               <ul className="space-y-2.5 mb-6 flex-1">
-                {plan.features.map((f) => (
+                {(plan.features || [
+                  `${plan.roi || plan.roi_percentage}% annual ROI`,
+                  '366-day lock period',
+                  'Share-based ownership',
+                  'Digital certificates',
+                ]).map((f: string) => (
                   <li key={f} className="flex items-center gap-2.5 text-xs text-slate-300">
                     <Check className="h-3.5 w-3.5 text-emerald-400 flex-shrink-0" />
                     <span>{f}</span>
@@ -130,7 +202,8 @@ export function PlansPreviewSection() {
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
-          ))}
+            )
+          })}
         </div>
 
       </div>

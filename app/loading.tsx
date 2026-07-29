@@ -1,9 +1,8 @@
-import { PageLoader } from '@/components/ui/page-loader'
-
 /**
- * Root-level loading state shown by Next.js App Router while
- * the root layout or page is streaming / fetching.
+ * Keep the root loading boundary non-blocking. The previous full-screen
+ * client splash depended on hydration to dismiss itself, which could leave
+ * the entire application covered indefinitely when client JS was delayed.
  */
 export default function RootLoading() {
-  return <PageLoader message="Getting things ready…" static />
+  return null
 }

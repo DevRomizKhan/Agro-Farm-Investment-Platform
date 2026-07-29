@@ -71,8 +71,10 @@ export const kycSchema = z.object({
 export const investmentPlanSchema = z.object({
   name: z.string().min(3, 'Plan name is required'),
   description: z.string().optional(),
-  min_amount: z.coerce.number().min(1000, 'Minimum amount must be at least ৳1,000'),
-  max_amount: z.coerce.number().min(1000, 'Maximum amount must be at least ৳1,000'),
+  total_shares: z.coerce.number().int().min(1, 'Total shares must be at least 1'),
+  shares_per_amount: z.coerce.number().int().min(1000, 'Share amount must be at least ৳1,000'),
+  owner_share_percentage: z.coerce.number().min(0).max(100, 'Owner share percentage must be between 0-100'),
+  max_shares_per_investor: z.coerce.number().int().min(1, 'Max shares per investor must be at least 1'),
   roi_percentage: z.coerce.number().min(0.1).max(100),
   duration_months: z.coerce.number().int().min(1).max(120),
   is_active: z.boolean().default(true),
@@ -95,15 +97,16 @@ export const investmentPlanSchema = z.object({
   path: ['ends_at'],
 })
 .refine((data) => {
-  return data.max_amount >= data.min_amount
+  const investorShares = data.total_shares - Math.floor(data.total_shares * (data.owner_share_percentage / 100))
+  return data.max_shares_per_investor <= investorShares
 }, {
-  message: 'Maximum investment must be greater than or equal to minimum investment',
-  path: ['max_amount'],
+  message: 'Max shares per investor cannot exceed available investor shares',
+  path: ['max_shares_per_investor'],
 })
 
 export const investSchema = z.object({
   plan_id: z.string().uuid('Invalid plan'),
-  amount: z.coerce.number().min(1000, 'Minimum investment is ৳1,000'),
+  shares: z.coerce.number().int().min(1, 'Minimum 1 share required'),
 })
 
 // ─── Profile Schema ────────────────────────────────────────────────────────────
@@ -121,6 +124,20 @@ export const kycReviewSchema = z.object({
   notes: z.string().optional(),
 })
 
+// ─── Withdrawal Request Schemas ─────────────────────────────────────────────────
+
+export const withdrawalRequestSchema = z.object({
+  investment_id: z.string().uuid('Invalid investment'),
+  amount: z.coerce.number().min(1, 'Amount must be at least ৳1'),
+  withdrawal_type: z.enum(['profit_only', 'full_amount']),
+  request_reason: z.string().optional(),
+})
+
+export const withdrawalReviewSchema = z.object({
+  status: z.enum(['approved', 'rejected']),
+  owner_response: z.string().optional(),
+})
+
 export type LoginFormData = z.infer<typeof loginSchema>
 export type RegisterFormData = z.infer<typeof registerSchema>
 export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>
@@ -130,6 +147,8 @@ export type InvestmentPlanFormData = z.infer<typeof investmentPlanSchema>
 export type InvestFormData = z.infer<typeof investSchema>
 export type UpdateProfileFormData = z.infer<typeof updateProfileSchema>
 export type KYCReviewFormData = z.infer<typeof kycReviewSchema>
+export type WithdrawalRequestFormData = z.infer<typeof withdrawalRequestSchema>
+export type WithdrawalReviewFormData = z.infer<typeof withdrawalReviewSchema>
 
 // ─── Blog Schemas ───────────────────────────────────────────────────────────────
 

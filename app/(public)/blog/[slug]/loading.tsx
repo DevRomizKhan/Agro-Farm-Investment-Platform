@@ -1,5 +1,1 @@
-import { BlogDetailSkeleton } from '@/components/ui/skeleton'
-
-export default function Loading() {
-  return <BlogDetailSkeleton />
-}
+export default function Loading() { return null }

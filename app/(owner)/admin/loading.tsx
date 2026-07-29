@@ -1,5 +1,1 @@
-import { DashboardSkeleton } from '@/components/ui/skeleton'
-
-export default function AdminDashboardLoading() {
-  return <DashboardSkeleton />
-}
+export default function Loading() { return null }

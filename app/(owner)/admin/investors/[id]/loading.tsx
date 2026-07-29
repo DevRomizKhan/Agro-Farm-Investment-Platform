@@ -1,5 +1,1 @@
-import { DetailPageSkeleton } from '@/components/ui/skeleton'
-
-export default function Loading() {
-  return <DetailPageSkeleton />
-}
+export default function Loading() { return null }

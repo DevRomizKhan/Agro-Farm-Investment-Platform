@@ -47,8 +47,10 @@ export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
       ? {
           name: initialPlan.name,
           description: initialPlan.description || '',
-          min_amount: Number(initialPlan.min_amount),
-          max_amount: Number(initialPlan.max_amount),
+          total_shares: initialPlan.total_shares,
+          shares_per_amount: initialPlan.shares_per_amount,
+          owner_share_percentage: initialPlan.owner_share_percentage,
+          max_shares_per_investor: initialPlan.max_shares_per_investor,
           roi_percentage: Number(initialPlan.roi_percentage),
           duration_months: initialPlan.duration_months,
           is_active: initialPlan.is_active,
@@ -58,8 +60,10 @@ export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
       : {
           name: '',
           description: '',
-          min_amount: 10000,
-          max_amount: 1000000,
+          total_shares: 150,
+          shares_per_amount: 10000,
+          owner_share_percentage: 40,
+          max_shares_per_investor: 30,
           roi_percentage: 12,
           duration_months: 12,
           is_active: true,
@@ -129,24 +133,45 @@ export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
         )}
       </div>
 
-      {/* Min / Max Amount */}
+      {/* Share Configuration */}
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-slate-300 mb-1.5">
-            Min Investment (৳)
+            Total Shares
           </label>
-          <input {...register('min_amount')} type="number" className="input-base py-2.5 text-sm" />
-          {errors.min_amount && (
-            <p className="mt-1 text-xs text-red-400">{errors.min_amount.message}</p>
+          <input {...register('total_shares')} type="number" className="input-base py-2.5 text-sm" />
+          {errors.total_shares && (
+            <p className="mt-1 text-xs text-red-400">{errors.total_shares.message}</p>
           )}
         </div>
         <div>
           <label className="block text-sm font-medium text-slate-300 mb-1.5">
-            Max Investment (৳)
+            Amount Per Share (৳)
           </label>
-          <input {...register('max_amount')} type="number" className="input-base py-2.5 text-sm" />
-          {errors.max_amount && (
-            <p className="mt-1 text-xs text-red-400">{errors.max_amount.message}</p>
+          <input {...register('shares_per_amount')} type="number" className="input-base py-2.5 text-sm" />
+          {errors.shares_per_amount && (
+            <p className="mt-1 text-xs text-red-400">{errors.shares_per_amount.message}</p>
+          )}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-slate-300 mb-1.5">
+            Owner Share (%)
+          </label>
+          <input {...register('owner_share_percentage')} type="number" step="0.1" className="input-base py-2.5 text-sm" />
+          {errors.owner_share_percentage && (
+            <p className="mt-1 text-xs text-red-400">{errors.owner_share_percentage.message}</p>
+          )}
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-300 mb-1.5">
+            Max Shares Per Investor
+          </label>
+          <input {...register('max_shares_per_investor')} type="number" className="input-base py-2.5 text-sm" />
+          {errors.max_shares_per_investor && (
+            <p className="mt-1 text-xs text-red-400">{errors.max_shares_per_investor.message}</p>
           )}
         </div>
       </div>

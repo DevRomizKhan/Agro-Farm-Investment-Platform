@@ -77,7 +77,7 @@ export default async function AdminPlansPage() {
   const { data: plans } = await supabase
     .from('investment_plans')
     .select(
-      'id, name, description, min_amount, max_amount, roi_percentage, duration_months, is_active, starts_at, ends_at, created_at, investments(count)'
+      'id, name, description, total_shares, shares_per_amount, owner_share_percentage, max_shares_per_investor, roi_percentage, duration_months, is_active, starts_at, ends_at, created_at, investments(count)'
     )
     .order('created_at', { ascending: false })
 
@@ -90,6 +90,18 @@ export default async function AdminPlansPage() {
     .in('plan_id', planIds)
 
   const activePlanIds = new Set(activeInvestments?.map((i) => i.plan_id) || [])
+
+  // Calculate sold shares for each plan
+  const { data: planInvestments } = await supabase
+    .from('investments')
+    .select('plan_id, shares_purchased')
+    .in('plan_id', planIds)
+    .eq('status', 'active')
+
+  const planSharesSold: Record<string, number> = {}
+  planInvestments?.forEach(inv => {
+    planSharesSold[inv.plan_id] = (planSharesSold[inv.plan_id] || 0) + inv.shares_purchased
+  })
 
   return (
     <div className="fade-in space-y-8">
@@ -122,6 +134,8 @@ export default async function AdminPlansPage() {
                   const typedPlan = plan as unknown as InvestmentPlan
                   const status = getPlanStatus(typedPlan)
                   const isCurrentlyLive = isPlanCurrentlyActive(typedPlan)
+                  const soldShares = planSharesSold[plan.id] || 0
+                  const availableShares = (plan.total_shares || 150) - soldShares
 
                   return (
                     <div
@@ -151,15 +165,39 @@ export default async function AdminPlansPage() {
                       {/* Financials */}
                       <div className="grid grid-cols-2 gap-3 text-xs pt-3 border-t border-white/5">
                         <div>
-                          <span className="text-slate-500 block">Min Amount</span>
+                          <span className="text-slate-500 block">Total Shares</span>
                           <span className="text-white font-medium">
-                            {formatCurrency(Number(plan.min_amount))}
+                            {plan.total_shares || 150}
                           </span>
                         </div>
                         <div>
-                          <span className="text-slate-500 block">Max Amount</span>
+                          <span className="text-slate-500 block">Sold Shares</span>
+                          <span className="text-yellow-400 font-medium">
+                            {soldShares}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 block">Available Shares</span>
+                          <span className="text-green-400 font-medium">
+                            {availableShares}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 block">Per Share Amount</span>
                           <span className="text-white font-medium">
-                            {formatCurrency(Number(plan.max_amount))}
+                            {formatCurrency(Number(plan.shares_per_amount || 10000))}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 block">Owner Share %</span>
+                          <span className="text-white font-medium">
+                            {plan.owner_share_percentage || 40}%
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 block">Max Shares/Investor</span>
+                          <span className="text-white font-medium">
+                            {plan.max_shares_per_investor || 30}
                           </span>
                         </div>
                         <div className="col-span-2">

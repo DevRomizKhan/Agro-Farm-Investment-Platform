@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { APP_NAME, ROUTES } from '@/constants'
 import { Check, ArrowRight, Sparkles } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
+import { createClient } from '@/lib/supabase/server'
 
 export const metadata: Metadata = {
   title: `Investment Plans — ${APP_NAME}`,
@@ -13,8 +14,9 @@ const plans = [
   {
     name: 'Starter',
     tag: 'Beginner Friendly',
-    minAmount: 10000,
-    maxAmount: 100000,
+    totalShares: 150,
+    sharesPerAmount: 10000,
+    maxSharesPerInvestor: 30,
     roi: '12–14%',
     duration: 12,
     popular: false,
@@ -28,8 +30,9 @@ const plans = [
   {
     name: 'Growth',
     tag: 'Most Popular',
-    minAmount: 100000,
-    maxAmount: 500000,
+    totalShares: 150,
+    sharesPerAmount: 10000,
+    maxSharesPerInvestor: 30,
     roi: '15–17%',
     duration: 18,
     popular: true,
@@ -44,8 +47,9 @@ const plans = [
   {
     name: 'Premium',
     tag: 'Maximum Yield',
-    minAmount: 500000,
-    maxAmount: 5000000,
+    totalShares: 150,
+    sharesPerAmount: 10000,
+    maxSharesPerInvestor: 30,
     roi: '18–22%',
     duration: 24,
     popular: false,
@@ -66,7 +70,85 @@ const steps = [
   { n: '04', title: 'Receive Dividends', desc: 'Monthly returns are deposited directly to your bank account or mobile wallet.' },
 ]
 
-export default function PlansPage() {
+export default async function PlansPage() {
+  const supabase = await createClient()
+
+  // Fetch all active plans
+  const { data: plans } = await supabase
+    .from('investment_plans')
+    .select('*')
+    .eq('is_active', true)
+    .order('created_at', { ascending: false })
+
+  // Calculate sold shares for each plan
+  const planIds = plans?.map(p => p.id) || []
+  const { data: planInvestments } = await supabase
+    .from('investments')
+    .select('plan_id, shares_purchased')
+    .in('plan_id', planIds)
+    .eq('status', 'active')
+
+  const planSharesSold: Record<string, number> = {}
+  planInvestments?.forEach(inv => {
+    planSharesSold[inv.plan_id] = (planSharesSold[inv.plan_id] || 0) + inv.shares_purchased
+  })
+
+  const staticPlans = [
+    {
+      name: 'Starter',
+      tag: 'Beginner Friendly',
+      totalShares: 150,
+      sharesPerAmount: 10000,
+      maxSharesPerInvestor: 30,
+      roi: '12–14%',
+      duration: 12,
+      popular: false,
+      features: [
+        'Monthly dividend bank deposits',
+        '24/7 investor portal access',
+        'Digital investment certificate',
+        'Email & phone support',
+      ],
+    },
+    {
+      name: 'Growth',
+      tag: 'Most Popular',
+      totalShares: 150,
+      sharesPerAmount: 10000,
+      maxSharesPerInvestor: 30,
+      roi: '15–17%',
+      duration: 18,
+      popular: true,
+      features: [
+        'Monthly dividend payouts',
+        'Priority support hotline',
+        'Physical investment agreement',
+        'Quarterly farm video reports',
+        'Reinvestment option',
+      ],
+    },
+    {
+      name: 'Premium',
+      tag: 'Maximum Yield',
+      totalShares: 150,
+      sharesPerAmount: 10000,
+      maxSharesPerInvestor: 30,
+      roi: '18–22%',
+      duration: 24,
+      popular: false,
+      features: [
+        'Monthly dividend payouts',
+        'Dedicated financial advisor',
+        'VIP farm visit & tour',
+        'Custom investment terms',
+        'Annual profit-sharing bonus',
+      ],
+    },
+  ]
+
+  // Use real plans if available, otherwise use static plans
+  const displayPlans = plans && plans.length > 0 ? plans : staticPlans
+
   return (
     <div className="min-h-screen bg-slate-950">
 
@@ -90,43 +172,63 @@ export default function PlansPage() {
       {/* ── Plans Grid ────────────────────────────────── */}
       <section className="max-w-6xl mx-auto px-4 pb-20">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
-          {plans.map((plan) => (
-            <div
-              key={plan.name}
-              className={`relative rounded-3xl p-8 flex flex-col ${
-                plan.popular
-                  ? 'bg-slate-900 border-2 border-emerald-500/60 shadow-2xl shadow-emerald-950/40 md:scale-105'
-                  : 'bg-slate-900/50 border border-white/8 hover:border-white/20'
-              } transition-all`}
-            >
-              {plan.popular && (
-                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                  <span className="px-4 py-1 bg-emerald-500 text-slate-950 text-xs font-black rounded-full uppercase tracking-wide">
-                    ⭐ Most Popular
-                  </span>
+          {displayPlans.map((plan) => {
+            const availableShares = plan.id ? (plan.total_shares || 150) - (planSharesSold[plan.id] || 0) : plan.totalShares
+            const isRealPlan = !!plan.id
+
+            return (
+              <div
+                key={isRealPlan ? plan.id : plan.name}
+                className={`relative rounded-3xl p-8 flex flex-col ${
+                  plan.popular
+                    ? 'bg-slate-900 border-2 border-emerald-500/60 shadow-2xl shadow-emerald-950/40 md:scale-105'
+                    : 'bg-slate-900/50 border border-white/8 hover:border-white/20'
+                } transition-all`}
+              >
+                {plan.popular && (
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+                    <span className="px-4 py-1 bg-emerald-500 text-slate-950 text-xs font-black rounded-full uppercase tracking-wide">
+                      ⭐ Most Popular
+                    </span>
+                  </div>
+                )}
+
+                <p className="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-1">{plan.tag}</p>
+                <h2 className="text-2xl font-black text-white mb-5">{plan.name} Plan</h2>
+
+                {/* ROI */}
+                <div className="flex items-baseline gap-1 bg-slate-950/60 rounded-2xl px-4 py-4 mb-4 border border-white/5">
+                  <span className="text-4xl font-black text-emerald-400 font-mono">{plan.roi || `${plan.roi_percentage}%`}</span>
+                  <span className="text-slate-400 text-xs ml-1">/ yr ROI</span>
                 </div>
-              )}
 
-              <p className="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-1">{plan.tag}</p>
-              <h2 className="text-2xl font-black text-white mb-5">{plan.name} Plan</h2>
-
-              {/* ROI */}
-              <div className="flex items-baseline gap-1 bg-slate-950/60 rounded-2xl px-4 py-4 mb-4 border border-white/5">
-                <span className="text-4xl font-black text-emerald-400 font-mono">{plan.roi}</span>
-                <span className="text-slate-400 text-xs ml-1">/ yr ROI</span>
-              </div>
-
-              {/* Range */}
-              <div className="bg-slate-950/80 rounded-xl px-4 py-3 mb-6 border border-white/5">
-                <p className="text-[10px] text-slate-400 mb-0.5">Capital Range</p>
-                <p className="text-sm font-bold text-white font-mono">
-                  {formatCurrency(plan.minAmount)} – {formatCurrency(plan.maxAmount)}
-                </p>
-              </div>
+                {/* Share Info */}
+                <div className="bg-slate-950/80 rounded-xl px-4 py-3 mb-6 border border-white/5">
+                  <p className="text-[10px] text-slate-400 mb-0.5">Share Structure</p>
+                  <p className="text-sm font-bold text-white font-mono">
+                    {isRealPlan ? (plan.total_shares || 150) : plan.totalShares} total shares
+                  </p>
+                  <div className="flex justify-between items-center mt-1">
+                    <p className="text-[10px] text-green-400">
+                      {availableShares} available
+                    </p>
+                    <p className="text-[10px] text-slate-500">
+                      {formatCurrency(isRealPlan ? (plan.shares_per_amount || 10000) : plan.sharesPerAmount)} / share
+                    </p>
+                  </div>
+                  <p className="text-[10px] text-slate-500 mt-1">
+                    Max {isRealPlan ? (plan.max_shares_per_investor || 30) : plan.maxSharesPerInvestor} shares/investor
+                  </p>
+                </div>
 
               {/* Features */}
               <ul className="space-y-2.5 mb-8 flex-1">
-                {plan.features.map((f) => (
+                {(plan.features || [
+                  `${plan.roi || plan.roi_percentage}% annual ROI`,
+                  '366-day lock period',
+                  'Share-based ownership',
+                  'Digital certificates',
+                ]).map((f: string) => (
                   <li key={f} className="flex items-center gap-2.5 text-xs text-slate-300">
                     <Check className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
                     {f}
@@ -144,7 +246,8 @@ export default function PlansPage() {
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
-          ))}
+            )
+          })}
         </div>
       </section>
 
