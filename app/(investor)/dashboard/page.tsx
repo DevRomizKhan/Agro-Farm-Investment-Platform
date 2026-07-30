@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { formatCurrency, formatDate } from '@/lib/utils'
-import { TrendingUp, Wallet, Clock, CheckCircle, ArrowRight, AlertCircle } from 'lucide-react'
+import { TrendingUp, Wallet, Clock, ArrowRight, AlertCircle, Layers } from 'lucide-react'
 import Link from 'next/link'
 import { ROUTES } from '@/constants'
 
@@ -11,14 +11,20 @@ export default async function InvestorDashboardPage() {
   const user = authData.data.user
   if (!user) redirect(ROUTES.LOGIN)
 
-  // Fetch profile and KYC status
+  // Fetch profile, KYC status and investments
   const { data: profile } = await supabase.from('profiles').select('full_name, email').eq('user_id', user.id).maybeSingle()
   const { data: kyc } = await supabase.from('kyc_submissions').select('status').eq('user_id', user.id).maybeSingle()
-  const { data: investments } = await supabase.from('investments').select('*, plan:investment_plans(name, roi_percentage)').eq('user_id', user.id).order('created_at', { ascending: false })
+  const { data: investments } = await supabase
+    .from('investments')
+    .select('*, plan:investment_plans(name, roi_percentage, shares_per_amount)')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
 
-  const totalInvested = investments?.filter(i => i.status === 'active').reduce((sum, i) => sum + Number(i.amount), 0) || 0
+  const activeInvestments = investments?.filter(i => i.status === 'active') || []
+  const totalInvested = activeInvestments.reduce((sum, i) => sum + Number(i.amount), 0)
+  const totalSharesOwned = activeInvestments.reduce((sum, i) => sum + (Number(i.shares_purchased) || 0), 0)
   const totalROI = investments?.reduce((sum, i) => sum + Number(i.actual_roi), 0) || 0
-  const activeCount = investments?.filter(i => i.status === 'active').length || 0
+  const activeCount = activeInvestments.length
   const pendingCount = investments?.filter(i => i.status === 'pending').length || 0
 
   const kycStatus = kyc?.status || 'not_submitted'
@@ -35,10 +41,10 @@ export default async function InvestorDashboardPage() {
       <div className="page-header">
         <div>
           <h1 className="page-title">Welcome back, {profile?.full_name?.split(' ')[0] || 'Investor'} 👋</h1>
-          <p className="page-subtitle">Here&apos;s an overview of your investment portfolio</p>
+          <p className="page-subtitle">Here&apos;s an overview of your share portfolio and returns</p>
         </div>
         <Link href={ROUTES.INVESTOR_INVESTMENTS} className="btn-primary">
-          <TrendingUp className="h-4 w-4" /> Invest Now
+          <TrendingUp className="h-4 w-4" /> Buy Shares Now
         </Link>
       </div>
 
@@ -53,7 +59,7 @@ export default async function InvestorDashboardPage() {
               {kycStatus === 'rejected' && 'KYC Rejected — Resubmission Required'}
             </p>
             <p className="text-xs opacity-80 mt-0.5">
-              {kycStatus === 'not_submitted' && 'Complete your KYC to start investing.'}
+              {kycStatus === 'not_submitted' && 'Complete your KYC verification to purchase farm shares.'}
               {kycStatus === 'pending' && 'Your documents are being reviewed. This takes up to 24 hours.'}
               {kycStatus === 'rejected' && 'Your KYC was rejected. Please review and resubmit.'}
             </p>
@@ -68,38 +74,71 @@ export default async function InvestorDashboardPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: 'Total Invested', value: formatCurrency(totalInvested), icon: Wallet, color: 'green', sub: 'Active investments' },
-          { label: 'Total Earnings', value: formatCurrency(totalROI), icon: TrendingUp, color: 'emerald', sub: 'Lifetime ROI received' },
-          { label: 'Active Plans', value: String(activeCount), icon: CheckCircle, color: 'teal', sub: 'Currently running' },
-          { label: 'Pending', value: String(pendingCount), icon: Clock, color: 'yellow', sub: 'Awaiting approval' },
-        ].map(({ label, value, icon: Icon, color, sub }) => (
-          <div key={label} className="stat-card">
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-slate-400">{label}</p>
-              <div className={`flex h-9 w-9 items-center justify-center rounded-xl bg-${color}-500/10`}>
-                <Icon className={`h-4.5 w-4.5 text-${color}-400`} />
-              </div>
+        <div className="stat-card">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-slate-400">Total Invested</p>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-green-500/10">
+              <Wallet className="h-4.5 w-4.5 text-green-400" />
             </div>
-            <p className="text-2xl font-bold text-white">{value}</p>
-            <p className="text-xs text-slate-500">{sub}</p>
           </div>
-        ))}
+          <p className="text-2xl font-bold text-white">{formatCurrency(totalInvested)}</p>
+          <p className="text-xs text-slate-500">Active portfolio value</p>
+        </div>
+
+        <div className="stat-card">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-slate-400">Shares Owned</p>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/10">
+              <Layers className="h-4.5 w-4.5 text-emerald-400" />
+            </div>
+          </div>
+          <p className="text-2xl font-bold text-white font-mono">
+            {totalSharesOwned}{' '}
+            <span className="text-sm font-normal text-slate-400">shares</span>
+          </p>
+          <p className="text-xs text-slate-500">Across {activeCount} active plan{activeCount === 1 ? '' : 's'}</p>
+        </div>
+
+        <div className="stat-card">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-slate-400">Total Earnings</p>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-500/10">
+              <TrendingUp className="h-4.5 w-4.5 text-teal-400" />
+            </div>
+          </div>
+          <p className="text-2xl font-bold text-white">{formatCurrency(totalROI)}</p>
+          <p className="text-xs text-slate-500">Lifetime ROI received</p>
+        </div>
+
+        <div className="stat-card">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-slate-400">Pending Requests</p>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-yellow-500/10">
+              <Clock className="h-4.5 w-4.5 text-yellow-400" />
+            </div>
+          </div>
+          <p className="text-2xl font-bold text-white">{pendingCount}</p>
+          <p className="text-xs text-slate-500">Awaiting approval</p>
+        </div>
       </div>
 
       {/* Recent Investments */}
       <div className="glass-card p-6">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="font-semibold text-white">Recent Investments</h2>
+          <div>
+            <h2 className="font-semibold text-white">Recent Share Purchases</h2>
+            <p className="text-xs text-slate-500">Your latest investment plan subscriptions</p>
+          </div>
           <Link href={ROUTES.INVESTOR_INVESTMENTS} className="text-sm text-green-400 hover:text-green-300 flex items-center gap-1">
             View all <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
+
         {!investments || investments.length === 0 ? (
           <div className="text-center py-12">
             <TrendingUp className="h-10 w-10 text-slate-600 mx-auto mb-3" />
-            <p className="text-slate-400 text-sm">No investments yet</p>
-            <p className="text-slate-600 text-xs mt-1">Start your investment journey today</p>
+            <p className="text-slate-400 text-sm">No share investments yet</p>
+            <p className="text-slate-600 text-xs mt-1">Start building your agricultural share portfolio today</p>
             <Link href={ROUTES.INVESTOR_INVESTMENTS} className="btn-primary mt-4 inline-flex">Browse Plans</Link>
           </div>
         ) : (
@@ -107,29 +146,41 @@ export default async function InvestorDashboardPage() {
             <table className="table-base">
               <thead>
                 <tr>
-                  <th>Plan</th>
-                  <th>Amount</th>
-                  <th>ROI</th>
+                  <th>Plan Name</th>
+                  <th>Shares Purchased</th>
+                  <th>Total Amount</th>
+                  <th>Expected ROI</th>
                   <th>Status</th>
                   <th>Date</th>
                 </tr>
               </thead>
               <tbody>
-                {investments.slice(0, 5).map((inv) => (
-                  <tr key={inv.id}>
-                    <td className="font-medium text-white">{(inv.plan as {name: string})?.name}</td>
-                    <td>{formatCurrency(Number(inv.amount))}</td>
-                    <td className="text-green-400">{(inv.plan as {roi_percentage: number})?.roi_percentage}%/yr</td>
-                    <td>
-                      <span className={
-                        inv.status === 'active' ? 'badge-green' :
-                        inv.status === 'pending' ? 'badge-yellow' :
-                        inv.status === 'completed' ? 'badge-blue' : 'badge-red'
-                      }>{inv.status}</span>
-                    </td>
-                    <td className="text-slate-400">{formatDate(inv.created_at)}</td>
-                  </tr>
-                ))}
+                {investments.slice(0, 5).map((inv) => {
+                  const plan = inv.plan as { name?: string; roi_percentage?: number; shares_per_amount?: number } | null
+                  return (
+                    <tr key={inv.id}>
+                      <td className="font-medium text-white">{plan?.name || 'Unknown Plan'}</td>
+                      <td>
+                        <span className="font-mono font-semibold text-emerald-400">
+                          {inv.shares_purchased || 0}
+                        </span>{' '}
+                        <span className="text-xs text-slate-500">
+                          ({formatCurrency(plan?.shares_per_amount || 10000)}/share)
+                        </span>
+                      </td>
+                      <td className="font-medium text-white">{formatCurrency(Number(inv.amount))}</td>
+                      <td className="text-green-400 font-medium">{plan?.roi_percentage || 0}%/yr</td>
+                      <td>
+                        <span className={
+                          inv.status === 'active' ? 'badge-green' :
+                          inv.status === 'pending' ? 'badge-yellow' :
+                          inv.status === 'completed' ? 'badge-blue' : 'badge-red'
+                        }>{inv.status}</span>
+                      </td>
+                      <td className="text-slate-400">{formatDate(inv.created_at)}</td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>

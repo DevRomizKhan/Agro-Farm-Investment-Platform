@@ -232,6 +232,8 @@ export async function approveInvestmentAction(
 
   revalidatePath('/admin/investments')
   revalidatePath('/dashboard/investments')
+  revalidatePath('/plans')
+  revalidatePath('/', 'layout')
   return { success: true }
 }
 
@@ -300,6 +302,7 @@ export async function manageInvestmentPlanAction(
     }
 
     revalidatePath('/plans')
+    revalidatePath('/', 'layout')
     revalidatePath('/admin/plans')
     return { success: true }
   } catch (err: unknown) {
@@ -348,6 +351,7 @@ export async function deleteInvestmentPlanAction(planId: string): Promise<{ succ
     if (error) throw error
 
     revalidatePath('/plans')
+    revalidatePath('/', 'layout')
     revalidatePath('/admin/plans')
     return { success: true }
   } catch (err: unknown) {

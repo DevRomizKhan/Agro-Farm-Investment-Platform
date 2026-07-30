@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Youtube, Send, CheckCircle2, TrendingUp, ArrowRight } from 'lucide-react'
-import { APP_NAME, ROUTES } from '@/constants'
+import { APP_NAME, COMPANY_INFO, ROUTES } from '@/constants'
 
 const links = {
   company: [
@@ -48,10 +48,10 @@ export function PublicFooter() {
                 Start Growing Wealth
               </div>
               <h2 className="text-2xl sm:text-3xl font-black text-white">
-                Join 1,250+ Smart Investors
+                Join 500+ Smart Investors
               </h2>
               <p className="text-slate-300 text-sm">
-                Earn 12–18% annual returns with 100% asset-backed cattle farming.
+                Earn 10–18% annual returns with 100% asset-backed cattle farming.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
                 <Link href={ROUTES.REGISTER} className="btn-primary px-7 py-3 rounded-xl text-sm font-bold flex items-center gap-2 group w-full sm:w-auto justify-center">
@@ -81,9 +81,9 @@ export function PublicFooter() {
             </p>
             <div className="space-y-2.5">
               {[
-                { Icon: MapPin, text: 'House 42, Road 11, Banani, Dhaka' },
-                { Icon: Phone, text: '+880 1700-000000' },
-                { Icon: Mail, text: 'info@nhkagroinvest.com' },
+                { Icon: MapPin, text: COMPANY_INFO.farmLocations },
+                { Icon: Phone, text: COMPANY_INFO.phone },
+                { Icon: Mail, text: COMPANY_INFO.email },
               ].map(({ Icon, text }) => (
                 <div key={text} className="flex items-center gap-3 text-xs text-slate-300">
                   <Icon className="h-4 w-4 text-emerald-400 shrink-0" />

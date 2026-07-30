@@ -3,6 +3,18 @@ export const APP_TAGLINE = 'Invest in Agriculture. Harvest the Future.'
 export const APP_DESCRIPTION =
   'Join thousands of investors growing wealth through sustainable agricultural investments in Bangladesh.'
 
+export const COMPANY_INFO = {
+  founder: 'Kazi Shakib',
+  founderTitle: 'Founder & CEO',
+  executive: 'Nirob Hassan',
+  executiveTitle: 'Former Executor',
+  phone: '01954 745991',
+  email: 'contact@amanah.farm',
+  website: 'www.amanah.farm',
+  farmLocations: 'Chattogram, Kaptai & Joypurhat',
+  mapQuery: 'Kaptai, Chattogram, Bangladesh',
+} as const
+
 export const SUPABASE_STORAGE_BUCKETS = {
   AVATARS: 'avatars',
   KYC_DOCUMENTS: 'kyc-documents',

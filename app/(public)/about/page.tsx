@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
-import { APP_NAME, ROUTES } from '@/constants'
+import { APP_NAME, COMPANY_INFO, ROUTES } from '@/constants'
 import { Leaf, ShieldCheck, Target, Eye, TrendingUp, Users, ArrowRight } from 'lucide-react'
 
 export const metadata: Metadata = {
@@ -27,10 +28,15 @@ const values = [
 ]
 
 const stats = [
-  { icon: TrendingUp, val: '18%', label: 'Max Annual ROI' },
-  { icon: Users, val: '1,250+', label: 'Active Investors' },
+  { icon: TrendingUp, val: '10–18%', label: 'Annual ROI Range' },
+  { icon: Users, val: '500+', label: 'Active Investors' },
   { icon: Leaf, val: '25+', label: 'Farm Locations' },
   { icon: ShieldCheck, val: '100%', label: 'On-Time Payouts' },
+]
+
+const leadership = [
+  { name: 'Kazi Shakib', role: 'Founder & CEO' },
+  { name: 'Nirob Hassan', role: 'Former Executor' },
 ]
 
 export default function AboutPage() {
@@ -49,7 +55,7 @@ export default function AboutPage() {
             Pioneering <span className="gradient-text">Agro Investment</span> in Bangladesh
           </h1>
           <p className="text-slate-300 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
-            Since 2019, we have connected urban capital with sustainable cattle farming — delivering ethical, Shariah-compliant returns to 1,250+ investors.
+            Since 2019, we have connected urban capital with sustainable cattle farming — delivering ethical, Shariah-compliant returns to 500+ investors across Bangladesh.
           </p>
         </div>
       </section>
@@ -60,15 +66,17 @@ export default function AboutPage() {
           
           {/* Image */}
           <div className="relative aspect-[4/3] rounded-3xl overflow-hidden border border-emerald-500/20 shadow-2xl group">
-            <img
-              src="https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=900&q=80"
-              alt="Bangladesh cattle farm aerial view"
+            <Image
+              src="/images/carousel/slide3.jpg"
+              alt="Amanah Farm cattle operation in Bangladesh"
+              fill
+              sizes="(max-width: 1024px) 100vw, 50vw"
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 to-transparent" />
             <div className="absolute bottom-6 left-6 right-6 p-5 rounded-2xl bg-slate-950/80 backdrop-blur-md border border-white/10">
-              <p className="text-sm font-bold text-white">Modern Livestock Facilities</p>
-              <p className="text-xs text-slate-400">Dhaka · Rajshahi · Comilla · Rangpur</p>
+              <p className="text-sm font-bold text-white">Responsible Livestock Facilities</p>
+              <p className="text-xs text-slate-400">{COMPANY_INFO.farmLocations}</p>
             </div>
           </div>
 
@@ -79,15 +87,39 @@ export default function AboutPage() {
               <span className="gradient-text">Powered by Trust</span>
             </h2>
             <p className="text-slate-300 text-base leading-relaxed">
-              Amanah Farm was founded with a singular goal: make agricultural investment accessible, transparent, and genuinely profitable for every Bangladeshi investor — not just institutions.
+              Amanah Farm was founded by {COMPANY_INFO.founder} with a singular goal: make agricultural investment accessible, transparent, and genuinely responsible for Bangladeshi investors.
             </p>
             <p className="text-slate-400 text-sm leading-relaxed">
-              We operate 25+ verified farm hubs equipped with IoT health monitoring, resident veterinarians, and comprehensive insurance. Every cattle unit is registered, tracked, and insured before investor capital is deployed.
+              Our operations are guided by {COMPANY_INFO.founderTitle} and supported by {COMPANY_INFO.executive}, {COMPANY_INFO.executiveTitle}. Every farm location is managed with careful livestock welfare, clear reporting, and disciplined operations.
             </p>
             <Link href={ROUTES.REGISTER} className="btn-primary inline-flex items-center gap-2 text-sm rounded-xl">
               Start Your Investment Journey
               <ArrowRight className="h-4 w-4" />
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Leadership & contact ─────────────────────── */}
+      <section className="border-y border-white/5 bg-slate-900/30 py-16">
+        <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-10 items-center">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-400 mb-3">The people behind Amanah Farm</p>
+            <h2 className="text-2xl sm:text-3xl font-black text-white mb-6">Built by people who understand agriculture</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {leadership.map(({ name, role }) => (
+                <div key={name} className="rounded-2xl bg-slate-950/70 border border-white/10 p-5">
+                  <p className="text-lg font-bold text-white">{name}</p>
+                  <p className="text-sm text-slate-400 mt-1">{role}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-6 min-w-[280px]">
+            <p className="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-4">Connect with us</p>
+            <p className="text-sm text-slate-200">{COMPANY_INFO.phone}</p>
+            <p className="text-sm text-slate-300 mt-2">{COMPANY_INFO.email}</p>
+            <p className="text-sm text-slate-400 mt-2">{COMPANY_INFO.farmLocations}</p>
           </div>
         </div>
       </section>

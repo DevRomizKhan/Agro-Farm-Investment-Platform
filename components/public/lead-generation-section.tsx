@@ -158,7 +158,7 @@ export function LeadGenerationSection() {
                     <input
                       type="tel"
                       required
-                      placeholder="+880 1700-000000"
+                      placeholder="01954 745991"
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                       className="w-full px-4 py-3 rounded-xl bg-slate-950/80 border border-slate-700 text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 transition-colors text-sm"

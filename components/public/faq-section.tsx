@@ -7,27 +7,31 @@ import { cn } from '@/lib/utils'
 const faqs = [
   {
     q: 'Is my investment safe and asset-backed?',
-    a: 'Yes. 100% of capital is allocated into registered, insured physical cattle. All animals are vaccinated, IoT-tagged, and monitored by resident veterinarians across our 25+ farm locations.',
+    a: 'Yes. Every taka invested is allocated into registered, insured physical cattle. All animals are IoT-tagged, vaccinated, and monitored by resident veterinarians across our 25+ farm locations. No speculative instruments — only real agricultural assets.',
   },
   {
     q: 'What is the minimum investment amount?',
-    a: 'Our Starter Plan begins at ৳10,000 — allowing every investor, regardless of budget, to participate and earn consistent agricultural returns.',
+    a: 'You can start with as little as ৳10,000 (1 share). Shares are priced at ৳10,000 each and you may purchase up to the maximum allowed for your chosen plan.',
   },
   {
     q: 'How and when do I receive my returns?',
-    a: 'Profits are deposited directly into your registered bank account or mobile wallet (bKash/Nagad) monthly, or accumulated at plan maturity — your choice.',
+    a: 'Returns are distributed quarterly, deposited directly into your registered bank account. You can also choose to reinvest at maturity. Payment timing and rates are defined in your investment agreement.',
   },
   {
     q: 'Is Amanah Farm investment Shariah-compliant?',
-    a: 'Absolutely. We operate strictly under authentic Mudarabah & Musharakah contracts. Profit-sharing ratios are pre-agreed with zero interest (Riba) or speculation.',
+    a: 'Absolutely. All investments operate under authenticated Mudarabah and Musharakah structures. Profit-sharing ratios are pre-agreed, and there is zero interest (Riba), speculation, or ambiguity (Gharar) involved.',
   },
   {
-    q: 'What is KYC verification and why is it required?',
-    a: 'KYC verifies your identity (National ID + bank details) to secure your payouts, prevent fraud, and ensure compliance with Bangladesh financial regulations.',
+    q: 'What does KYC verification involve?',
+    a: 'KYC (Know Your Customer) requires your National ID card (NID), a recent photo, and bank account details. It typically completes within 24 hours and is required to protect your payout channels and comply with Bangladesh Bank regulations.',
   },
   {
-    q: 'Can I withdraw before plan maturity?',
-    a: 'Early exit is available after a 3-month lock-in with a 2% liquidation fee. Standard processing takes up to 7 business days.',
+    q: 'What is the lock period and can I exit early?',
+    a: 'Each investment plan has a 366-day lock period from the date of activation. Early withdrawal is not available during this window. After the lock period expires, you may request a full exit through the investor portal.',
+  },
+  {
+    q: 'What annual return can I expect?',
+    a: 'Our plans offer between 10% and 18% annual ROI depending on the plan tier and duration. The exact rate is fixed at the time of your investment and guaranteed in your signed agreement.',
   },
 ]
 
@@ -48,7 +52,7 @@ export function FAQSection() {
             Common <span className="gradient-text">Questions</span>
           </h2>
           <p className="text-slate-400 text-sm sm:text-base">
-            Everything investors need to know before they begin.
+            Everything you need to know before getting started.
           </p>
         </div>
 

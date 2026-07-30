@@ -6,8 +6,17 @@ const INVESTOR_ROUTES = ['/dashboard']
 const OWNER_ROUTES = ['/admin']
 const AUTH_ROUTES = ['/login', '/register', '/forgot-password', '/reset-password']
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ahnlwgrldwrbvkrxlhrv.supabase.co'
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFobmx3Z3JsZHdyYnZrcnhsaHJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyNjUyOTMsImV4cCI6MjA5ODg0MTI5M30.Ss5DbU7QFmqe9v2XBam7NK7iN1d8vM_7i-Kzajt7FQM'
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+function clearAuthCookies(response: NextResponse, request: NextRequest) {
+  // Supabase may split its auth session across several `sb-*` cookies.
+  for (const { name } of request.cookies.getAll()) {
+    if (name.startsWith('sb-')) {
+      response.cookies.set(name, '', { path: '/', maxAge: 0 })
+    }
+  }
+}
 
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname
@@ -15,11 +24,8 @@ export async function proxy(request: NextRequest) {
   const isOwnerRoute = OWNER_ROUTES.some((route) => pathname.startsWith(route))
   const isAuthRoute = AUTH_ROUTES.some((route) => pathname.startsWith(route))
 
-  // Public pages do not need a Supabase session lookup. Avoiding this network
-  // round-trip keeps the landing page fast while protected/auth pages still
-  // receive the full session and role checks below.
-  if (!isInvestorRoute && !isOwnerRoute && !isAuthRoute) {
-    return NextResponse.next()
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY')
   }
 
   let supabaseResponse = NextResponse.next({ request })
@@ -41,13 +47,31 @@ export async function proxy(request: NextRequest) {
 
   const {
     data: { user },
+    error: authError,
   } = await supabase.auth.getUser()
+
+  if (authError) {
+    clearAuthCookies(supabaseResponse, request)
+
+    if (isInvestorRoute || isOwnerRoute) {
+      const loginUrl = request.nextUrl.clone()
+      loginUrl.pathname = '/login'
+      loginUrl.searchParams.set('redirectTo', pathname)
+      const redirectResponse = NextResponse.redirect(loginUrl)
+      clearAuthCookies(redirectResponse, request)
+      return redirectResponse
+    }
+
+    return supabaseResponse
+  }
 
   if ((isInvestorRoute || isOwnerRoute) && !user) {
     const loginUrl = request.nextUrl.clone()
     loginUrl.pathname = '/login'
     loginUrl.searchParams.set('redirectTo', pathname)
-    return NextResponse.redirect(loginUrl)
+    const redirectResponse = NextResponse.redirect(loginUrl)
+    clearAuthCookies(redirectResponse, request)
+    return redirectResponse
   }
 
   if (isAuthRoute && user) {

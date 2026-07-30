@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { APP_NAME } from '@/constants'
-import { Mail, Phone, MapPin, Clock, Send, CheckCircle2, ShieldCheck } from 'lucide-react'
+import { COMPANY_INFO } from '@/constants'
+import { Mail, Phone, MapPin, Clock, Globe, Send, CheckCircle2, ShieldCheck, ExternalLink } from 'lucide-react'
 
 export default function ContactPage() {
   const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' })
@@ -16,9 +16,10 @@ export default function ContactPage() {
   }
 
   const contacts = [
-    { icon: MapPin, label: 'Head Office', value: 'House 42, Road 11, Banani, Dhaka 1213' },
-    { icon: Phone, label: 'Phone / WhatsApp', value: '+880 1700-000000  ·  +880 1800-000000' },
-    { icon: Mail, label: 'Email', value: 'info@nhkagroinvest.com' },
+    { icon: MapPin, label: 'Farm Locations', value: COMPANY_INFO.farmLocations },
+    { icon: Phone, label: 'Phone / WhatsApp', value: COMPANY_INFO.phone },
+    { icon: Mail, label: 'Email', value: COMPANY_INFO.email },
+    { icon: Globe, label: 'Website', value: COMPANY_INFO.website },
     { icon: Clock, label: 'Office Hours', value: 'Sat–Thu  9:00 AM – 7:00 PM' },
   ]
 
@@ -63,19 +64,22 @@ export default function ContactPage() {
               </div>
             ))}
 
-            {/* Map placeholder */}
-            <div className="relative h-56 rounded-2xl overflow-hidden border border-white/8 bg-slate-900">
-              <img
-                src="https://images.unsplash.com/photo-1524661135-423995f22d0b?w=700&q=80"
-                alt="Dhaka Bangladesh map view"
-                className="w-full h-full object-cover opacity-40"
+            {/* Professional map embed */}
+            <div className="relative h-64 rounded-2xl overflow-hidden border border-emerald-500/20 bg-slate-900">
+              <iframe
+                title="Amanah Farm location map"
+                src="https://www.openstreetmap.org/export/embed.html?bbox=91.9500%2C22.3500%2C92.3500%2C22.7000&layer=mapnik&marker=22.5067%2C92.1956"
+                className="w-full h-full border-0 grayscale-[0.15] contrast-[1.05]"
+                loading="lazy"
               />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="flex items-center gap-2 px-4 py-2 bg-slate-950/80 rounded-xl border border-white/10 backdrop-blur-md">
-                  <MapPin className="h-4 w-4 text-emerald-400" />
-                  <span className="text-xs font-semibold text-white">Banani, Dhaka</span>
-                </div>
-              </div>
+              <a
+                href="https://www.openstreetmap.org/?mlat=22.5067&mlon=92.1956#map=11/22.5067/92.1956"
+                target="_blank"
+                rel="noreferrer"
+                className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 rounded-lg bg-slate-950/90 px-3 py-2 text-[11px] font-semibold text-white backdrop-blur-md border border-white/10"
+              >
+                Open full map <ExternalLink className="h-3 w-3 text-emerald-400" />
+              </a>
             </div>
           </div>
 
@@ -123,7 +127,7 @@ export default function ContactPage() {
                       <input
                         required
                         type="tel"
-                        placeholder="+880 1700-000000"
+                        placeholder="01954 745991"
                         value={form.phone}
                         onChange={(e) => setForm({ ...form, phone: e.target.value })}
                         className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 text-white text-sm focus:outline-none focus:border-emerald-500 placeholder:text-slate-500"

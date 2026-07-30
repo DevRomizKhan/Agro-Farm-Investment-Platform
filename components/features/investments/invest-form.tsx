@@ -2,9 +2,10 @@
 
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
-import { Loader2, Upload, DollarSign, Wallet } from 'lucide-react'
+import { Loader2, Upload, Wallet, AlertCircle } from 'lucide-react'
 import { investSchema, type InvestFormData } from '@/schemas'
 import { createInvestmentAction } from '@/actions/investments'
 import { formatCurrency } from '@/lib/utils'
@@ -17,6 +18,7 @@ interface InvestFormProps {
 }
 
 export function InvestForm({ plans, planSharesSold = {} }: InvestFormProps) {
+  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [selectedPlan, setSelectedPlan] = useState<InvestmentPlan | null>(null)
   const [receiptFile, setReceiptFile] = useState<File | null>(null)
@@ -71,8 +73,8 @@ export function InvestForm({ plans, planSharesSold = {} }: InvestFormProps) {
 
       const result = await createInvestmentAction(formData)
       if (result.success) {
-        toast.success('Investment requested successfully! Awaiting review.')
-        window.location.reload()
+        toast.success('Investment request submitted! Your application is under review.')
+        router.refresh()
       } else {
         toast.error(result.error || 'Failed to submit investment')
       }
@@ -131,30 +133,55 @@ export function InvestForm({ plans, planSharesSold = {} }: InvestFormProps) {
           {errors.plan_id && <p className="mt-1.5 text-xs text-red-400">{errors.plan_id.message}</p>}
         </div>
 
-        {selectedPlan && (
-          <div className="grid grid-cols-2 gap-4 p-4 rounded-xl bg-slate-800/40 border border-white/5 text-sm">
-            <div>
-              <span className="text-slate-400 block text-xs">Total Shares</span>
-              <span className="text-white font-medium">{selectedPlan.total_shares || 150}</span>
+        {selectedPlan && (() => {
+          const total = selectedPlan.total_shares || 150
+          const sold = planSharesSold[selectedPlan.id] || 0
+          const available = total - sold
+          const pct = Math.min(100, Math.round((sold / total) * 100))
+          const almostFull = available <= Math.ceil(total * 0.2)
+          return (
+            <div className="p-4 rounded-xl bg-slate-800/40 border border-white/5 space-y-3">
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                <div>
+                  <span className="text-slate-400 block mb-0.5">Price / Share</span>
+                  <span className="text-white font-semibold">{formatCurrency(selectedPlan.shares_per_amount || 10000)}</span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block mb-0.5">Annual ROI</span>
+                  <span className="text-emerald-400 font-semibold">{selectedPlan.roi_percentage}%</span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block mb-0.5">Max Shares / Investor</span>
+                  <span className="text-white font-semibold">{selectedPlan.max_shares_per_investor || 30}</span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block mb-0.5">Duration</span>
+                  <span className="text-white font-semibold">{selectedPlan.duration_months} months</span>
+                </div>
+              </div>
+              {/* Live share availability */}
+              <div className="pt-2 border-t border-white/5">
+                <div className="flex justify-between items-center mb-1.5">
+                  <span className={`text-xs font-semibold ${almostFull ? 'text-orange-400' : 'text-emerald-400'}`}>
+                    {available} shares available
+                  </span>
+                  <span className="text-xs text-slate-500">{pct}% sold</span>
+                </div>
+                <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full ${almostFull ? 'bg-orange-500' : 'bg-emerald-500'}`}
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
+                {almostFull && available > 0 && (
+                  <p className="text-xs text-orange-400 mt-1 flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3" /> Limited — act fast
+                  </p>
+                )}
+              </div>
             </div>
-            <div>
-              <span className="text-slate-400 block text-xs">Available Shares</span>
-              <span className="text-green-400 font-medium">{getAvailableShares()}</span>
-            </div>
-            <div>
-              <span className="text-slate-400 block text-xs">Per Share Amount</span>
-              <span className="text-white font-medium">{formatCurrency(selectedPlan.shares_per_amount || 10000)}</span>
-            </div>
-            <div>
-              <span className="text-slate-400 block text-xs">Max Shares/Investor</span>
-              <span className="text-white font-medium">{selectedPlan.max_shares_per_investor || 30}</span>
-            </div>
-            <div className="col-span-2">
-              <span className="text-slate-400 block text-xs">Duration</span>
-              <span className="text-white font-medium">{selectedPlan.duration_months} Months</span>
-            </div>
-          </div>
-        )}
+          )
+        })()}
 
         {/* Shares */}
         <div>

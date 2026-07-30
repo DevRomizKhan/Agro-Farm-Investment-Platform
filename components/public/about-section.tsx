@@ -1,19 +1,24 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { Leaf, ShieldCheck, CheckCircle2, ArrowRight, TrendingUp, Users } from 'lucide-react'
-import { ROUTES } from '@/constants'
+import { Leaf, ShieldCheck, TrendingUp, Users, ArrowRight } from 'lucide-react'
+import { COMPANY_INFO, ROUTES } from '@/constants'
 
 const features = [
-  { icon: ShieldCheck, label: 'Shariah Compliant Contracts' },
-  { icon: TrendingUp, label: 'Quarterly Bank Payouts' },
+  { icon: ShieldCheck, label: 'Shariah-Compliant Contracts' },
+  { icon: TrendingUp, label: 'Quarterly Dividend Payouts' },
   { icon: Users, label: '24/7 Investor Portal Access' },
-  { icon: Leaf, label: 'Insured Livestock Assets' },
+  { icon: Leaf, label: 'Fully Insured Livestock Assets' },
+]
+
+const stats = [
+  { val: '2019', label: 'Founded' },
+  { val: '25+', label: 'Farm Sites' },
+  { val: '500+', label: 'Active Investors' },
 ]
 
 export function AboutSection() {
   return (
     <section id="about" className="py-24 bg-slate-950 relative overflow-hidden">
-      {/* Subtle ambient */}
       <div className="absolute -top-40 -right-40 w-[500px] h-[500px] bg-emerald-500/5 rounded-full blur-[120px] pointer-events-none" />
 
       <div className="section-container relative z-10">
@@ -32,7 +37,7 @@ export function AboutSection() {
             </h2>
 
             <p className="text-slate-300 text-base sm:text-lg leading-relaxed">
-              Amanah Farm connects urban capital to high-yield, sustainable cattle farming across Bangladesh — with zero middlemen, complete transparency, and guaranteed Shariah compliance.
+              Amanah Farm connects urban capital to high-yield, sustainable cattle farming across Bangladesh — with zero middlemen, complete transparency, and Shariah-compliant operations.
             </p>
 
             <div className="grid grid-cols-2 gap-3">
@@ -48,11 +53,7 @@ export function AboutSection() {
 
             {/* Key numbers */}
             <div className="flex gap-10 pt-4 border-t border-white/10">
-              {[
-                { val: '2019', label: 'Founded' },
-                { val: '25+', label: 'Farm Sites' },
-                { val: '1,250+', label: 'Investors' },
-              ].map(({ val, label }) => (
+              {stats.map(({ val, label }) => (
                 <div key={label}>
                   <p className="text-2xl font-black text-emerald-400 font-mono">{val}</p>
                   <p className="text-xs text-slate-400 mt-0.5">{label}</p>
@@ -73,14 +74,18 @@ export function AboutSection() {
           <div className="relative">
             <div className="relative aspect-[3/2] rounded-3xl overflow-hidden border border-emerald-500/20 shadow-2xl group">
               <Image
-                src="/images/image.png"
-                alt="Amanah Farm cattle farming facility"
+                src="/images/carousel/slide3.jpg"
+                alt="Amanah Farm cattle operation in Bangladesh"
                 fill
                 priority
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
+            </div>
+            <div className="absolute -bottom-5 left-5 right-5 sm:left-8 sm:right-8 rounded-2xl border border-white/10 bg-slate-950/90 px-5 py-4 backdrop-blur-md shadow-xl">
+              <p className="text-sm font-bold text-white">Managed by {COMPANY_INFO.founder}</p>
+              <p className="mt-1 text-xs text-slate-400">{COMPANY_INFO.founderTitle} · {COMPANY_INFO.farmLocations}</p>
             </div>
           </div>
 
