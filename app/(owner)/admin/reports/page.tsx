@@ -20,10 +20,12 @@ export default async function AdminReportsPage() {
     { data: investments },
     { count: totalInvestors },
     { data: kycData },
+    { data: plans },
   ] = await Promise.all([
-    supabase.from('investments').select('amount, status, created_at, expected_roi, actual_roi').order('created_at', { ascending: false }),
+    supabase.from('investments').select('amount, status, created_at, expected_roi, actual_roi, shares_purchased, plan_id').order('created_at', { ascending: false }),
     supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'investor'),
     supabase.from('kyc_submissions').select('status'),
+    supabase.from('investment_plans').select('id, name, total_shares, shares_per_amount, owner_share_percentage'),
   ])
 
   // Calculate metrics
@@ -33,6 +35,15 @@ export default async function AdminReportsPage() {
   const activeInvestments = investments?.filter(i => i.status === 'active').length || 0
   const completedInvestments = investments?.filter(i => i.status === 'completed').length || 0
   const pendingInvestments = investments?.filter(i => i.status === 'pending').length || 0
+
+  // Share metrics
+  const totalSharesSold = investments?.filter(i => i.status === 'active').reduce((sum, i) => sum + (Number(i.shares_purchased) || 0), 0) || 0
+  const totalAvailableShares = plans?.reduce((sum, p) => sum + Number(p.total_shares), 0) || 0
+  const totalOwnerShares = plans?.reduce((sum, p) => sum + Math.floor(Number(p.total_shares) * (Number(p.owner_share_percentage) / 100)), 0) || 0
+  const totalInvestorShares = totalAvailableShares - totalOwnerShares
+  // Available = Total - Owner Reserved - Sold
+  const availableSharesForSale = totalAvailableShares - totalOwnerShares - totalSharesSold
+  const shareUtilization = totalInvestorShares > 0 ? ((totalSharesSold / totalInvestorShares) * 100).toFixed(1) : '0'
 
   const approvedKYC = kycData?.filter(k => k.status === 'approved').length || 0
   const pendingKYC = kycData?.filter(k => k.status === 'pending').length || 0
@@ -67,6 +78,10 @@ export default async function AdminReportsPage() {
           approvedKYC={approvedKYC}
           pendingKYC={pendingKYC}
           monthlyData={recentMonths}
+          totalSharesSold={totalSharesSold}
+          availableSharesForSale={availableSharesForSale}
+          totalOwnerShares={totalOwnerShares}
+          totalInvestorShares={totalInvestorShares}
         />
       </div>
 
@@ -85,31 +100,31 @@ export default async function AdminReportsPage() {
 
         <div className="glass-card p-5 space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-400">Expected ROI</span>
+            <span className="text-sm text-slate-400">Shares Sold</span>
             <div className="h-9 w-9 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-              <TrendingUp className="h-4.5 w-4.5 text-emerald-400" />
+              <BarChart3 className="h-4.5 w-4.5 text-emerald-400" />
             </div>
           </div>
-          <p className="text-2xl font-bold text-white">{formatCurrency(totalExpectedROI)}</p>
-          <p className="text-xs text-slate-500">Projected returns</p>
+          <p className="text-2xl font-bold text-white font-mono">{totalSharesSold} <span className="text-sm font-normal text-slate-400">shares</span></p>
+          <p className="text-xs text-slate-500">{shareUtilization}% of investor shares</p>
         </div>
 
         <div className="glass-card p-5 space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-400">Total Investors</span>
+            <span className="text-sm text-slate-400">Available Shares</span>
             <div className="h-9 w-9 rounded-lg bg-blue-500/10 flex items-center justify-center">
               <Users className="h-4.5 w-4.5 text-blue-400" />
             </div>
           </div>
-          <p className="text-2xl font-bold text-white">{totalInvestors || 0}</p>
-          <p className="text-xs text-slate-500">{approvedKYC} verified</p>
+          <p className="text-2xl font-bold text-white font-mono">{availableSharesForSale} <span className="text-sm font-normal text-slate-400">shares</span></p>
+          <p className="text-xs text-slate-500">Remaining for investors</p>
         </div>
 
         <div className="glass-card p-5 space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-sm text-slate-400">ROI Paid</span>
             <div className="h-9 w-9 rounded-lg bg-teal-500/10 flex items-center justify-center">
-              <BarChart3 className="h-4.5 w-4.5 text-teal-400" />
+              <TrendingUp className="h-4.5 w-4.5 text-teal-400" />
             </div>
           </div>
           <p className="text-2xl font-bold text-white">{formatCurrency(totalActualROI)}</p>
@@ -152,23 +167,54 @@ export default async function AdminReportsPage() {
         <div className="glass-card p-6">
           <h2 className="font-semibold text-white mb-5 flex items-center gap-2">
             <Users className="h-5 w-5 text-green-400" />
-            KYC Verification Status
+            Share Allocation
           </h2>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="h-3 w-3 rounded-full bg-green-500" />
-                <span className="text-sm text-slate-300">Approved</span>
+                <div className="h-3 w-3 rounded-full bg-purple-500" />
+                <span className="text-sm text-slate-300">Owner Shares</span>
               </div>
-              <span className="text-white font-medium">{approvedKYC}</span>
+              <span className="text-white font-medium font-mono">{totalOwnerShares}</span>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="h-3 w-3 rounded-full bg-yellow-500" />
-                <span className="text-sm text-slate-300">Pending Review</span>
+                <div className="h-3 w-3 rounded-full bg-green-500" />
+                <span className="text-sm text-slate-300">Investor Shares Sold</span>
               </div>
-              <span className="text-white font-medium">{pendingKYC}</span>
+              <span className="text-white font-medium font-mono">{totalSharesSold}</span>
             </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="h-3 w-3 rounded-full bg-blue-500" />
+                <span className="text-sm text-slate-300">Available for Sale</span>
+              </div>
+              <span className="text-white font-medium font-mono">{availableSharesForSale}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* KYC Verification Status */}
+      <div className="glass-card p-6">
+        <h2 className="font-semibold text-white mb-5 flex items-center gap-2">
+          <Users className="h-5 w-5 text-green-400" />
+          KYC Verification Status
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="flex items-center justify-between p-3 rounded-lg bg-slate-800/30">
+            <div className="flex items-center gap-3">
+              <div className="h-3 w-3 rounded-full bg-green-500" />
+              <span className="text-sm text-slate-300">Approved</span>
+            </div>
+            <span className="text-white font-medium">{approvedKYC}</span>
+          </div>
+          <div className="flex items-center justify-between p-3 rounded-lg bg-slate-800/30">
+            <div className="flex items-center gap-3">
+              <div className="h-3 w-3 rounded-full bg-yellow-500" />
+              <span className="text-sm text-slate-300">Pending Review</span>
+            </div>
+            <span className="text-white font-medium">{pendingKYC}</span>
           </div>
         </div>
       </div>
@@ -181,6 +227,9 @@ export default async function AdminReportsPage() {
         approvedKYC={approvedKYC}
         pendingKYC={pendingKYC}
         monthlyData={recentMonths}
+        totalSharesSold={totalSharesSold}
+        availableSharesForSale={availableSharesForSale}
+        totalOwnerShares={totalOwnerShares}
       />
 
       {/* Monthly Investment Trend */}

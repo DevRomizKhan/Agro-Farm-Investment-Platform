@@ -23,6 +23,10 @@ interface ExportReportButtonProps {
   approvedKYC: number
   pendingKYC: number
   monthlyData: [string, { invested: number; count: number }][]
+  totalSharesSold: number
+  availableSharesForSale: number
+  totalOwnerShares: number
+  totalInvestorShares: number
 }
 
 export function ExportReportButton({
@@ -36,6 +40,10 @@ export function ExportReportButton({
   approvedKYC,
   pendingKYC,
   monthlyData,
+  totalSharesSold,
+  availableSharesForSale,
+  totalOwnerShares,
+  totalInvestorShares,
 }: ExportReportButtonProps) {
   const [isExporting, setIsExporting] = useState(false)
   const [showModal, setShowModal] = useState(false)
@@ -55,6 +63,13 @@ export function ExportReportButton({
       ['Total Invested', totalInvested],
       ['Expected ROI', totalExpectedROI],
       ['Actual ROI Paid', totalActualROI],
+      [''],
+      ['Share Allocation'],
+      ['Metric', 'Value'],
+      ['Total Owner Shares', totalOwnerShares],
+      ['Total Investor Shares', totalInvestorShares],
+      ['Shares Sold', totalSharesSold],
+      ['Available Shares', availableSharesForSale],
       [''],
       ['Investment Status'],
       ['Status', 'Count'],
@@ -118,6 +133,17 @@ export function ExportReportButton({
           <div class="metric"><strong>Total Invested:</strong> ${totalInvested}</div>
           <div class="metric"><strong>Expected ROI:</strong> ${totalExpectedROI}</div>
           <div class="metric"><strong>Actual ROI Paid:</strong> ${totalActualROI}</div>
+        </div>
+
+        <div class="section">
+          <h2>Share Allocation</h2>
+          <table>
+            <tr><th>Metric</th><th>Value</th></tr>
+            <tr><td>Total Owner Shares</td><td>${totalOwnerShares}</td></tr>
+            <tr><td>Total Investor Shares</td><td>${totalInvestorShares}</td></tr>
+            <tr><td>Shares Sold</td><td>${totalSharesSold}</td></tr>
+            <tr><td>Available Shares</td><td>${availableSharesForSale}</td></tr>
+          </table>
         </div>
 
         <div class="section">

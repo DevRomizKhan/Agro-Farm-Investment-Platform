@@ -103,12 +103,29 @@ export function InvestForm({ plans, planSharesSold = {} }: InvestFormProps) {
     return shares * (selectedPlan.shares_per_amount || 10000)
   }
 
-  // Calculate available shares for selected plan
+  // Calculate available shares for selected plan (excluding owner shares)
   const getAvailableShares = () => {
     if (!selectedPlan) return 0
     const totalShares = selectedPlan.total_shares || 150
+    const ownerShares = Math.floor(totalShares * ((selectedPlan.owner_share_percentage || 40) / 100))
     const soldShares = planSharesSold[selectedPlan.id] || 0
-    return totalShares - soldShares
+    // Available = Total - Owner Reserved - Sold
+    return Math.max(0, totalShares - ownerShares - soldShares)
+  }
+
+  // Calculate owner shares for selected plan
+  const getOwnerShares = () => {
+    if (!selectedPlan) return 0
+    const totalShares = selectedPlan.total_shares || 150
+    return Math.floor(totalShares * ((selectedPlan.owner_share_percentage || 40) / 100))
+  }
+
+  // Calculate total investor shares for selected plan (total - owner reserved)
+  const getInvestorShares = () => {
+    if (!selectedPlan) return 0
+    const totalShares = selectedPlan.total_shares || 150
+    const ownerShares = getOwnerShares()
+    return totalShares - ownerShares
   }
 
   return (
@@ -135,10 +152,12 @@ export function InvestForm({ plans, planSharesSold = {} }: InvestFormProps) {
 
         {selectedPlan && (() => {
           const total = selectedPlan.total_shares || 150
+          const ownerShares = getOwnerShares()
           const sold = planSharesSold[selectedPlan.id] || 0
-          const available = total - sold
-          const pct = Math.min(100, Math.round((sold / total) * 100))
-          const almostFull = available <= Math.ceil(total * 0.2)
+          const available = getAvailableShares()
+          const investorShares = getInvestorShares()
+          const soldPercentage = investorShares > 0 ? Math.round((sold / investorShares) * 100) : 0
+          const almostFull = available <= Math.ceil(investorShares * 0.2)
           return (
             <div className="p-4 rounded-xl bg-slate-800/40 border border-white/5 space-y-3">
               <div className="grid grid-cols-2 gap-3 text-xs">
@@ -159,25 +178,49 @@ export function InvestForm({ plans, planSharesSold = {} }: InvestFormProps) {
                   <span className="text-white font-semibold">{selectedPlan.duration_months} months</span>
                 </div>
               </div>
-              {/* Live share availability */}
-              <div className="pt-2 border-t border-white/5">
-                <div className="flex justify-between items-center mb-1.5">
-                  <span className={`text-xs font-semibold ${almostFull ? 'text-orange-400' : 'text-emerald-400'}`}>
-                    {available} shares available
-                  </span>
-                  <span className="text-xs text-slate-500">{pct}% sold</span>
+              {/* Share allocation breakdown */}
+              <div className="pt-2 border-t border-white/5 space-y-2">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-slate-400">Total Shares</span>
+                  <span className="text-white font-medium">{total}</span>
                 </div>
-                <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full rounded-full ${almostFull ? 'bg-orange-500' : 'bg-emerald-500'}`}
-                    style={{ width: `${pct}%` }}
-                  />
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-slate-400">Owner Shares (Reserved)</span>
+                  <span className="text-purple-400 font-medium">{ownerShares}</span>
                 </div>
-                {almostFull && available > 0 && (
-                  <p className="text-xs text-orange-400 mt-1 flex items-center gap-1">
-                    <AlertCircle className="h-3 w-3" /> Limited — act fast
-                  </p>
-                )}
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-slate-400">Shares Sold</span>
+                  <span className="text-green-400 font-medium">{sold}</span>
+                </div>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-slate-400">Available Shares</span>
+                  <span className="text-blue-400 font-medium">{available}</span>
+                </div>
+                {/* Live share availability */}
+                <div className="pt-2 border-t border-white/5">
+                  <div className="flex justify-between items-center mb-1.5">
+                    <span className={`text-xs font-semibold ${almostFull ? 'text-orange-400' : 'text-emerald-400'}`}>
+                      {available} shares available for purchase
+                    </span>
+                    <span className="text-xs text-slate-500">{soldPercentage}% of investor shares sold</span>
+                  </div>
+                  <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full ${almostFull ? 'bg-orange-500' : 'bg-emerald-500'}`}
+                      style={{ width: `${soldPercentage}%` }}
+                    />
+                  </div>
+                  {almostFull && available > 0 && (
+                    <p className="text-xs text-orange-400 mt-1 flex items-center gap-1">
+                      <AlertCircle className="h-3 w-3" /> Limited availability — act fast
+                    </p>
+                  )}
+                  {available === 0 && (
+                    <p className="text-xs text-red-400 mt-1 flex items-center gap-1">
+                      <AlertCircle className="h-3 w-3" /> Fully subscribed — no shares available
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
           )
@@ -192,15 +235,15 @@ export function InvestForm({ plans, planSharesSold = {} }: InvestFormProps) {
               type="number"
               className="input-base"
               placeholder="e.g. 10"
-              disabled={!selectedPlan}
+              disabled={!selectedPlan || getAvailableShares() === 0}
               min="1"
-              max={selectedPlan?.max_shares_per_investor || 30}
+              max={Math.min(selectedPlan?.max_shares_per_investor || 30, getAvailableShares())}
             />
           </div>
           {errors.shares && <p className="mt-1.5 text-xs text-red-400">{errors.shares.message}</p>}
           {selectedPlan && (
             <p className="mt-1.5 text-xs text-slate-500">
-              Maximum {selectedPlan.max_shares_per_investor || 30} shares per investor
+              Maximum {Math.min(selectedPlan.max_shares_per_investor || 30, getAvailableShares())} shares per investor ({getAvailableShares()} available)
             </p>
           )}
         </div>
@@ -257,9 +300,11 @@ export function InvestForm({ plans, planSharesSold = {} }: InvestFormProps) {
           </div>
         </div>
 
-        <button type="submit" disabled={isLoading || !selectedPlan} className="btn-primary w-full py-3.5">
+        <button type="submit" disabled={isLoading || !selectedPlan || getAvailableShares() === 0} className="btn-primary w-full py-3.5">
           {isLoading ? (
             <><Loader2 className="h-4 w-4 animate-spin" /> Submitting Request...</>
+          ) : getAvailableShares() === 0 ? (
+            'Plan Fully Subscribed'
           ) : (
             'Request Investment Approval'
           )}

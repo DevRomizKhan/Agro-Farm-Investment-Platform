@@ -20,10 +20,13 @@ const HOW_IT_WORKS = [
 ]
 
 /** Live share availability bar */
-function ShareBar({ sold, total }: { sold: number; total: number }) {
-  const pct = Math.min(100, Math.round((sold / total) * 100))
-  const remaining = total - sold
-  const almostFull = remaining <= Math.ceil(total * 0.2)
+function ShareBar({ sold, total, ownerPercentage = 40 }: { sold: number; total: number; ownerPercentage?: number }) {
+  const ownerShares = Math.floor(total * (ownerPercentage / 100))
+  const investorShares = total - ownerShares
+  const availableShares = Math.max(0, investorShares - sold)
+  const pct = investorShares > 0 ? Math.min(100, Math.round((sold / investorShares) * 100)) : 0
+  const remaining = availableShares
+  const almostFull = remaining <= Math.ceil(investorShares * 0.2)
 
   return (
     <div>
@@ -61,6 +64,7 @@ const STATIC_PLANS = [
     max_shares_per_investor: 30,
     roi_percentage: 10,
     duration_months: 12,
+    owner_share_percentage: 40,
     popular: false,
     soldShares: 0,
     features: [
@@ -80,6 +84,7 @@ const STATIC_PLANS = [
     max_shares_per_investor: 30,
     roi_percentage: 14,
     duration_months: 12,
+    owner_share_percentage: 40,
     popular: true,
     soldShares: 0,
     features: [
@@ -99,6 +104,7 @@ const STATIC_PLANS = [
     max_shares_per_investor: 30,
     roi_percentage: 18,
     duration_months: 12,
+    owner_share_percentage: 40,
     popular: false,
     soldShares: 0,
     features: [
@@ -116,7 +122,7 @@ export default async function PlansPage() {
 
   const { data: allActivePlans } = await supabase
     .from('investment_plans')
-    .select('*')
+    .select('id, name, total_shares, shares_per_amount, max_shares_per_investor, roi_percentage, duration_months, owner_share_percentage, description, is_active, starts_at, ends_at')
     .eq('is_active', true)
     .order('roi_percentage', { ascending: true })
 
@@ -151,15 +157,16 @@ export default async function PlansPage() {
         max_shares_per_investor: p.max_shares_per_investor || 30,
         roi_percentage: p.roi_percentage,
         duration_months: p.duration_months,
+        owner_share_percentage: p.owner_share_percentage || 40,
         popular: p.roi_percentage >= 12 && p.roi_percentage < 16,
         soldShares: planSharesSold[p.id] || 0,
-        features: (p.description ? [p.description] : []).concat([
+        features: [
           `${p.roi_percentage}% annual ROI`,
           `${p.duration_months}-month duration`,
           '366-day lock period',
           'Quarterly dividend payouts',
           'Digital investment certificate',
-        ]).slice(0, 5),
+        ],
       }))
     : STATIC_PLANS
 
@@ -241,7 +248,7 @@ export default async function PlansPage() {
                   </div>
 
                   {/* Live share bar */}
-                  {plan.id && <ShareBar sold={plan.soldShares} total={plan.total_shares} />}
+                  {plan.id && <ShareBar sold={plan.soldShares} total={plan.total_shares} ownerPercentage={plan.owner_share_percentage || 40} />}
                   {!plan.id && (
                     <div className="text-xs text-slate-500 text-center py-1">{plan.total_shares} total shares available</div>
                   )}

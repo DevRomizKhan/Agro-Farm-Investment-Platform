@@ -79,14 +79,15 @@ export async function createInvestmentAction(
   const amount = shares * plan.shares_per_amount
 
   // Check total sold shares for this plan
-  const { data: allInvestments } = await supabase
+  const { data: allInvestments } = await createAdminClient()
     .from('investments')
     .select('shares_purchased')
     .eq('plan_id', planId)
     .eq('status', 'active')
 
   const totalSoldShares = allInvestments?.reduce((sum, inv) => sum + inv.shares_purchased, 0) || 0
-  const availableShares = plan.total_shares - totalSoldShares
+  const ownerShares = Math.floor(plan.total_shares * (plan.owner_share_percentage / 100))
+  const availableShares = plan.total_shares - ownerShares - totalSoldShares
 
   if (shares > availableShares) {
     return { success: false, error: `Only ${availableShares} shares Remaining. You requested ${shares} shares.` }

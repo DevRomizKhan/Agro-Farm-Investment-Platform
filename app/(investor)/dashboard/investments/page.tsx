@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { InvestForm } from '@/components/features/investments/invest-form'
 import { formatCurrency, formatDate, isPlanCurrentlyActive } from '@/lib/utils'
 import { TrendingUp, Award, Calendar, ExternalLink, ShieldAlert, Clock, Lock, Unlock } from 'lucide-react'
@@ -39,11 +40,13 @@ export default async function InvestmentsPage() {
 
   // Calculate sold shares for each plan
   const planIds = plans.map(p => p.id)
-  const { data: planInvestments } = await supabase
-    .from('investments')
-    .select('plan_id, shares_purchased')
-    .in('plan_id', planIds)
-    .eq('status', 'active')
+  const { data: planInvestments } = planIds.length > 0
+    ? await createAdminClient()
+      .from('investments')
+      .select('plan_id, shares_purchased')
+      .in('plan_id', planIds)
+      .eq('status', 'active')
+    : { data: [] }
 
   const planSharesSold: Record<string, number> = {}
   planInvestments?.forEach(inv => {

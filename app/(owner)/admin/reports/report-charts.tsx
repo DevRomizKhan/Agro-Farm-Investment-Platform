@@ -9,6 +9,9 @@ interface ReportChartsProps {
   approvedKYC: number
   pendingKYC: number
   monthlyData: [string, { invested: number; count: number }][]
+  totalSharesSold: number
+  availableSharesForSale: number
+  totalOwnerShares: number
 }
 
 const COLORS = {
@@ -17,6 +20,7 @@ const COLORS = {
   yellow: '#eab308',
   red: '#ef4444',
   teal: '#14b8a6',
+  purple: '#a855f7',
 }
 
 export function ReportCharts({
@@ -26,11 +30,20 @@ export function ReportCharts({
   approvedKYC,
   pendingKYC,
   monthlyData,
+  totalSharesSold,
+  availableSharesForSale,
+  totalOwnerShares,
 }: ReportChartsProps) {
   const investmentStatusData = [
     { name: 'Active', value: activeInvestments, color: COLORS.green },
     { name: 'Completed', value: completedInvestments, color: COLORS.blue },
     { name: 'Pending', value: pendingInvestments, color: COLORS.yellow },
+  ]
+
+  const shareAllocationData = [
+    { name: 'Owner Shares', value: totalOwnerShares, color: COLORS.purple },
+    { name: 'Investor Shares Sold', value: totalSharesSold, color: COLORS.green },
+    { name: 'Available for Sale', value: availableSharesForSale, color: COLORS.blue },
   ]
 
   const kycStatusData = [
@@ -72,6 +85,40 @@ export function ReportCharts({
         </ResponsiveContainer>
         <div className="flex justify-center gap-4 mt-4">
           {investmentStatusData.map((item) => (
+            <div key={item.name} className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+              <span className="text-xs text-slate-300">{item.name}: {item.value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Share Allocation Pie Chart */}
+      <div className="glass-card p-6">
+        <h3 className="font-semibold text-white mb-4">Share Allocation</h3>
+        <ResponsiveContainer width="100%" height={250}>
+          <PieChart>
+            <Pie
+              data={shareAllocationData}
+              cx="50%"
+              cy="50%"
+              innerRadius={60}
+              outerRadius={80}
+              paddingAngle={5}
+              dataKey="value"
+            >
+              {shareAllocationData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.color} />
+              ))}
+            </Pie>
+            <Tooltip
+              contentStyle={{ backgroundColor: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
+              itemStyle={{ color: '#fff' }}
+            />
+          </PieChart>
+        </ResponsiveContainer>
+        <div className="flex justify-center gap-4 mt-4">
+          {shareAllocationData.map((item) => (
             <div key={item.name} className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
               <span className="text-xs text-slate-300">{item.name}: {item.value}</span>

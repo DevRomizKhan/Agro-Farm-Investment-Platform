@@ -6,10 +6,13 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 /** Live share availability bar */
-function ShareBar({ sold, total }: { sold: number; total: number }) {
-  const pct = Math.min(100, Math.round((sold / total) * 100))
-  const remaining = total - sold
-  const almostFull = remaining <= Math.ceil(total * 0.2)
+function ShareBar({ sold, total, ownerPercentage = 40 }: { sold: number; total: number; ownerPercentage?: number }) {
+  const ownerShares = Math.floor(total * (ownerPercentage / 100))
+  const investorShares = total - ownerShares
+  const availableShares = Math.max(0, investorShares - sold)
+  const pct = investorShares > 0 ? Math.min(100, Math.round((sold / investorShares) * 100)) : 0
+  const remaining = availableShares
+  const almostFull = remaining <= Math.ceil(investorShares * 0.2)
 
   return (
     <div>
@@ -43,6 +46,7 @@ const STATIC_PLANS = [
     max_shares_per_investor: 30,
     roi_percentage: 10,
     duration_months: 12,
+    owner_share_percentage: 40,
     popular: false,
     features: [
       '10% annual ROI',
@@ -59,6 +63,7 @@ const STATIC_PLANS = [
     max_shares_per_investor: 30,
     roi_percentage: 14,
     duration_months: 12,
+    owner_share_percentage: 40,
     popular: true,
     features: [
       '14% annual ROI',
@@ -75,6 +80,7 @@ const STATIC_PLANS = [
     max_shares_per_investor: 30,
     roi_percentage: 18,
     duration_months: 12,
+    owner_share_percentage: 40,
     popular: false,
     features: [
       '18% annual ROI',
@@ -90,7 +96,7 @@ export async function PlansPreviewSection() {
 
   const { data: dbPlans } = await supabase
     .from('investment_plans')
-    .select('id, name, total_shares, shares_per_amount, max_shares_per_investor, roi_percentage, duration_months, created_at')
+    .select('id, name, total_shares, shares_per_amount, max_shares_per_investor, roi_percentage, duration_months, owner_share_percentage, created_at')
     .eq('is_active', true)
     .order('roi_percentage', { ascending: true })
     .limit(3)
@@ -124,6 +130,7 @@ export async function PlansPreviewSection() {
         max_shares_per_investor: p.max_shares_per_investor,
         roi_percentage: p.roi_percentage,
         duration_months: p.duration_months,
+        owner_share_percentage: p.owner_share_percentage || 40,
         popular: p.roi_percentage >= 12 && p.roi_percentage < 16,
         soldShares: planSharesSold[p.id] || 0,
         features: [
@@ -190,7 +197,7 @@ export async function PlansPreviewSection() {
               {/* Live share availability */}
               {plan.id && (
                 <div className="mb-5">
-                  <ShareBar sold={plan.soldShares} total={plan.total_shares} />
+                  <ShareBar sold={plan.soldShares} total={plan.total_shares} ownerPercentage={plan.owner_share_percentage || 40} />
                 </div>
               )}
 

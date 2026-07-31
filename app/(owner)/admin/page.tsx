@@ -21,6 +21,8 @@ export default async function AdminDashboardPage() {
     { data: recentKYC },
     { data: recentInvestments },
     { data: investmentAgg },
+    { data: plans },
+    { data: allInvestments },
   ] = await Promise.all([
     supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'investor'),
     supabase.from('kyc_submissions').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
@@ -28,6 +30,8 @@ export default async function AdminDashboardPage() {
     supabase.from('kyc_submissions').select('*').eq('status', 'pending').order('created_at', { ascending: false }).limit(5),
     supabase.from('investments').select('*, plan:investment_plans(name, shares_per_amount)').order('created_at', { ascending: false }).limit(5),
     supabase.from('investments').select('amount, shares_purchased, status'),
+    supabase.from('investment_plans').select('*').eq('is_active', true),
+    supabase.from('investments').select('plan_id, shares_purchased, status').eq('status', 'active'),
   ])
 
   // Fetch profiles for KYC submissions
@@ -49,6 +53,32 @@ export default async function AdminDashboardPage() {
   const activeInvestments = investmentAgg?.filter(i => i.status === 'active') || []
   const totalInvested = activeInvestments.reduce((s, i) => s + Number(i.amount), 0)
   const totalSharesSold = activeInvestments.reduce((s, i) => s + (Number(i.shares_purchased) || 0), 0)
+
+  // Calculate shares sold per plan
+  const planSharesMap: Record<string, number> = {}
+  allInvestments?.forEach((inv: { plan_id: string; shares_purchased: number }) => {
+    planSharesMap[inv.plan_id] = (planSharesMap[inv.plan_id] || 0) + inv.shares_purchased
+  })
+
+  // Calculate per-plan share breakdown
+  const planBreakdown = (plans || []).map((plan) => {
+    const totalShares = plan.total_shares || 150
+    const ownerShares = Math.floor(totalShares * (plan.owner_share_percentage / 100))
+    const soldShares = planSharesMap[plan.id] || 0
+    const availableShares = totalShares - ownerShares - soldShares
+    const investorShares = totalShares - ownerShares
+    const soldPercentage = investorShares > 0 ? Math.round((soldShares / investorShares) * 100) : 0
+    
+    return {
+      ...plan,
+      totalShares,
+      ownerShares,
+      soldShares,
+      availableShares,
+      investorShares,
+      soldPercentage,
+    }
+  })
 
   return (
     <div className="fade-in space-y-8">
@@ -109,6 +139,75 @@ export default async function AdminDashboardPage() {
           <p className="text-2xl font-bold text-white">{pendingKYC || 0}</p>
           <p className="text-xs text-slate-500">Awaiting document verification</p>
         </div>
+      </div>
+
+      {/* Per-Plan Share Breakdown */}
+      <div className="glass-card p-6">
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="font-semibold text-white flex items-center gap-2">
+            <Layers className="h-5 w-5 text-green-400" />
+            Plan-wise Share Allocation
+          </h2>
+          <Link href={ROUTES.ADMIN_PLANS} className="text-sm text-green-400 hover:text-green-300 flex items-center gap-1">
+            Manage Plans <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+        {!planBreakdown || planBreakdown.length === 0 ? (
+          <div className="text-center py-8 text-slate-500 text-sm">No active investment plans</div>
+        ) : (
+          <div className="space-y-4">
+            {planBreakdown.map((plan) => {
+              const almostFull = plan.availableShares <= Math.ceil(plan.investorShares * 0.2)
+              const isFull = plan.availableShares === 0
+              return (
+                <div key={plan.id} className="p-4 rounded-xl bg-slate-800/40 border border-white/5 space-y-3">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-medium text-white text-sm">{plan.name}</h3>
+                      <p className="text-xs text-slate-500 mt-0.5">{plan.roi_percentage}% ROI · {plan.duration_months} months</p>
+                    </div>
+                    <span className={`text-xs font-medium ${isFull ? 'text-red-400' : almostFull ? 'text-orange-400' : 'text-emerald-400'}`}>
+                      {plan.availableShares} available
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-4 gap-3 text-xs">
+                    <div>
+                      <span className="text-slate-400 block mb-0.5">Total</span>
+                      <span className="text-white font-medium">{plan.totalShares}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 block mb-0.5">Owner</span>
+                      <span className="text-purple-400 font-medium">{plan.ownerShares}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 block mb-0.5">Sold</span>
+                      <span className="text-green-400 font-medium">{plan.soldShares}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 block mb-0.5">Available</span>
+                      <span className="text-blue-400 font-medium">{plan.availableShares}</span>
+                    </div>
+                  </div>
+                  <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full ${isFull ? 'bg-red-500' : almostFull ? 'bg-orange-500' : 'bg-emerald-500'}`}
+                      style={{ width: `${plan.soldPercentage}%` }}
+                    />
+                  </div>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-500">{plan.soldPercentage}% of investor shares sold</span>
+                    {isFull && (
+                      <span className="text-red-400 font-medium">Fully Subscribed</span>
+                    )}
+                    {almostFull && !isFull && (
+                      <span className="text-orange-400 font-medium">Limited Availability</span>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { formatCurrency, formatDate } from '@/lib/utils'
+import { createAdminClient } from '@/lib/supabase/admin'
+import { formatCurrency, formatDate, isPlanCurrentlyActive } from '@/lib/utils'
 import { TrendingUp, Wallet, Clock, ArrowRight, AlertCircle, Layers } from 'lucide-react'
 import Link from 'next/link'
 import { ROUTES } from '@/constants'
@@ -16,16 +17,46 @@ export default async function InvestorDashboardPage() {
   const { data: kyc } = await supabase.from('kyc_submissions').select('status').eq('user_id', user.id).maybeSingle()
   const { data: investments } = await supabase
     .from('investments')
-    .select('*, plan:investment_plans(name, roi_percentage, shares_per_amount)')
+    .select('*, plan:investment_plans(name, roi_percentage, shares_per_amount, total_shares, owner_share_percentage)')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
 
   const activeInvestments = investments?.filter(i => i.status === 'active') || []
   const totalInvested = activeInvestments.reduce((sum, i) => sum + Number(i.amount), 0)
   const totalSharesOwned = activeInvestments.reduce((sum, i) => sum + (Number(i.shares_purchased) || 0), 0)
-  const totalROI = investments?.reduce((sum, i) => sum + Number(i.actual_roi), 0) || 0
-  const activeCount = activeInvestments.length
+  const totalROI = investments?.reduce((sum, i) => sum + Number(i.actual_roi || 0), 0) || 0
   const pendingCount = investments?.filter(i => i.status === 'pending').length || 0
+
+  // Fetch ALL active investment plans
+  const { data: allPlans } = await supabase
+    .from('investment_plans')
+    .select('*')
+    .eq('is_active', true)
+
+  // Fetch ALL active investments for ALL plans to get accurate sold shares
+  const availablePlans = (allPlans || []).filter(isPlanCurrentlyActive)
+  const allPlanIds = availablePlans.map(p => p.id)
+  const { data: allPlanInvestments } = allPlanIds.length > 0
+    ? await createAdminClient()
+      .from('investments')
+      .select('plan_id, shares_purchased')
+      .in('plan_id', allPlanIds)
+      .eq('status', 'active')
+    : { data: [] }
+
+  // Calculate shares sold per plan
+  const planSharesSold: Record<string, number> = {}
+  allPlanInvestments?.forEach(inv => {
+    planSharesSold[inv.plan_id] = (planSharesSold[inv.plan_id] || 0) + inv.shares_purchased
+  })
+
+  // Calculate available shares across all currently available plans.
+  const totalAvailableShares = availablePlans.reduce((sum, plan) => {
+    const totalShares = Number(plan.total_shares)
+    const ownerShares = Math.floor(totalShares * (Number(plan.owner_share_percentage) / 100))
+    const soldShares = planSharesSold[plan.id] || 0
+    return sum + Math.max(0, totalShares - ownerShares - soldShares)
+  }, 0)
 
   const kycStatus = kyc?.status || 'not_submitted'
   const kycAlertColors: Record<string, string> = {
@@ -96,7 +127,7 @@ export default async function InvestorDashboardPage() {
             {totalSharesOwned}{' '}
             <span className="text-sm font-normal text-slate-400">shares</span>
           </p>
-          <p className="text-xs text-slate-500">Across {activeCount} active plan{activeCount === 1 ? '' : 's'}</p>
+          <p className="text-xs text-slate-500">{totalAvailableShares} shares available across plans</p>
         </div>
 
         <div className="stat-card">
@@ -156,7 +187,12 @@ export default async function InvestorDashboardPage() {
               </thead>
               <tbody>
                 {investments.slice(0, 5).map((inv) => {
-                  const plan = inv.plan as { name?: string; roi_percentage?: number; shares_per_amount?: number } | null
+                  const plan = inv.plan as { name?: string; roi_percentage?: number; shares_per_amount?: number; total_shares?: number; owner_share_percentage?: number } | null
+                  const totalShares = plan ? Number(plan.total_shares) : 150
+                  const ownerShares = plan ? Math.floor(totalShares * (Number(plan.owner_share_percentage) / 100)) : 0
+                  const investorShares = totalShares - ownerShares
+                  const soldShares = planSharesSold[inv.plan_id] || 0
+                  const availableShares = Math.max(0, investorShares - soldShares)
                   return (
                     <tr key={inv.id}>
                       <td className="font-medium text-white">{plan?.name || 'Unknown Plan'}</td>
@@ -165,7 +201,7 @@ export default async function InvestorDashboardPage() {
                           {inv.shares_purchased || 0}
                         </span>{' '}
                         <span className="text-xs text-slate-500">
-                          ({formatCurrency(plan?.shares_per_amount || 10000)}/share)
+                          / {availableShares} available
                         </span>
                       </td>
                       <td className="font-medium text-white">{formatCurrency(Number(inv.amount))}</td>
