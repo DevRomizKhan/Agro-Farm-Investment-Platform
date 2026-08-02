@@ -1,10 +1,11 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { formatCurrency, formatDate } from '@/lib/utils'
-import { TrendingUp, Clock, CheckCircle, ExternalLink, ShieldCheck, Lock, Unlock, DollarSign } from 'lucide-react'
+import { TrendingUp, Clock, CheckCircle, ExternalLink, Lock, Unlock, DollarSign } from 'lucide-react'
 import Link from 'next/link'
 import { ROUTES } from '@/constants'
 import { approveInvestmentAction, processWithdrawalRequestAction, completeWithdrawalAction } from '@/actions/investments'
+import { ApproveInvestmentButton } from '@/components/features/admin/approve-investment-button'
 
 type InvestorProfileSummary = {
   user_id: string
@@ -65,7 +66,7 @@ export default async function AdminInvestmentsPage() {
   const handleApprove = async (formData: FormData) => {
     'use server'
     const id = formData.get('id') as string
-    await approveInvestmentAction(id)
+    return approveInvestmentAction(id)
   }
 
   const handleWithdrawal = async (formData: FormData) => {
@@ -129,12 +130,7 @@ export default async function AdminInvestmentsPage() {
                       <span className="text-slate-600">{formatDate(inv.created_at)}</span>
                     </div>
 
-                    <form action={handleApprove}>
-                      <input type="hidden" name="id" value={inv.id} />
-                      <button type="submit" className="btn-primary w-full py-2 text-xs justify-center mt-1">
-                        <ShieldCheck className="h-3.5 w-3.5" /> Approve &amp; Activate
-                      </button>
-                    </form>
+                    <ApproveInvestmentButton investmentId={inv.id} action={handleApprove} />
                   </div>
                 )
               })}

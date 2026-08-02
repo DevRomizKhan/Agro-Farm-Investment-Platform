@@ -40,9 +40,9 @@ export default async function AdminReportsPage() {
   const totalSharesSold = investments?.filter(i => i.status === 'active').reduce((sum, i) => sum + (Number(i.shares_purchased) || 0), 0) || 0
   const totalAvailableShares = plans?.reduce((sum, p) => sum + Number(p.total_shares), 0) || 0
   const totalOwnerShares = plans?.reduce((sum, p) => sum + Math.floor(Number(p.total_shares) * (Number(p.owner_share_percentage) / 100)), 0) || 0
-  const totalInvestorShares = totalAvailableShares - totalOwnerShares
+  const totalInvestorShares = Math.max(0, totalAvailableShares - totalOwnerShares)
   // Available = Total - Owner Reserved - Sold
-  const availableSharesForSale = totalAvailableShares - totalOwnerShares - totalSharesSold
+  const availableSharesForSale = Math.max(0, totalAvailableShares - totalOwnerShares - totalSharesSold)
   const shareUtilization = totalInvestorShares > 0 ? ((totalSharesSold / totalInvestorShares) * 100).toFixed(1) : '0'
 
   const approvedKYC = kycData?.filter(k => k.status === 'approved').length || 0

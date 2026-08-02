@@ -1,8 +1,8 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { DeleteInvestorButton } from '@/components/features/admin/delete-investor-button'
-import { Users, Mail, Calendar, CheckCircle, Clock, Edit, Eye } from 'lucide-react'
-import { formatCurrency, formatDate } from '@/lib/utils'
+import { Users, Edit, Eye } from 'lucide-react'
+import { formatDate } from '@/lib/utils'
 import { ROUTES } from '@/constants'
 import Link from 'next/link'
 import type { KYCStatus } from '@/types'
@@ -14,7 +14,6 @@ type InvestorRow = {
   email: string | null
   phone: string | null
   created_at: string
-  investments?: { count: number }[]
 }
 
 type KYCStatusRow = {
@@ -34,9 +33,24 @@ export default async function AdminInvestorsPage() {
   // Fetch all investors
   const { data: investors } = await supabase
     .from('profiles')
-    .select('id, user_id, full_name, email, phone, created_at, investments(count)')
+    .select('id, user_id, full_name, email, phone, created_at')
     .eq('role', 'investor')
     .order('created_at', { ascending: false })
+
+  // Investments belong to auth.users through investments.user_id, while the
+  // profiles table has its own primary key. Count them by user_id instead of
+  // relying on a non-existent profiles -> investments embedded relation.
+  const { data: investmentRows } = await supabase
+    .from('investments')
+    .select('user_id')
+
+  const investmentCountMap = new Map<string, number>()
+  investmentRows?.forEach((investment) => {
+    investmentCountMap.set(
+      investment.user_id,
+      (investmentCountMap.get(investment.user_id) || 0) + 1,
+    )
+  })
 
   // Fetch all KYC submissions
   const { data: kycSubmissions } = await supabase
@@ -104,7 +118,7 @@ export default async function AdminInvestorsPage() {
                           {kycStatus === 'not_submitted' ? 'Not Submitted' : kycStatus.charAt(0).toUpperCase() + kycStatus.slice(1)}
                         </span>
                       </td>
-                      <td className="text-white font-medium">{investor.investments?.[0]?.count || 0}</td>
+                      <td className="text-white font-medium">{investmentCountMap.get(investor.user_id) || 0}</td>
                       <td className="text-slate-400 text-xs">{formatDate(investor.created_at)}</td>
                       <td>
                         <div className="flex gap-1.5">

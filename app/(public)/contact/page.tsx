@@ -68,12 +68,12 @@ export default function ContactPage() {
             <div className="relative h-64 rounded-2xl overflow-hidden border border-emerald-500/20 bg-slate-900">
               <iframe
                 title="Amanah Farm location map"
-                src="https://www.openstreetmap.org/export/embed.html?bbox=91.9500%2C22.3500%2C92.3500%2C22.7000&layer=mapnik&marker=22.5067%2C92.1956"
+                src="https://www.openstreetmap.org/export/embed.html?bbox=89.1650%2C25.1000%2C89.2650%2C25.1700&layer=mapnik&marker=25.1364%2C89.21548"
                 className="w-full h-full border-0 grayscale-[0.15] contrast-[1.05]"
                 loading="lazy"
               />
               <a
-                href="https://www.openstreetmap.org/?mlat=22.5067&mlon=92.1956#map=11/22.5067/92.1956"
+                href="https://www.openstreetmap.org/?mlat=25.1364&mlon=89.21548#map=15/25.1364/89.21548"
                 target="_blank"
                 rel="noreferrer"
                 className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 rounded-lg bg-slate-950/90 px-3 py-2 text-[11px] font-semibold text-white backdrop-blur-md border border-white/10"

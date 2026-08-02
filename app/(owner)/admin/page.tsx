@@ -65,8 +65,8 @@ export default async function AdminDashboardPage() {
     const totalShares = plan.total_shares || 150
     const ownerShares = Math.floor(totalShares * (plan.owner_share_percentage / 100))
     const soldShares = planSharesMap[plan.id] || 0
-    const availableShares = totalShares - ownerShares - soldShares
-    const investorShares = totalShares - ownerShares
+    const availableShares = Math.max(0, totalShares - ownerShares - soldShares)
+    const investorShares = Math.max(0, totalShares - ownerShares)
     const soldPercentage = investorShares > 0 ? Math.round((soldShares / investorShares) * 100) : 0
     
     return {

@@ -14,6 +14,11 @@ export const metadata: Metadata = {
   keywords: ['agro investment', 'farm investment', 'Bangladesh investment', 'agricultural returns'],
   authors: [{ name: 'Amanah Farm' }],
   creator: 'Amanah Farm',
+  icons: {
+    icon: '/logo.png',
+    shortcut: '/logo.png',
+    apple: '/logo.png',
+  },
   openGraph: {
     type: 'website',
     locale: 'en_BD',

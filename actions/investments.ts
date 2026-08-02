@@ -7,7 +7,6 @@ import { investSchema, investmentPlanSchema, withdrawalRequestSchema } from '@/s
 import type { InvestmentPlanFormData } from '@/schemas'
 import { SUPABASE_STORAGE_BUCKETS } from '@/constants'
 import { generateFileName, calculateROI, isPlanCurrentlyActive } from '@/lib/utils'
-import { addMonths } from 'date-fns'
 
 export type InvestmentResult = {
   success: boolean
@@ -81,25 +80,48 @@ export async function createInvestmentAction(
   // Check total sold shares for this plan
   const { data: allInvestments } = await createAdminClient()
     .from('investments')
-    .select('shares_purchased')
+    .select('user_id, shares_purchased, status, created_at')
     .eq('plan_id', planId)
-    .eq('status', 'active')
+    .in('status', ['active', 'pending'])
 
-  const totalSoldShares = allInvestments?.reduce((sum, inv) => sum + inv.shares_purchased, 0) || 0
+  const activeInvestments = allInvestments?.filter((investment) => investment.status === 'active') || []
+  const totalSoldShares = activeInvestments.reduce((sum, inv) => sum + Number(inv.shares_purchased || 0), 0)
   const ownerShares = Math.floor(plan.total_shares * (plan.owner_share_percentage / 100))
-  const availableShares = plan.total_shares - ownerShares - totalSoldShares
+  const availableShares = Math.max(0, plan.total_shares - ownerShares - totalSoldShares)
 
   if (shares > availableShares) {
     return { success: false, error: `Only ${availableShares} shares Remaining. You requested ${shares} shares.` }
   }
 
-  // Check if user already has investments in this plan
+  const activeSharesByInvestor = new Map<string, number>()
+  activeInvestments.forEach((investment) => {
+    activeSharesByInvestor.set(
+      investment.user_id,
+      (activeSharesByInvestor.get(investment.user_id) || 0) + Number(investment.shares_purchased || 0),
+    )
+  })
+  const hasFullMaxHolder = [...activeSharesByInvestor.values()].some(
+    (investorShares) => investorShares >= plan.max_shares_per_investor,
+  )
+  const hasPendingMaxRequest = allInvestments?.some(
+    (investment) => investment.status === 'pending' && Number(investment.shares_purchased || 0) >= plan.max_shares_per_investor,
+  )
+
+  if (shares >= plan.max_shares_per_investor && (hasFullMaxHolder || hasPendingMaxRequest)) {
+    return {
+      success: false,
+      error: `Only one investor can receive the maximum ${plan.max_shares_per_investor} shares for this plan. Please request fewer than ${plan.max_shares_per_investor} shares.`,
+    }
+  }
+
+  // Count both active and pending requests so multiple open requests cannot
+  // bypass the investor's strict per-plan maximum.
   const { data: existingInvestments } = await supabase
     .from('investments')
     .select('shares_purchased')
     .eq('user_id', user.id)
     .eq('plan_id', planId)
-    .eq('status', 'active')
+    .in('status', ['active', 'pending'])
 
   const currentShares = existingInvestments?.reduce((sum, inv) => sum + inv.shares_purchased, 0) || 0
   if (currentShares + shares > plan.max_shares_per_investor) {
@@ -201,32 +223,52 @@ export async function approveInvestmentAction(
   if (!inv) return { success: false, error: 'Investment not found' }
   if (inv.status !== 'pending') return { success: false, error: 'Only pending investments can be approved' }
 
-  const startDate = new Date()
-  const endDate = addMonths(startDate, inv.plan.duration_months)
-  const lockExpiresAt = new Date(startDate.getTime() + (inv.lock_period_days * 24 * 60 * 60 * 1000))
+  // Allocation is performed inside one database transaction. It locks the plan,
+  // reserves shares for older pending requests, and floors the result at zero.
+  const { data: allocation, error: allocationError } = await supabase.rpc('approve_investment_request', {
+    p_investment_id: investmentId,
+    p_approved_by: profile.id,
+    p_notes: notes || null,
+  })
 
-  // Update investment status
-  const { error: updateError } = await supabase
-    .from('investments')
-    .update({
-      status: 'active',
-      start_date: startDate.toISOString().split('T')[0],
-      end_date: endDate.toISOString().split('T')[0],
-      lock_expires_at: lockExpiresAt.toISOString(),
-      approved_by: profile.id,
-      notes: notes || null,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', investmentId)
+  if (allocationError) {
+    console.error('Investment approval failed:', allocationError.message)
+    if (allocationError.message.includes('No shares remain')) {
+      const adminSupabase = createAdminClient()
+      await adminSupabase.from('notifications').insert({
+        user_id: inv.user_id,
+        title: 'Investment request update',
+        message: `Your request for ${inv.shares_purchased} shares in ${inv.plan.name} could not be activated. All eligible shares have been allocated according to request priority and investor limits. Please wait for availability or contact support for assistance.`,
+        type: 'investment',
+        action_url: '/dashboard/investments',
+      })
+      return {
+        success: false,
+        error: 'This request cannot be approved because the remaining plan shares or this investor’s maximum has already been allocated.',
+      }
+    }
+    return { success: false, error: 'We could not approve this investment right now. Please try again.' }
+  }
 
-  if (updateError) return { success: false, error: updateError.message }
+  const result = Array.isArray(allocation) ? allocation[0] : allocation
+  if (!result || Number(result.allocated_shares) <= 0) {
+    return { success: false, error: 'This request cannot be approved because no eligible shares remain.' }
+  }
+
+  const allocatedShares = Number(result.allocated_shares)
+  const allocatedAmount = Number(result.amount)
+  const requestedShares = Number(inv.shares_purchased)
+  const excludedShares = Math.max(0, requestedShares - allocatedShares)
+  const allocationNote = excludedShares > 0
+    ? ` ${excludedShares} of your requested ${requestedShares} shares could not be allocated because the available share limit was reached.`
+    : ''
 
   // Create notifications
   const adminSupabase = createAdminClient()
   await adminSupabase.from('notifications').insert({
     user_id: inv.user_id,
-    title: 'Investment Activated! 📈',
-    message: `Your investment of ${inv.shares_purchased} shares (৳${Number(inv.amount).toLocaleString()}) for ${inv.plan.name} is now active. Locked for 366 days.`,
+    title: 'Investment approved',
+    message: `Your investment request has been approved. ${allocatedShares} shares in ${inv.plan.name} are now active with an investment value of ৳${allocatedAmount.toLocaleString()}. The investment term is locked for 366 days.${allocationNote}`,
     type: 'investment',
     action_url: '/dashboard/investments',
   })

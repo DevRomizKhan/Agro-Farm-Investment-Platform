@@ -11,8 +11,8 @@ export const COMPANY_INFO = {
   phone: '01954 745991',
   email: 'contact@amanah.farm',
   website: 'www.amanah.farm',
-  farmLocations: 'Chattogram, Kaptai & Joypurhat',
-  mapQuery: 'Kaptai, Chattogram, Bangladesh',
+  farmLocations: 'ছত্রগ্রাম, কালাই, জয়পুরহাট',
+  mapQuery: 'ছত্রগ্রাম, কালাই, জয়পুরহাট, বাংলাদেশ',
 } as const
 
 export const SUPABASE_STORAGE_BUCKETS = {

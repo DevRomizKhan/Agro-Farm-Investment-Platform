@@ -5,6 +5,7 @@ import { formatCurrency, formatDate, isPlanCurrentlyActive } from '@/lib/utils'
 import { TrendingUp, Wallet, Clock, ArrowRight, AlertCircle, Layers } from 'lucide-react'
 import Link from 'next/link'
 import { ROUTES } from '@/constants'
+import { InvestmentStatusNotice } from '@/components/features/investments/investment-status-notice'
 
 export default async function InvestorDashboardPage() {
   const supabase = await createClient()
@@ -20,6 +21,15 @@ export default async function InvestorDashboardPage() {
     .select('*, plan:investment_plans(name, roi_percentage, shares_per_amount, total_shares, owner_share_percentage)')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
+
+  const { data: latestNotification } = await supabase
+    .from('notifications')
+    .select('id, title, message, type')
+    .eq('user_id', user.id)
+    .eq('is_read', false)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
 
   const activeInvestments = investments?.filter(i => i.status === 'active') || []
   const totalInvested = activeInvestments.reduce((sum, i) => sum + Number(i.amount), 0)
@@ -68,6 +78,7 @@ export default async function InvestorDashboardPage() {
 
   return (
     <div className="fade-in space-y-8">
+      <InvestmentStatusNotice notification={latestNotification} />
       {/* Header */}
       <div className="page-header">
         <div>

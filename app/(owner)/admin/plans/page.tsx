@@ -136,7 +136,7 @@ export default async function AdminPlansPage() {
                   const isCurrentlyLive = isPlanCurrentlyActive(typedPlan)
                   const soldShares = planSharesSold[plan.id] || 0
                   const ownerShares = Math.floor((plan.total_shares || 150) * (plan.owner_share_percentage / 100))
-                  const availableShares = (plan.total_shares || 150) - ownerShares - soldShares
+                  const availableShares = Math.max(0, (plan.total_shares || 150) - ownerShares - soldShares)
 
                   return (
                     <div
