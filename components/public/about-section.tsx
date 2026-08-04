@@ -63,7 +63,7 @@ export function AboutSection() {
 
             <Link
               href={ROUTES.ABOUT}
-              className="btn-secondary inline-flex items-center gap-2 text-sm rounded-xl"
+              className="btn-secondary"
             >
               Learn More About Us
               <ArrowRight className="h-4 w-4" />

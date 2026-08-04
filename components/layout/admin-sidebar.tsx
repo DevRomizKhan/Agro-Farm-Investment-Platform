@@ -10,7 +10,7 @@ import { logoutAction } from '@/actions/auth'
 import {
   LayoutDashboard, Users, FileText, TrendingUp,
   Bell, BarChart3, Settings, LogOut, ChevronRight,
-  CreditCard, ShieldCheck, X, Menu, PenTool
+  CreditCard, ShieldCheck, X, Menu, PenTool, Inbox
 } from 'lucide-react'
 
 const navItems = [
@@ -23,6 +23,7 @@ const navItems = [
   { label: 'Blog', href: ROUTES.ADMIN_BLOG, icon: PenTool },
   { label: 'Reports', href: ROUTES.ADMIN_REPORTS, icon: BarChart3 },
   { label: 'Notifications', href: ROUTES.ADMIN_NOTIFICATIONS, icon: Bell },
+  { label: 'Leads & Subscribers', href: ROUTES.ADMIN_SUBMISSIONS, icon: Inbox },
   { label: 'Settings', href: ROUTES.ADMIN_SETTINGS, icon: Settings },
 ]
 

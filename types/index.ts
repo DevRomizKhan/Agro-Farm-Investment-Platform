@@ -210,6 +210,26 @@ export interface BlogPostWithAuthor extends BlogPost {
   } | null
 }
 
+export type ContactSubmissionType = 'contact' | 'newsletter'
+export type ContactSubmissionStatus = 'new' | 'in_progress' | 'contacted' | 'resolved' | 'unsubscribed' | 'archived'
+
+export interface ContactSubmission {
+  id: string
+  type: ContactSubmissionType
+  name: string | null
+  email: string
+  phone: string | null
+  message: string | null
+  source: string
+  status: ContactSubmissionStatus
+  notes: string | null
+  user_id: string | null
+  handled_by: string | null
+  handled_at: string | null
+  created_at: string
+  updated_at: string
+}
+
 export interface BlogMedia {
   id: string
   blog_post_id: string

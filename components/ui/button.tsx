@@ -5,21 +5,21 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 disabled:pointer-events-none disabled:opacity-50',
+  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]',
   {
     variants: {
       variant: {
-        default: 'bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-400 hover:to-emerald-500 shadow-lg shadow-green-500/20',
-        destructive: 'bg-red-500 text-white hover:bg-red-600',
-        outline: 'border border-slate-700 bg-transparent hover:bg-slate-800',
-        secondary: 'bg-slate-800 text-slate-200 hover:bg-slate-700 hover:border-slate-500',
-        ghost: 'hover:bg-slate-800 hover:text-white',
+        default: 'bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg shadow-green-500/20 hover:-translate-y-0.5 hover:from-green-400 hover:to-emerald-500',
+        destructive: 'bg-red-500 text-white hover:-translate-y-0.5 hover:bg-red-600',
+        outline: 'border border-slate-700 bg-transparent text-slate-200 hover:border-slate-500 hover:bg-slate-800',
+        secondary: 'border border-slate-700 bg-slate-800 text-slate-200 hover:-translate-y-0.5 hover:border-slate-500 hover:bg-slate-700',
+        ghost: 'text-slate-300 hover:bg-slate-800 hover:text-white',
         link: 'text-green-400 underline-offset-4 hover:underline',
       },
       size: {
-        default: 'h-10 px-6 py-3',
-        sm: 'h-9 rounded-lg px-3',
-        lg: 'h-11 rounded-lg px-8',
+        default: 'h-11 px-6 py-3',
+        sm: 'h-10 rounded-lg px-4',
+        lg: 'h-12 rounded-xl px-7',
         icon: 'h-10 w-10',
       },
     },

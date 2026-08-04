@@ -132,7 +132,7 @@ export function CarouselSection() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
           <Link
             href={slide.primaryCta.href}
-            className="btn-primary text-base px-8 py-4 rounded-xl font-semibold flex items-center justify-center gap-3 shadow-xl shadow-emerald-600/20 group w-full sm:w-auto"
+            className="btn-primary group w-full sm:w-auto"
           >
             <span>{slide.primaryCta.text}</span>
             <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
@@ -140,7 +140,7 @@ export function CarouselSection() {
 
           <Link
             href={slide.secondaryCta.href}
-            className="px-8 py-4 rounded-xl font-semibold text-white bg-slate-900/80 hover:bg-slate-800 border border-white/10 transition-colors backdrop-blur-md w-full sm:w-auto text-center"
+            className="btn-secondary w-full sm:w-auto bg-slate-900/80 backdrop-blur-md"
           >
             <span>{slide.secondaryCta.text}</span>
           </Link>
@@ -189,14 +189,14 @@ export function CarouselSection() {
           <button
             onClick={prevSlide}
             aria-label="Previous Slide"
-            className="p-2.5 rounded-xl bg-slate-900/80 hover:bg-emerald-600 text-white border border-white/10 transition-colors backdrop-blur-md"
+            className="h-10 w-10 rounded-xl bg-slate-900/80 text-white border border-white/10 transition-all hover:-translate-y-0.5 hover:bg-emerald-600 backdrop-blur-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
           <button
             onClick={nextSlide}
             aria-label="Next Slide"
-            className="p-2.5 rounded-xl bg-slate-900/80 hover:bg-emerald-600 text-white border border-white/10 transition-colors backdrop-blur-md"
+            className="h-10 w-10 rounded-xl bg-slate-900/80 text-white border border-white/10 transition-all hover:-translate-y-0.5 hover:bg-emerald-600 backdrop-blur-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60"
           >
             <ChevronRight className="h-4 w-4" />
           </button>

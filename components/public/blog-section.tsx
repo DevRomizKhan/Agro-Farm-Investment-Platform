@@ -118,7 +118,7 @@ export async function BlogSection() {
                   <Author post={featuredPost} />
                   <Link
                     href={getBlogPostHref(featuredPost)}
-                    className="btn-primary group inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-xs"
+                    className="btn-primary h-10 px-4 text-xs group"
                   >
                     Read Article
                     <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />

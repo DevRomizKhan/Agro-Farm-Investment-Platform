@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Youtube, Send, CheckCircle2, TrendingUp, ArrowRight } from 'lucide-react'
 import { APP_NAME, COMPANY_INFO, ROUTES } from '@/constants'
+import { submitContactSubmission } from '@/actions/contact-submissions'
 
 const links = {
   company: [
@@ -28,10 +29,18 @@ const links = {
 export function PublicFooter() {
   const [email, setEmail] = useState('')
   const [subscribed, setSubscribed] = useState(false)
+  const [newsletterError, setNewsletterError] = useState('')
+  const [newsletterLoading, setNewsletterLoading] = useState(false)
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (email) { setSubscribed(true); setEmail('') }
+    if (!email) return
+    setNewsletterLoading(true)
+    setNewsletterError('')
+    const result = await submitContactSubmission({ type: 'newsletter', email, source: 'footer_newsletter' })
+    setNewsletterLoading(false)
+    if (result.success) { setSubscribed(true); setEmail('') }
+    else setNewsletterError(result.error || 'Could not subscribe. Please try again.')
   }
 
   return (
@@ -54,11 +63,11 @@ export function PublicFooter() {
                 Earn 10–18% annual returns with 100% asset-backed cattle farming.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-                <Link href={ROUTES.REGISTER} className="btn-primary px-7 py-3 rounded-xl text-sm font-bold flex items-center gap-2 group w-full sm:w-auto justify-center">
+                <Link href={ROUTES.REGISTER} className="btn-primary group w-full sm:w-auto">
                   Create Free Account
                   <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
-                <Link href={ROUTES.CONTACT} className="px-7 py-3 rounded-xl text-sm font-semibold text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-all w-full sm:w-auto text-center">
+                <Link href={ROUTES.CONTACT} className="btn-secondary w-full sm:w-auto border-white/10 bg-white/5 hover:bg-white/10">
                   Contact Us
                 </Link>
               </div>
@@ -145,12 +154,14 @@ export function PublicFooter() {
                 <button
                   type="submit"
                   aria-label="Subscribe"
-                  className="absolute right-2 top-2 bottom-2 px-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-lg transition-colors flex items-center"
+                  disabled={newsletterLoading}
+                  className="absolute right-2 top-2 bottom-2 w-10 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-lg transition-colors flex items-center justify-center disabled:opacity-50"
                 >
                   <Send className="h-3.5 w-3.5" />
                 </button>
               </form>
             )}
+            {newsletterError && <p className="mt-2 text-xs text-red-400">{newsletterError}</p>}
           </div>
 
         </div>

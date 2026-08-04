@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
-import { Menu, X, ArrowRight, TrendingUp } from 'lucide-react'
+import { Menu, X, ArrowRight, TrendingUp, LogIn } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { ROUTES, APP_NAME } from '@/constants'
 
@@ -66,13 +66,14 @@ export function PublicHeader() {
           <div className="hidden lg:flex items-center gap-3">
             <Link
               href={ROUTES.LOGIN}
-              className="px-4 py-2.5 text-sm font-medium text-slate-300 hover:text-white transition-colors hover:bg-white/5 rounded-full"
+              className="inline-flex h-11 items-center gap-2 rounded-xl border border-white/10 bg-slate-950/30 px-4 text-sm font-semibold text-slate-200 shadow-sm backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-emerald-400/30 hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60"
             >
-              Sign In
+              <LogIn className="h-4 w-4 text-emerald-400" />
+              <span>Investor Sign In</span>
             </Link>
             <Link
               href={ROUTES.REGISTER}
-              className="btn-primary text-sm px-6 py-2.5 rounded-full shadow-lg shadow-emerald-600/20 flex items-center gap-2 group"
+              className="btn-primary rounded-xl shadow-lg shadow-emerald-600/20 group"
             >
               <TrendingUp className="h-4 w-4" />
               <span>Start Investing</span>
@@ -109,14 +110,14 @@ export function PublicHeader() {
             <div className="flex flex-col gap-3 mt-4 pt-4 border-t border-white/10">
               <Link
                 href={ROUTES.LOGIN}
-                className="w-full text-center py-3 text-sm font-medium text-slate-300 hover:text-white bg-slate-900 rounded-xl border border-white/10"
+                className="btn-secondary w-full"
                 onClick={() => setIsOpen(false)}
               >
                 Sign In
               </Link>
               <Link
                 href={ROUTES.REGISTER}
-                className="btn-primary w-full text-center py-3 text-sm font-medium rounded-xl flex items-center justify-center gap-2"
+                className="btn-primary w-full"
                 onClick={() => setIsOpen(false)}
               >
                 <TrendingUp className="h-4 w-4" />

@@ -76,24 +76,24 @@ export function HeroSection() {
         </p>
 
         {/* CTAs */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-14">
           <Link
             href={ROUTES.REGISTER}
-            className="btn-primary text-base px-8 py-4 rounded-xl font-bold flex items-center gap-3 shadow-2xl shadow-emerald-600/25 group"
+            className="btn-primary px-7 text-base shadow-2xl shadow-emerald-600/25 group"
           >
             <span>Start Investing Today</span>
             <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
           </Link>
           <Link
             href={ROUTES.PLANS}
-            className="flex items-center gap-3 px-8 py-4 rounded-xl font-semibold text-white bg-white/5 hover:bg-white/10 border border-white/10 backdrop-blur-md transition-all"
+            className="btn-secondary border-white/15 bg-white/5 px-7 text-base backdrop-blur-md hover:bg-white/10"
           >
             <span>View Investment Plans</span>
           </Link>
         </div>
 
         {/* Trust Badges */}
-        <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 border-t border-white/10 pt-10">
+        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 sm:gap-x-10">
           {TRUST_BADGES.map(({ icon: Icon, text }) => (
             <div key={text} className="flex items-center gap-2 text-sm text-slate-400">
               <Icon className="h-4 w-4 text-emerald-500" />

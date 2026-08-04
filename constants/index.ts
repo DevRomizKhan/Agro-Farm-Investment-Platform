@@ -104,6 +104,7 @@ export const ROUTES = {
   ADMIN_BLOG: '/admin/blog',
   ADMIN_BLOG_NEW: '/admin/blog/new',
   ADMIN_BLOG_EDIT: '/admin/blog/edit',
+  ADMIN_SUBMISSIONS: '/admin/submissions',
 } as const
 
 export const PAGINATION_LIMIT = 10
