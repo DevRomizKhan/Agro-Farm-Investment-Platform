@@ -86,7 +86,15 @@ export default async function InvestorProfilePage() {
             </div>
             <div className="flex items-center justify-between p-3 rounded-lg bg-slate-800/30">
               <span className="text-sm text-slate-300">Email Verified</span>
-              <span className="text-green-400 font-medium">Yes</span>
+              {user.email_confirmed_at ? (
+                <span className="text-green-400 font-medium flex items-center gap-1.5 text-xs bg-green-500/10 px-2.5 py-1 rounded-full border border-green-500/20">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-400"></span> Verified
+                </span>
+              ) : (
+                <span className="text-amber-400 font-medium flex items-center gap-1.5 text-xs bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Unverified
+                </span>
+              )}
             </div>
           </div>
         </div>

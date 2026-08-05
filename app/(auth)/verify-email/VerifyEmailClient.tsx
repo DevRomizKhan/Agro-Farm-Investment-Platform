@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { CheckCircle2, XCircle, Mail, ArrowRight, Loader2 } from 'lucide-react'
 import { ROUTES } from '@/constants'
 import { resendVerificationEmailAction } from '@/actions/auth'
+import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 
 interface VerifyEmailClientProps {
@@ -14,36 +15,44 @@ interface VerifyEmailClientProps {
 }
 
 export default function VerifyEmailClient({
-  isVerified,
+  isVerified: initialVerified,
   errorMessage,
   initialEmail = '',
 }: VerifyEmailClientProps) {
+  const [isVerified, setIsVerified] = useState(initialVerified)
   const [email, setEmail] = useState(initialEmail)
   const [isResending, setIsResending] = useState(false)
   const [resendSuccess, setResendSuccess] = useState(false)
 
-  const handleResend = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!email) {
-      toast.error('Please enter your email address')
-      return
+  useEffect(() => {
+    // 1. Check URL hash fragment (common in Supabase redirects)
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash
+      if (hash.includes('access_token') || hash.includes('type=signup') || hash.includes('type=email')) {
+        setIsVerified(true)
+      }
     }
 
-    setIsResending(true)
-    try {
-      const result = await resendVerificationEmailAction(email)
-      if (result.success) {
-        setResendSuccess(true)
-        toast.success(result.message || 'Verification email sent!')
-      } else {
-        toast.error(result.error || 'Failed to send verification email')
+    // 2. Check active auth session on client
+    const supabase = createClient()
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setIsVerified(true)
+        if (session.user.email) setEmail(session.user.email)
       }
-    } catch {
-      toast.error('An error occurred. Please try again.')
-    } finally {
-      setIsResending(false)
+    })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || session?.user?.email_confirmed_at) {
+        setIsVerified(true)
+        if (session?.user?.email) setEmail(session.user.email)
+      }
+    })
+
+    return () => {
+      subscription.unsubscribe()
     }
-  }
+  }, [])
 
   if (isVerified) {
     return (
@@ -74,6 +83,29 @@ export default function VerifyEmailClient({
         </div>
       </div>
     )
+  }
+
+  const handleResend = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!email) {
+      toast.error('Please enter your email address')
+      return
+    }
+
+    setIsResending(true)
+    try {
+      const result = await resendVerificationEmailAction(email)
+      if (result.success) {
+        setResendSuccess(true)
+        toast.success(result.message || 'Verification email sent!')
+      } else {
+        toast.error(result.error || 'Failed to send verification email')
+      }
+    } catch {
+      toast.error('An error occurred. Please try again.')
+    } finally {
+      setIsResending(false)
+    }
   }
 
   return (

@@ -7,6 +7,7 @@ export default async function VerifyEmailPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
   const params = await searchParams
+  const verified = params.verified === 'true'
   const token = params.token as string | undefined
   const email = params.email as string | undefined
   const accessToken = params.access_token as string | undefined
@@ -15,13 +16,19 @@ export default async function VerifyEmailPage({
 
   const supabase = await createClient()
 
-  // 1. Check if user already has an active authenticated session (e.g. redirected from /auth/callback)
+  // 1. Explicit verified param from /auth/callback
+  if (verified) {
+    const { data: { user } } = await supabase.auth.getUser()
+    return <VerifyEmailClient isVerified={true} initialEmail={user?.email || ''} />
+  }
+
+  // 2. User already authenticated session
   const { data: { user } } = await supabase.auth.getUser()
   if (user) {
     return <VerifyEmailClient isVerified={true} initialEmail={user.email || ''} />
   }
 
-  // 2. Handle Supabase hash-based / session tokens if provided
+  // 3. Supabase hash / token session
   if (accessToken && refreshToken) {
     const { error } = await supabase.auth.setSession({
       access_token: accessToken,
@@ -32,7 +39,7 @@ export default async function VerifyEmailPage({
     }
   }
 
-  // 3. Handle OTP token verification
+  // 4. OTP verification
   if (token && email) {
     const { error } = await supabase.auth.verifyOtp({
       email,
@@ -53,7 +60,7 @@ export default async function VerifyEmailPage({
     )
   }
 
-  // 4. Default state (no token, or error param from code exchange)
+  // 5. Default view
   return (
     <VerifyEmailClient
       isVerified={false}
