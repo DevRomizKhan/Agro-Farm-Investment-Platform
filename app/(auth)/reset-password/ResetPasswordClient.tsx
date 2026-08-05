@@ -7,7 +7,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
 import { Loader2, CheckCircle } from 'lucide-react'
 import { resetPasswordSchema, type ResetPasswordFormData } from '@/schemas'
-import { resetPasswordAction } from '@/actions/auth'
 import { ROUTES } from '@/constants'
 import { createClient } from '@/lib/supabase/client'
 
@@ -21,7 +20,6 @@ export default function ResetPasswordClient({ code }: Props) {
   const [isSuccess, setIsSuccess] = useState(false)
   const [isReady, setIsReady] = useState(false)
   const [hasRecoveryContext, setHasRecoveryContext] = useState(false)
-  const [recoveryCode, setRecoveryCode] = useState<string | undefined>(code)
 
   const { register, handleSubmit, formState: { errors } } = useForm<ResetPasswordFormData>({
     resolver: zodResolver(resetPasswordSchema),
@@ -38,16 +36,17 @@ export default function ResetPasswordClient({ code }: Props) {
       const refreshToken = hashParams.get('refresh_token') || params.get('refresh_token')
       let sessionError: string | undefined
 
-      // PKCE codes are exchanged by resetPasswordAction on the server.
-      // Hash tokens must establish the browser session here.
-      if (!nextCode && accessToken && refreshToken) {
+      if (nextCode) {
+        const { error } = await supabase.auth.exchangeCodeForSession(nextCode)
+        sessionError = error?.message
+      } else if (accessToken && refreshToken) {
         const { error } = await supabase.auth.setSession({
           access_token: accessToken,
           refresh_token: refreshToken,
         })
         sessionError = error?.message
       } else {
-        sessionError = nextCode ? undefined : 'Missing recovery credentials'
+        sessionError = 'Missing recovery credentials'
       }
 
       const { data: { session } } = await supabase.auth.getSession()
@@ -58,7 +57,6 @@ export default function ResetPasswordClient({ code }: Props) {
         window.history.replaceState({}, document.title, window.location.pathname)
       }
 
-      setRecoveryCode(nextCode || undefined)
       setHasRecoveryContext(Boolean((nextCode || session) && !sessionError))
       setIsReady(true)
     }
@@ -75,16 +73,15 @@ export default function ResetPasswordClient({ code }: Props) {
 
     setIsLoading(true)
     try {
-      const result = await resetPasswordAction({
-        ...data,
-        code: recoveryCode,
+      const { error } = await supabase.auth.updateUser({
+        password: data.password,
       })
-      if (result.success) {
+      if (error) {
+        toast.error(error.message)
+      } else {
         await supabase.auth.signOut()
         setIsSuccess(true)
-        toast.success(result.message || 'Password reset successfully')
-      } else {
-        toast.error(result.error || 'Failed to reset password')
+        toast.success('Password updated successfully!')
       }
     } finally {
       setIsLoading(false)

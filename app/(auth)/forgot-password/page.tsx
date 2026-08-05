@@ -1,16 +1,17 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
 import { Loader2, Mail } from 'lucide-react'
 import { forgotPasswordSchema, type ForgotPasswordFormData } from '@/schemas'
-import { forgotPasswordAction } from '@/actions/auth'
 import { ROUTES } from '@/constants'
+import { createClient } from '@/lib/supabase/client'
 
 export default function ForgotPasswordPage() {
+  const supabase = useMemo(() => createClient(), [])
   const [isLoading, setIsLoading] = useState(false)
   const [sent, setSent] = useState(false)
 
@@ -21,9 +22,11 @@ export default function ForgotPasswordPage() {
   const onSubmit = async (data: ForgotPasswordFormData) => {
     setIsLoading(true)
     try {
-      const result = await forgotPasswordAction(data)
-      if (result.success) { setSent(true); toast.success(result.message) }
-      else toast.error(result.error)
+      const { error } = await supabase.auth.resetPasswordForEmail(data.email, {
+        redirectTo: `${window.location.origin}${ROUTES.RESET_PASSWORD}`,
+      })
+      if (error) toast.error(error.message)
+      else { setSent(true); toast.success('Password reset email sent. Please check your inbox.') }
     } finally { setIsLoading(false) }
   }
 
