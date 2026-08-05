@@ -1,8 +1,10 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { formatCurrency, formatDate } from '@/lib/utils'
-import { BarChart3, TrendingUp, Users, DollarSign, Download, Calendar } from 'lucide-react'
+import { formatCurrency } from '@/lib/utils'
+import { BarChart3, TrendingUp, Users, DollarSign, Calendar, Mail, MessageSquare, Phone, ArrowRight } from 'lucide-react'
+import Link from 'next/link'
 import { ROUTES } from '@/constants'
+import type { ContactSubmission } from '@/types'
 import { ExportReportButton } from './export-report-button'
 import { ReportCharts } from './report-charts'
 
@@ -19,14 +21,38 @@ export default async function AdminReportsPage() {
   const [
     { data: investments },
     { count: totalInvestors },
+    { data: investorProfiles },
     { data: kycData },
     { data: plans },
+    { data: contactSubmissions },
   ] = await Promise.all([
-    supabase.from('investments').select('amount, status, created_at, expected_roi, actual_roi, shares_purchased, plan_id').order('created_at', { ascending: false }),
+    supabase.from('investments').select('user_id, amount, status, created_at, expected_roi, actual_roi, shares_purchased, plan_id').order('created_at', { ascending: false }),
     supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'investor'),
-    supabase.from('kyc_submissions').select('status'),
+    supabase.from('profiles').select('user_id, full_name, email').eq('role', 'investor'),
+    supabase.from('kyc_submissions').select('user_id, status'),
     supabase.from('investment_plans').select('id, name, total_shares, shares_per_amount, owner_share_percentage'),
+    supabase.from('contact_submissions').select('type, status'),
   ])
+
+  const submissions = (contactSubmissions || []) as Pick<ContactSubmission, 'type' | 'status'>[]
+  const subscribers = submissions.filter((submission) => submission.type === 'newsletter')
+  const contactRequests = submissions.filter((submission) => submission.type === 'contact')
+  const activeSubscribers = subscribers.filter((submission) => submission.status !== 'unsubscribed' && submission.status !== 'archived').length
+  const newSubscribers = subscribers.filter((submission) => submission.status === 'new').length
+  const openContacts = contactRequests.filter((submission) => submission.status === 'new' || submission.status === 'in_progress').length
+
+  const investedByInvestor = new Map<string, number>()
+  investments?.filter((investment) => investment.status === 'active').forEach((investment) => {
+    investedByInvestor.set(investment.user_id, (investedByInvestor.get(investment.user_id) || 0) + Number(investment.amount))
+  })
+  const kycByInvestor = new Map((kycData || []).map((submission) => [submission.user_id, submission.status]))
+  const investorDetails = (investorProfiles || [])
+    .map((investor) => ({
+      name: investor.full_name || investor.email || 'Unnamed investor',
+      kycStatus: kycByInvestor.get(investor.user_id) || 'not_submitted',
+      investedAmount: investedByInvestor.get(investor.user_id) || 0,
+    }))
+    .sort((left, right) => right.investedAmount - left.investedAmount)
 
   // Calculate metrics
   const totalInvested = investments?.filter(i => i.status === 'active').reduce((sum, i) => sum + Number(i.amount), 0) || 0
@@ -82,6 +108,11 @@ export default async function AdminReportsPage() {
           availableSharesForSale={availableSharesForSale}
           totalOwnerShares={totalOwnerShares}
           totalInvestorShares={totalInvestorShares}
+          activeSubscribers={activeSubscribers}
+          contactRequests={contactRequests.length}
+          openContacts={openContacts}
+          totalSubmissions={submissions.length}
+          investorDetails={investorDetails}
         />
       </div>
 
@@ -131,6 +162,46 @@ export default async function AdminReportsPage() {
           <p className="text-xs text-slate-500">Actual returns paid</p>
         </div>
       </div>
+
+      {/* Audience & Contact Overview */}
+      <section className="space-y-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 className="flex items-center gap-2 font-semibold text-white">
+              <MessageSquare className="h-5 w-5 text-green-400" />
+              Audience & Contact Overview
+            </h2>
+            <p className="mt-1 text-sm text-slate-500">Website enquiries and newsletter activity at a glance</p>
+          </div>
+          <Link href={ROUTES.ADMIN_SUBMISSIONS} className="flex items-center gap-1 text-sm text-green-400 hover:text-green-300">
+            Manage all submissions <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <div className="glass-card p-4">
+            <div className="flex items-center justify-between"><span className="text-xs text-slate-400">Active subscribers</span><Mail className="h-4 w-4 text-emerald-400" /></div>
+            <p className="mt-2 text-2xl font-bold text-white">{activeSubscribers}</p>
+            <p className="mt-1 text-xs text-slate-500">{newSubscribers} new and awaiting follow-up</p>
+          </div>
+          <div className="glass-card p-4">
+            <div className="flex items-center justify-between"><span className="text-xs text-slate-400">Contact requests</span><MessageSquare className="h-4 w-4 text-blue-400" /></div>
+            <p className="mt-2 text-2xl font-bold text-white">{contactRequests.length}</p>
+            <p className="mt-1 text-xs text-slate-500">All-time website enquiries</p>
+          </div>
+          <div className="glass-card p-4">
+            <div className="flex items-center justify-between"><span className="text-xs text-slate-400">Open enquiries</span><Phone className="h-4 w-4 text-yellow-400" /></div>
+            <p className="mt-2 text-2xl font-bold text-white">{openContacts}</p>
+            <p className="mt-1 text-xs text-slate-500">New or in progress</p>
+          </div>
+          <div className="glass-card p-4">
+            <div className="flex items-center justify-between"><span className="text-xs text-slate-400">Total submissions</span><Users className="h-4 w-4 text-purple-400" /></div>
+            <p className="mt-2 text-2xl font-bold text-white">{submissions.length}</p>
+            <p className="mt-1 text-xs text-slate-500">Subscribers and contact forms</p>
+          </div>
+        </div>
+
+      </section>
 
       {/* Investment Status Breakdown */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -230,6 +301,8 @@ export default async function AdminReportsPage() {
         totalSharesSold={totalSharesSold}
         availableSharesForSale={availableSharesForSale}
         totalOwnerShares={totalOwnerShares}
+        activeSubscribers={activeSubscribers}
+        contactRequests={contactRequests.length}
       />
 
       {/* Monthly Investment Trend */}

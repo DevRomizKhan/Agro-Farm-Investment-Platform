@@ -1,6 +1,6 @@
 'use client'
 
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts'
+import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts'
 
 interface ReportChartsProps {
   activeInvestments: number
@@ -12,6 +12,8 @@ interface ReportChartsProps {
   totalSharesSold: number
   availableSharesForSale: number
   totalOwnerShares: number
+  activeSubscribers: number
+  contactRequests: number
 }
 
 const COLORS = {
@@ -33,6 +35,8 @@ export function ReportCharts({
   totalSharesSold,
   availableSharesForSale,
   totalOwnerShares,
+  activeSubscribers,
+  contactRequests,
 }: ReportChartsProps) {
   const investmentStatusData = [
     { name: 'Active', value: activeInvestments, color: COLORS.green },
@@ -49,6 +53,11 @@ export function ReportCharts({
   const kycStatusData = [
     { name: 'Approved', value: approvedKYC, color: COLORS.green },
     { name: 'Pending', value: pendingKYC, color: COLORS.yellow },
+  ]
+
+  const audienceData = [
+    { name: 'Active Subscribers', value: activeSubscribers, color: COLORS.teal },
+    { name: 'Contact Requests', value: contactRequests, color: COLORS.blue },
   ]
 
   const monthlyChartData = monthlyData.map(([month, data]) => ({
@@ -153,6 +162,40 @@ export function ReportCharts({
         </ResponsiveContainer>
         <div className="flex justify-center gap-4 mt-4">
           {kycStatusData.map((item) => (
+            <div key={item.name} className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+              <span className="text-xs text-slate-300">{item.name}: {item.value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Audience & Contact Pie Chart */}
+      <div className="glass-card p-6">
+        <h3 className="font-semibold text-white mb-4">Audience & Contact Distribution</h3>
+        <ResponsiveContainer width="100%" height={250}>
+          <PieChart>
+            <Pie
+              data={audienceData}
+              cx="50%"
+              cy="50%"
+              innerRadius={60}
+              outerRadius={80}
+              paddingAngle={5}
+              dataKey="value"
+            >
+              {audienceData.map((entry, index) => (
+                <Cell key={`audience-cell-${index}`} fill={entry.color} />
+              ))}
+            </Pie>
+            <Tooltip
+              contentStyle={{ backgroundColor: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
+              itemStyle={{ color: '#fff' }}
+            />
+          </PieChart>
+        </ResponsiveContainer>
+        <div className="flex flex-wrap justify-center gap-4 mt-4">
+          {audienceData.map((item) => (
             <div key={item.name} className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
               <span className="text-xs text-slate-300">{item.name}: {item.value}</span>
