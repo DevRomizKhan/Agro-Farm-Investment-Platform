@@ -35,6 +35,14 @@ export async function loginAction(data: LoginFormData): Promise<ActionResult> {
   })
 
   if (error) {
+    if (error.message.toLowerCase().includes('email not confirmed')) {
+      return {
+        success: false,
+        error: 'Please verify your email before logging in. Check your inbox for the verification link.',
+        needsVerification: true,
+        email: validated.data.email,
+      }
+    }
     return { success: false, error: error.message }
   }
 
@@ -60,8 +68,8 @@ export async function registerAction(data: RegisterFormData): Promise<ActionResu
 
   const supabase = await createClient()
   const adminClient = createAdminClient()
+  const baseUrl = await getAppBaseUrl()
 
-  // Check if email confirmation is disabled (for development)
   const emailConfirmationEnabled = isEmailConfirmationEnabled()
 
   const { data: authData, error } = await supabase.auth.signUp({
@@ -73,7 +81,7 @@ export async function registerAction(data: RegisterFormData): Promise<ActionResu
         phone: validated.data.phone,
         role: 'investor',
       },
-      emailRedirectTo: emailConfirmationEnabled ? `${process.env.NEXT_PUBLIC_APP_URL}/verify-email` : undefined,
+      emailRedirectTo: `${baseUrl}/auth/callback?next=/verify-email`,
     },
   })
 
@@ -81,31 +89,35 @@ export async function registerAction(data: RegisterFormData): Promise<ActionResu
     return { success: false, error: error.message }
   }
 
-  // If email confirmation is disabled or user is auto-confirmed, create profile immediately
-  if (!emailConfirmationEnabled || authData.user?.email_confirmed_at) {
+  // Always create/upsert profile row so user profile data is preserved immediately
+  if (authData.user) {
     try {
       const { error: profileError } = await adminClient
         .from('profiles')
-        .insert({
-          user_id: authData.user!.id,
-          email: validated.data.email,
-          full_name: validated.data.full_name,
-          phone: validated.data.phone,
-          role: 'investor',
-        })
+        .upsert(
+          {
+            user_id: authData.user.id,
+            email: validated.data.email,
+            full_name: validated.data.full_name,
+            phone: validated.data.phone || null,
+            role: 'investor',
+          },
+          { onConflict: 'user_id' },
+        )
 
       if (profileError) {
         console.error('Profile creation error:', profileError)
-        return { success: false, error: 'Account created but profile setup failed. Please contact support.' }
-      }
-
-      return {
-        success: true,
-        message: 'Account created successfully! You can now log in.',
       }
     } catch (err) {
       console.error('Profile creation error:', err)
-      return { success: false, error: 'Account created but profile setup failed. Please contact support.' }
+    }
+  }
+
+  // If email confirmation is disabled or user was auto-confirmed
+  if (!emailConfirmationEnabled || authData.user?.email_confirmed_at) {
+    return {
+      success: true,
+      message: 'Account created successfully! You can now log in.',
     }
   }
 
@@ -194,12 +206,13 @@ export async function resetPasswordAction(
 
 export async function resendVerificationEmailAction(email: string): Promise<ActionResult> {
   const supabase = await createClient()
+  const baseUrl = await getAppBaseUrl()
 
   const { error } = await supabase.auth.resend({
     type: 'signup',
     email,
     options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/verify-email`,
+      emailRedirectTo: `${baseUrl}/auth/callback?next=/verify-email`,
     },
   })
 
