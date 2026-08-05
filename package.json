@@ -9,6 +9,12 @@
     "start": "next start",
     "lint": "eslint ."
   },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "core-js",
+      "pg"
+    ]
+  },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
     "@radix-ui/react-accordion": "^1.2.15",
