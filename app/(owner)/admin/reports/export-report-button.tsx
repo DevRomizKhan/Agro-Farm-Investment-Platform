@@ -33,7 +33,6 @@ interface ExportReportButtonProps {
   contactRequests: number
   openContacts: number
   totalSubmissions: number
-  investorDetails: { name: string; kycStatus: string; investedAmount: number }[]
 }
 
 const today = () => new Date().toISOString().split('T')[0]
@@ -47,8 +46,8 @@ const renderFarmAddressLine = async (address: string) => {
 
   const scale = 4
   const label = 'Farm address'
-  const labelFont = `bold ${8 * scale}px Arial`
-  const addressFont = `${10 * scale}px AmanahBengali`
+  const labelFont = `bold ${5 * scale}px Arial`
+  const addressFont = `${8 * scale}px AmanahBengali`
   const measureCanvas = document.createElement('canvas')
   const measureContext = measureCanvas.getContext('2d')
   if (!measureContext) throw new Error('Could not prepare address renderer')
@@ -80,7 +79,6 @@ const renderFarmAddressLine = async (address: string) => {
 export function ExportReportButton(props: ExportReportButtonProps) {
   const [isExporting, setIsExporting] = useState(false)
   const [showModal, setShowModal] = useState(false)
-  const totalShares = props.totalOwnerShares + props.totalInvestorShares
 
   const download = (content: BlobPart, type: string, filename: string) => {
     const link = document.createElement('a')
@@ -109,17 +107,12 @@ export function ExportReportButton(props: ExportReportButtonProps) {
       ['Active Subscribers', props.activeSubscribers], ['Contact Requests', props.contactRequests],
       ['Open Enquiries', props.openContacts], ['Total Submissions', props.totalSubmissions],
       [''], ['Share Allocation'], ['Metric', 'Value'],
-      ['Total Shares', totalShares], ['Owner Shares (40% of total shares)', props.totalOwnerShares],
-      ['Investor Shares (60% of total shares)', props.totalInvestorShares],
+      ['Total Owner Shares', props.totalOwnerShares], ['Total Investor Shares', props.totalInvestorShares],
       ['Shares Sold', props.totalSharesSold], ['Available Shares', props.availableSharesForSale],
       [''], ['Investment Status'], ['Status', 'Count'],
       ['Active', props.activeInvestments], ['Completed', props.completedInvestments], ['Pending', props.pendingInvestments],
       [''], ['KYC Verification'], ['Status', 'Count'],
       ['Approved', props.approvedKYC], ['Pending Review', props.pendingKYC],
-      [''], ['Investor Portfolio & KYC'], ['Investor Name', 'KYC Status', 'Invested Amount'],
-      ...(props.investorDetails.length > 0
-        ? props.investorDetails.map((investor) => [investor.name, investor.kycStatus.replace('_', ' '), investor.investedAmount])
-        : [['No investors found', '—', 0]]),
       [''], ['Monthly Investment Trend'], ['Month', 'Investments Count', 'Total Invested'],
       ...props.monthlyData.map(([month, data]) => [month, data.count, data.invested]),
     ]
@@ -244,9 +237,7 @@ export function ExportReportButton(props: ExportReportButtonProps) {
     ])
     section('Share Allocation')
     table(['Metric', 'Value'], [
-      ['Total shares', totalShares],
-      ['Owner shares (40% of total shares)', props.totalOwnerShares],
-      ['Investor shares (60% of total shares)', props.totalInvestorShares],
+      ['Owner shares', props.totalOwnerShares], ['Investor shares', props.totalInvestorShares],
       ['Shares sold', props.totalSharesSold], ['Available for sale', props.availableSharesForSale],
     ])
     section('Investment & KYC Status')
@@ -255,10 +246,6 @@ export function ExportReportButton(props: ExportReportButtonProps) {
       ['Completed', props.completedInvestments, 'Pending review', props.pendingKYC],
       ['Pending', props.pendingInvestments, '', ''],
     ])
-    section('Investor Portfolio & KYC')
-    table(['Investor name', 'KYC status', 'Invested amount'], props.investorDetails.length > 0
-      ? props.investorDetails.map((investor) => [investor.name, investor.kycStatus.replace('_', ' '), number(investor.investedAmount)])
-      : [['No investors found', '—', '0']])
     section('Monthly Investment Trend')
     table(['Month', 'Investments', 'Total invested'], props.monthlyData.map(([month, data]) => [month, data.count, number(data.invested)]))
     doc.setFont('helvetica', 'italic')
