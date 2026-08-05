@@ -12,9 +12,10 @@ import { createClient } from '@/lib/supabase/client'
 
 type Props = {
   code?: string
+  error?: string
 }
 
-export default function ResetPasswordClient({ code }: Props) {
+export default function ResetPasswordClient({ code, error: errorProp }: Props) {
   const supabase = useMemo(() => createClient(), [])
   const [isLoading, setIsLoading] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
@@ -29,41 +30,47 @@ export default function ResetPasswordClient({ code }: Props) {
     let cancelled = false
 
     async function prepareRecoverySession() {
+      if (errorProp) {
+        if (!cancelled) {
+          setHasRecoveryContext(false)
+          setIsReady(true)
+        }
+        return
+      }
+
       const params = new URLSearchParams(window.location.search)
       const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''))
       const nextCode = params.get('code') || code
       const accessToken = hashParams.get('access_token') || params.get('access_token')
       const refreshToken = hashParams.get('refresh_token') || params.get('refresh_token')
-      let sessionError: string | undefined
+      let exchangeOrSetError: string | undefined
 
       if (nextCode) {
         const { error } = await supabase.auth.exchangeCodeForSession(nextCode)
-        sessionError = error?.message
+        if (error) exchangeOrSetError = error.message
       } else if (accessToken && refreshToken) {
         const { error } = await supabase.auth.setSession({
           access_token: accessToken,
           refresh_token: refreshToken,
         })
-        sessionError = error?.message
-      } else {
-        sessionError = 'Missing recovery credentials'
+        if (error) exchangeOrSetError = error.message
       }
 
       const { data: { session } } = await supabase.auth.getSession()
       if (cancelled) return
 
-      // Recovery credentials are single-use secrets; do not leave them in browser history.
+      // Recovery credentials are single-use secrets; remove them from URL browser history
       if (nextCode || accessToken || refreshToken) {
         window.history.replaceState({}, document.title, window.location.pathname)
       }
 
-      setHasRecoveryContext(Boolean((nextCode || session) && !sessionError))
+      setHasRecoveryContext(Boolean(session && !exchangeOrSetError))
       setIsReady(true)
     }
 
     void prepareRecoverySession()
     return () => { cancelled = true }
-  }, [code, supabase])
+  }, [code, errorProp, supabase])
 
   const onSubmit = async (data: ResetPasswordFormData) => {
     if (!hasRecoveryContext) {

@@ -8,10 +8,11 @@ export default async function ResetPasswordPage({
 }) {
   const params = await searchParams
   const code = typeof params?.code === 'string' ? params.code : undefined
+  const error = typeof params?.error === 'string' ? params.error : undefined
 
   return (
     <Suspense fallback={<div className="fade-in">Loading...</div>}>
-      <ResetPasswordClient code={code} />
+      <ResetPasswordClient code={code} error={error} />
     </Suspense>
   )
 }
