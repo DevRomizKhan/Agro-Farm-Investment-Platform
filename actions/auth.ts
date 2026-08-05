@@ -151,15 +151,30 @@ export async function forgotPasswordAction(data: ForgotPasswordFormData): Promis
   return { success: true, message: 'Password reset email sent. Please check your inbox.' }
 }
 
-export async function resetPasswordAction(data: ResetPasswordFormData): Promise<ActionResult> {
+export async function resetPasswordAction(
+  data: ResetPasswordFormData & { code?: string },
+): Promise<ActionResult> {
   const validated = resetPasswordSchema.safeParse(data)
   if (!validated.success) {
     return { success: false, error: validated.error.issues[0]?.message }
   }
 
   const supabase = await createClient()
-  const { data: { user }, error: userError } = await supabase.auth.getUser()
-  if (userError || !user) {
+  let { data: { user } } = await supabase.auth.getUser()
+
+  // SSR/PKCE recovery links contain a one-time code. Exchange it on the
+  // server so the session is written to the same cookies used by SSR.
+  if (!user && data.code) {
+    const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(data.code)
+    if (exchangeError) {
+      return { success: false, error: 'Invalid or expired reset link' }
+    }
+
+    const userResult = await supabase.auth.getUser()
+    user = userResult.data.user
+  }
+
+  if (!user) {
     return { success: false, error: 'Invalid or expired reset link' }
   }
 

@@ -21,6 +21,7 @@ export default function ResetPasswordClient({ code }: Props) {
   const [isSuccess, setIsSuccess] = useState(false)
   const [isReady, setIsReady] = useState(false)
   const [hasRecoveryContext, setHasRecoveryContext] = useState(false)
+  const [recoveryCode, setRecoveryCode] = useState<string | undefined>(code)
 
   const { register, handleSubmit, formState: { errors } } = useForm<ResetPasswordFormData>({
     resolver: zodResolver(resetPasswordSchema),
@@ -37,17 +38,16 @@ export default function ResetPasswordClient({ code }: Props) {
       const refreshToken = hashParams.get('refresh_token') || params.get('refresh_token')
       let sessionError: string | undefined
 
-      if (nextCode) {
-        const { error } = await supabase.auth.exchangeCodeForSession(nextCode)
-        sessionError = error?.message
-      } else if (accessToken && refreshToken) {
+      // PKCE codes are exchanged by resetPasswordAction on the server.
+      // Hash tokens must establish the browser session here.
+      if (!nextCode && accessToken && refreshToken) {
         const { error } = await supabase.auth.setSession({
           access_token: accessToken,
           refresh_token: refreshToken,
         })
         sessionError = error?.message
       } else {
-        sessionError = 'Missing recovery credentials'
+        sessionError = nextCode ? undefined : 'Missing recovery credentials'
       }
 
       const { data: { session } } = await supabase.auth.getSession()
@@ -58,7 +58,8 @@ export default function ResetPasswordClient({ code }: Props) {
         window.history.replaceState({}, document.title, window.location.pathname)
       }
 
-      setHasRecoveryContext(Boolean(session && !sessionError))
+      setRecoveryCode(nextCode || undefined)
+      setHasRecoveryContext(Boolean((nextCode || session) && !sessionError))
       setIsReady(true)
     }
 
@@ -76,6 +77,7 @@ export default function ResetPasswordClient({ code }: Props) {
     try {
       const result = await resetPasswordAction({
         ...data,
+        code: recoveryCode,
       })
       if (result.success) {
         await supabase.auth.signOut()
