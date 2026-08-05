@@ -1,7 +1,5 @@
 import React, { Suspense } from 'react'
-import Link from 'next/link'
 import ResetPasswordClient from './ResetPasswordClient'
-import { ROUTES } from '@/constants'
 
 export default async function ResetPasswordPage({
   searchParams,

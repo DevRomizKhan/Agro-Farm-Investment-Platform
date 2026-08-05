@@ -117,6 +117,9 @@ export async function registerAction(data: RegisterFormData): Promise<ActionResu
 }
 
 async function getAppBaseUrl() {
+  const configuredUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL
+  if (configuredUrl) return configuredUrl.replace(/\/$/, '')
+
   const headersList = await headers()
   const forwardedProto = headersList.get('x-forwarded-proto')
   const host = headersList.get('host')
@@ -126,7 +129,7 @@ async function getAppBaseUrl() {
     return `${protocol}://${host}`
   }
 
-  return process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+  return 'http://localhost:3000'
 }
 
 export async function forgotPasswordAction(data: ForgotPasswordFormData): Promise<ActionResult> {
@@ -148,35 +151,16 @@ export async function forgotPasswordAction(data: ForgotPasswordFormData): Promis
   return { success: true, message: 'Password reset email sent. Please check your inbox.' }
 }
 
-export async function resetPasswordAction(
-  data: ResetPasswordFormData & { code?: string; accessToken?: string; refreshToken?: string },
-): Promise<ActionResult> {
+export async function resetPasswordAction(data: ResetPasswordFormData): Promise<ActionResult> {
   const validated = resetPasswordSchema.safeParse(data)
   if (!validated.success) {
     return { success: false, error: validated.error.issues[0]?.message }
   }
 
-  if (!data.code && !(data.accessToken && data.refreshToken)) {
-    return { success: false, error: 'Invalid reset link' }
-  }
-
   const supabase = await createClient()
-
-  if (data.accessToken && data.refreshToken) {
-    const { error: sessionError } = await supabase.auth.setSession({
-      access_token: data.accessToken,
-      refresh_token: data.refreshToken,
-    })
-
-    if (sessionError) {
-      return { success: false, error: 'Invalid or expired reset link' }
-    }
-  } else if (data.code) {
-    const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(data.code)
-
-    if (exchangeError) {
-      return { success: false, error: 'Invalid or expired reset link' }
-    }
+  const { data: { user }, error: userError } = await supabase.auth.getUser()
+  if (userError || !user) {
+    return { success: false, error: 'Invalid or expired reset link' }
   }
 
   const { error } = await supabase.auth.updateUser({

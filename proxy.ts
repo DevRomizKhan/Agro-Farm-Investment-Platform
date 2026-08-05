@@ -4,7 +4,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 // Routes that require authentication
 const INVESTOR_ROUTES = ['/dashboard']
 const OWNER_ROUTES = ['/admin']
-const AUTH_ROUTES = ['/login', '/register', '/forgot-password', '/reset-password']
+const AUTH_ROUTES = ['/login', '/register', '/forgot-password']
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY

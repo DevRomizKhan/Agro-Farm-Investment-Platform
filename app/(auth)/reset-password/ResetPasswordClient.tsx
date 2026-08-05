@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -9,44 +9,65 @@ import { Loader2, CheckCircle } from 'lucide-react'
 import { resetPasswordSchema, type ResetPasswordFormData } from '@/schemas'
 import { resetPasswordAction } from '@/actions/auth'
 import { ROUTES } from '@/constants'
+import { createClient } from '@/lib/supabase/client'
 
 type Props = {
   code?: string
 }
 
 export default function ResetPasswordClient({ code }: Props) {
+  const supabase = useMemo(() => createClient(), [])
   const [isLoading, setIsLoading] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [isReady, setIsReady] = useState(false)
   const [hasRecoveryContext, setHasRecoveryContext] = useState(false)
-  const [recoveryContext, setRecoveryContext] = useState({ code: code || undefined, accessToken: undefined as string | undefined, refreshToken: undefined as string | undefined })
 
   const { register, handleSubmit, formState: { errors } } = useForm<ResetPasswordFormData>({
     resolver: zodResolver(resetPasswordSchema),
   })
 
   useEffect(() => {
-    if (typeof window === 'undefined') return
+    let cancelled = false
 
-    const params = new URLSearchParams(window.location.search)
-    const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''))
-    const nextCode = params.get('code') || hashParams.get('code') || code || undefined
-    const nextAccessToken = params.get('access_token') || hashParams.get('access_token') || undefined
-    const nextRefreshToken = params.get('refresh_token') || hashParams.get('refresh_token') || undefined
+    async function prepareRecoverySession() {
+      const params = new URLSearchParams(window.location.search)
+      const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''))
+      const nextCode = params.get('code') || code
+      const accessToken = hashParams.get('access_token') || params.get('access_token')
+      const refreshToken = hashParams.get('refresh_token') || params.get('refresh_token')
+      let sessionError: string | undefined
 
-    // Tokens can arrive in the URL hash after hydration, so this client-only sync is required.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setRecoveryContext({
-      code: nextCode || undefined,
-      accessToken: nextAccessToken || undefined,
-      refreshToken: nextRefreshToken || undefined,
-    })
-    setHasRecoveryContext(Boolean(nextCode || nextAccessToken || nextRefreshToken))
-    setIsReady(true)
-  }, [code])
+      if (nextCode) {
+        const { error } = await supabase.auth.exchangeCodeForSession(nextCode)
+        sessionError = error?.message
+      } else if (accessToken && refreshToken) {
+        const { error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        })
+        sessionError = error?.message
+      } else {
+        sessionError = 'Missing recovery credentials'
+      }
+
+      const { data: { session } } = await supabase.auth.getSession()
+      if (cancelled) return
+
+      // Recovery credentials are single-use secrets; do not leave them in browser history.
+      if (nextCode || accessToken || refreshToken) {
+        window.history.replaceState({}, document.title, window.location.pathname)
+      }
+
+      setHasRecoveryContext(Boolean(session && !sessionError))
+      setIsReady(true)
+    }
+
+    void prepareRecoverySession()
+    return () => { cancelled = true }
+  }, [code, supabase])
 
   const onSubmit = async (data: ResetPasswordFormData) => {
-    if (!hasRecoveryContext && !recoveryContext.code && !(recoveryContext.accessToken && recoveryContext.refreshToken)) {
+    if (!hasRecoveryContext) {
       toast.error('This reset link is invalid or has expired. Please request a new one.')
       return
     }
@@ -55,11 +76,9 @@ export default function ResetPasswordClient({ code }: Props) {
     try {
       const result = await resetPasswordAction({
         ...data,
-        code: recoveryContext.code,
-        accessToken: recoveryContext.accessToken,
-        refreshToken: recoveryContext.refreshToken,
       })
       if (result.success) {
+        await supabase.auth.signOut()
         setIsSuccess(true)
         toast.success(result.message || 'Password reset successfully')
       } else {

@@ -112,7 +112,7 @@ export default async function AdminReportsPage() {
           contactRequests={contactRequests.length}
           openContacts={openContacts}
           totalSubmissions={submissions.length}
-          investorDetails={investorDetails}
+        //investorDetails={investorDetails}
         />
       </div>
 
