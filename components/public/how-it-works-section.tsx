@@ -55,7 +55,7 @@ export function HowItWorksSection() {
         </div>
 
         {/* Steps */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 motion-stagger">
           {steps.map(({ step, title, description }, index) => (
             <div key={step} className="relative glass-card p-7 group hover:border-green-500/30 transition-all duration-300">
               {/* Step number */}

@@ -1,29 +1,36 @@
 'use client'
 
 import { Users, TrendingUp, Landmark, ShieldCheck } from 'lucide-react'
+import { CountUp } from '@/components/ui/count-up'
 
 const stats = [
   {
     icon: Users,
-    value: '1,250+',
+    value: 1250,
+    suffix: '+',
     label: 'Active Investors',
     description: 'Trusted by smart investors',
   },
   {
     icon: TrendingUp,
-    value: '15% – 22%',
+    value: 15,
+    suffix: '% – 22%',
     label: 'Average ROI',
     description: 'Consistent annual returns',
   },
   {
     icon: Landmark,
-    value: '৳5.8 Cr+',
+    value: 5.8,
+    prefix: '৳',
+    suffix: ' Cr+',
+    decimals: 1,
     label: 'Assets Managed',
     description: 'Insured farm assets',
   },
   {
     icon: ShieldCheck,
-    value: '100%',
+    value: 100,
+    suffix: '%',
     label: 'Transparent Reporting',
     description: 'Annual audits and statements',
   },
@@ -36,7 +43,7 @@ export function StatsSection() {
         
         {/* Minimal Stats Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 text-center">
-          {stats.map(({ icon: Icon, value, label, description }) => (
+          {stats.map(({ icon: Icon, value, prefix, suffix, decimals, label, description }) => (
             <div
               key={label}
               className="p-6 rounded-2xl bg-slate-900/40 border border-white/5 hover:border-emerald-500/20 transition-colors"
@@ -45,7 +52,7 @@ export function StatsSection() {
                 <Icon className="h-6 w-6 text-emerald-400" />
               </div>
               <h3 className="text-2xl sm:text-3xl font-extrabold text-white font-mono mb-1">
-                {value}
+                <CountUp value={value} prefix={prefix} suffix={suffix} decimals={decimals} label={`${value}${suffix || ''} ${label}`} />
               </h3>
               <p className="text-sm font-bold text-slate-200">{label}</p>
               <p className="text-xs text-slate-400 mt-1">{description}</p>

@@ -51,10 +51,10 @@ export function HeroSection() {
       </div>
 
       {/* Ambient glow */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-emerald-500/8 rounded-full blur-[120px] pointer-events-none z-0" />
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-emerald-500/8 rounded-full blur-[120px] pointer-events-none z-0 ambient-float" />
 
       {/* Content */}
-      <div className="relative z-10 section-container text-center px-4 py-32 flex flex-col items-center">
+      <div className="relative z-10 section-container text-center px-4 py-32 flex flex-col items-center motion-stagger">
 
         {/* Eyebrow badge */}
         <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/5 border border-emerald-500/30 text-emerald-400 text-xs sm:text-sm font-semibold backdrop-blur-md mb-8 shadow-lg">

@@ -38,7 +38,7 @@ export function TestimonialsSection() {
             What Our <span className="gradient-text">Investors Say</span>
           </h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 motion-stagger">
           {testimonials.map((t) => (
             <div key={t.name} className="glass-card p-7 flex flex-col gap-5 hover:border-green-500/20 transition-all duration-300">
               <Quote className="h-8 w-8 text-green-500/30" />

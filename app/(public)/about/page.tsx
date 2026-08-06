@@ -3,6 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { APP_NAME, COMPANY_INFO, ROUTES } from '@/constants'
 import { Leaf, ShieldCheck, Target, Eye, TrendingUp, Users, ArrowRight } from 'lucide-react'
+import { CountUp } from '@/components/ui/count-up'
 
 export const metadata: Metadata = {
   title: `About Us — ${APP_NAME}`,
@@ -29,7 +30,7 @@ const values = [
 
 const stats = [
   { icon: TrendingUp, val: 'Variable', label: 'Net Annual Returns' },
-  { icon: Users, val: '500+', label: 'Active Investors' },
+  { icon: Users, val: '500+', numericValue: 500, suffix: '+', label: 'Active Investors' },
   { icon: Leaf, val: 'Cow & Fish', label: 'Production Scope' },
   { icon: ShieldCheck, val: '100% Sharia', label: 'Compliant Operations' },
 ]
@@ -127,12 +128,16 @@ export default function AboutPage() {
       {/* ── Stats Row ─────────────────────────────────── */}
       <section className="border-y border-white/5 bg-slate-900/40 py-14">
         <div className="max-w-6xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-6">
-          {stats.map(({ icon: Icon, val, label }) => (
+          {stats.map(({ icon: Icon, val, numericValue, suffix, label }) => (
             <div key={label} className="text-center space-y-2">
               <div className="h-12 w-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto">
                 <Icon className="h-6 w-6 text-emerald-400" />
               </div>
-              <p className="text-3xl font-black text-white font-mono">{val}</p>
+              <p className="text-3xl font-black text-white font-mono">
+                {numericValue !== undefined ? (
+                  <CountUp value={numericValue} suffix={suffix} label={`${numericValue}${suffix || ''} ${label}`} />
+                ) : val}
+              </p>
               <p className="text-xs text-slate-400">{label}</p>
             </div>
           ))}

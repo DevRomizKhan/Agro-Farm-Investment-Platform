@@ -2,6 +2,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Leaf, ShieldCheck, TrendingUp, Users, ArrowRight } from 'lucide-react'
 import { COMPANY_INFO, ROUTES } from '@/constants'
+import { Reveal } from '@/components/ui/reveal'
+import { CountUp } from '@/components/ui/count-up'
 
 const features = [
   { icon: ShieldCheck, label: 'Shariah-Compliant Contracts' },
@@ -11,18 +13,18 @@ const features = [
 ]
 
 const stats = [
-  { val: '2019', label: 'Founded' },
-  { val: '25+', label: 'Farm Sites' },
-  { val: '500+', label: 'Active Investors' },
+  { value: 2019, label: 'Founded' },
+  { value: 25, suffix: '+', label: 'Farm Sites' },
+  { value: 500, suffix: '+', label: 'Active Investors' },
 ]
 
 export function AboutSection() {
   return (
     <section id="about" className="py-24 bg-slate-950 relative overflow-hidden">
-      <div className="absolute -top-40 -right-40 w-[500px] h-[500px] bg-emerald-500/5 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute -top-40 -right-40 w-[500px] h-[500px] bg-emerald-500/5 rounded-full blur-[120px] pointer-events-none ambient-float" />
 
       <div className="section-container relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <Reveal className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
           {/* LEFT CONTENT */}
           <div className="space-y-7">
@@ -40,7 +42,7 @@ export function AboutSection() {
               Amanah Farm is a partnership-based agricultural investment initiative connecting investors to proportionate ownership in cow and fish production assets. Project Adi operates under Islamic Sharia principles, with annual net dividends calculated after project expenses, transparent financial records, and no fixed or guaranteed returns.
             </p>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3 motion-stagger">
               {features.map(({ icon: Icon, label }) => (
                 <div key={label} className="flex items-center gap-2.5">
                   <div className="h-8 w-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0">
@@ -53,9 +55,11 @@ export function AboutSection() {
 
             {/* Key numbers */}
             <div className="flex gap-10 pt-4 border-t border-white/10">
-              {stats.map(({ val, label }) => (
+              {stats.map(({ value, suffix, label }) => (
                 <div key={label}>
-                  <p className="text-2xl font-black text-emerald-400 font-mono">{val}</p>
+                  <p className="text-2xl font-black text-emerald-400 font-mono">
+                    <CountUp value={value} suffix={suffix} label={`${value}${suffix || ''} ${label}`} />
+                  </p>
                   <p className="text-xs text-slate-400 mt-0.5">{label}</p>
                 </div>
               ))}
@@ -89,7 +93,7 @@ export function AboutSection() {
             </div>
           </div>
 
-        </div>
+        </Reveal>
       </div>
     </section>
   )
