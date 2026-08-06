@@ -24,7 +24,7 @@ export default function PrivacyPage() {
           <section className="space-y-3">
             <h2 className="text-xl font-semibold text-white">2. How We Use Your Information</h2>
             <p>
-              Your data is used strictly to process investments, disburse monthly/quarterly returns, verify investor identity under financial guidelines, and issue legal certificates.
+              Your data is used strictly to process investments, manage annual dividend distributions, verify investor identity under financial guidelines, and issue legal certificates.
             </p>
           </section>
 

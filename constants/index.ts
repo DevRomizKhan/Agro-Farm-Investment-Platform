@@ -9,7 +9,7 @@ export const COMPANY_INFO = {
   executive: 'Nirob Hassan',
   executiveTitle: 'Former Executor',
   phone: '01954 745991',
-  email: 'contact@amanah.farm',
+  email: 'support@amanah.farm',
   website: 'www.amanah.farm',
   farmLocations: 'ছত্রগ্রাম, কালাই, জয়পুরহাট',
   mapQuery: 'ছত্রগ্রাম, কালাই, জয়পুরহাট, বাংলাদেশ',

@@ -13,10 +13,10 @@ export const metadata: Metadata = {
 }
 
 const HOW_IT_WORKS = [
-  { n: '01', title: 'Register & Complete KYC', desc: 'Create your account and verify your identity in under 5 minutes.' },
-  { n: '02', title: 'Choose a Plan', desc: 'Select the investment tier that fits your budget and return goals.' },
-  { n: '03', title: 'Purchase Shares', desc: 'Your capital is allocated to insured, IoT-monitored livestock units.' },
-  { n: '04', title: 'Receive Dividends', desc: 'Quarterly returns are deposited directly into your bank account.' },
+  { n: '01', title: 'Register & Complete KYC', desc: 'Create your account and verify your identity in under 5 minutes using your NID.' },
+  { n: '02', title: 'Select Your Share Package', desc: 'Purchase shares at BDT 1,000 each — invest as much as you want through approved BDT payment channels.' },
+  { n: '03', title: 'Own Production Assets', desc: 'Your capital is allocated to cow and fish production — real agricultural assets under Sharia principles.' },
+  { n: '04', title: 'Receive Annual Dividends', desc: 'Net dividends are calculated annually after all expenses and communicated on a 6-month basis.' },
 ]
 
 /** Live share availability bar */
@@ -57,62 +57,62 @@ function ShareBar({ sold, total, ownerPercentage = 40 }: { sold: number; total: 
 const STATIC_PLANS = [
   {
     id: undefined as string | undefined,
-    name: 'Basic Plan',
+    name: 'Basic Share Package',
     tag: 'Entry Level',
-    total_shares: 150,
-    shares_per_amount: 10000,
-    max_shares_per_investor: 30,
-    roi_percentage: 10,
-    duration_months: 12,
+    total_shares: 1000,
+    shares_per_amount: 1000,
+    max_shares_per_investor: 100,
+    roi_percentage: 12,
+    duration_months: 24,
     owner_share_percentage: 40,
     popular: false,
     soldShares: 0,
     features: [
-      '10% annual ROI',
-      '366-day lock period',
-      'Quarterly dividend payouts',
-      'Digital investment certificate',
-      'Email & portal support',
+      'BDT 1,000 per share — affordable entry',
+      '2-Year Program (July 2026 – June 2028)',
+      'Cow & Fish production asset backing',
+      'Sharia-compliant net annual dividends',
+      'Annual audit reports provided',
     ],
   },
   {
     id: undefined as string | undefined,
-    name: 'Standard Plan',
+    name: 'Standard Share Package',
     tag: 'Most Popular',
-    total_shares: 150,
-    shares_per_amount: 10000,
-    max_shares_per_investor: 30,
-    roi_percentage: 14,
-    duration_months: 12,
+    total_shares: 1000,
+    shares_per_amount: 1000,
+    max_shares_per_investor: 500,
+    roi_percentage: 15,
+    duration_months: 24,
     owner_share_percentage: 40,
     popular: true,
     soldShares: 0,
     features: [
-      '14% annual ROI',
-      '366-day lock period',
-      'Up to 30 shares per investor',
-      'Quarterly farm progress reports',
-      'Priority investor support',
+      'BDT 1,000 per share',
+      '2-Year Program (July 2026 – June 2028)',
+      'Up to 500 shares per investor',
+      '6-Month dividend progress updates',
+      'Transfer rights after first year',
     ],
   },
   {
     id: undefined as string | undefined,
-    name: 'Premium Plan',
-    tag: 'Maximum Returns',
-    total_shares: 150,
-    shares_per_amount: 10000,
-    max_shares_per_investor: 30,
+    name: 'Premium Share Package',
+    tag: 'Maximum Allocation',
+    total_shares: 1000,
+    shares_per_amount: 1000,
+    max_shares_per_investor: 1000,
     roi_percentage: 18,
-    duration_months: 12,
+    duration_months: 24,
     owner_share_percentage: 40,
     popular: false,
     soldShares: 0,
     features: [
-      '18% annual ROI',
-      '366-day lock period',
-      'Maximum share allocation',
-      'Dedicated account manager',
-      'VIP farm visit & tour',
+      'BDT 1,000 per share',
+      '2-Year Program (July 2026 – June 2028)',
+      'Unlimited share allocation',
+      'Full asset liquidation in 2029',
+      'Priority investor communications',
     ],
   },
 ]
@@ -151,21 +151,21 @@ export default async function PlansPage() {
     ? dbPlans.map(p => ({
         id: p.id,
         name: p.name,
-        tag: p.roi_percentage >= 16 ? 'Maximum Returns' : p.roi_percentage >= 12 ? 'Most Popular' : 'Entry Level',
-        total_shares: p.total_shares || 150,
-        shares_per_amount: p.shares_per_amount || 10000,
-        max_shares_per_investor: p.max_shares_per_investor || 30,
+        tag: p.roi_percentage >= 16 ? 'Maximum Allocation' : p.roi_percentage >= 12 ? 'Most Popular' : 'Entry Level',
+        total_shares: p.total_shares || 1000,
+        shares_per_amount: p.shares_per_amount || 1000,
+        max_shares_per_investor: p.max_shares_per_investor || 100,
         roi_percentage: p.roi_percentage,
-        duration_months: p.duration_months,
+        duration_months: p.duration_months || 24,
         owner_share_percentage: p.owner_share_percentage || 40,
         popular: p.roi_percentage >= 12 && p.roi_percentage < 16,
         soldShares: planSharesSold[p.id] || 0,
         features: [
-          `${p.roi_percentage}% annual ROI`,
-          `${p.duration_months}-month duration`,
-          '366-day lock period',
-          'Quarterly dividend payouts',
-          'Digital investment certificate',
+          `BDT ${(p.shares_per_amount || 1000).toLocaleString()} per share`,
+          `${p.duration_months || 24}-month program duration`,
+          'Cow & Fish production asset backing',
+          'Sharia-compliant net annual dividends',
+          'Annual audit reports & financial statements',
         ],
       }))
     : STATIC_PLANS
@@ -179,13 +179,13 @@ export default async function PlansPage() {
         <div className="max-w-3xl mx-auto text-center relative z-10 space-y-5">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold uppercase tracking-widest">
             <Sparkles className="h-3.5 w-3.5" />
-            Shariah-Compliant Packages
+            Project Adi — 2 Year Ownership Program
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight">
-            Investment <span className="gradient-text">Plans</span>
+            Investment <span className="gradient-text">Packages</span>
           </h1>
           <p className="text-slate-300 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
-            Asset-backed cattle farming with 10–18% annual returns. Fully insured, Shariah-compliant, and transparently managed.
+            Shariah-compliant cow &amp; fish production ownership. BDT 1,000 per share · 2-Year program (July 2026 – June 2028) · Variable net annual dividends.
           </p>
         </div>
       </section>

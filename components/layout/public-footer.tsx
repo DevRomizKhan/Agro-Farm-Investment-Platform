@@ -57,10 +57,10 @@ export function PublicFooter() {
                 Start Growing Wealth
               </div>
               <h2 className="text-2xl sm:text-3xl font-black text-white">
-                Join 500+ Smart Investors
+                Join Project Adi — Own Agricultural Assets
               </h2>
               <p className="text-slate-300 text-sm">
-                Earn 10–18% annual returns with 100% asset-backed cattle farming.
+                BDT 1,000 per share · Cow &amp; Fish production · 2-Year program (July 2026 – June 2028) · 100% Sharia-compliant.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
                 <Link href={ROUTES.REGISTER} className="btn-primary group w-full sm:w-auto">
@@ -134,7 +134,7 @@ export function PublicFooter() {
           <div className="md:col-span-4">
             <p className="text-xs font-black text-white uppercase tracking-widest mb-4">Newsletter</p>
             <p className="text-xs text-slate-400 mb-4 leading-relaxed">
-              Get monthly farm updates and investor return reports.
+              Get regular farm updates and investor reports.
             </p>
             {subscribed ? (
               <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs flex items-center gap-2">

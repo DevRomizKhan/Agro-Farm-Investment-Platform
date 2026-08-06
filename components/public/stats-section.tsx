@@ -24,8 +24,8 @@ const stats = [
   {
     icon: ShieldCheck,
     value: '100%',
-    label: 'On-Time Payouts',
-    description: 'Flawless track record',
+    label: 'Transparent Reporting',
+    description: 'Annual audits and statements',
   },
 ]
 

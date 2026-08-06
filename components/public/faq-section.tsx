@@ -6,32 +6,36 @@ import { cn } from '@/lib/utils'
 
 const faqs = [
   {
-    q: 'Is my investment safe and asset-backed?',
-    a: 'Yes. Every taka invested is allocated into registered, insured physical cattle. All animals are IoT-tagged, vaccinated, and monitored by resident veterinarians across our 25+ farm locations. No speculative instruments — only real agricultural assets.',
+    q: 'What is Project Adi – 2 Year Ownership Program?',
+    a: 'Project Adi is a 2-year partnership-based agricultural ownership program (July 1, 2026 – June 30, 2028) focused exclusively on cattle (cow) and fish (aquaculture) production under Islamic Sharia principles.',
   },
   {
-    q: 'What is the minimum investment amount?',
-    a: 'You can start with as little as ৳10,000 (1 share). Shares are priced at ৳10,000 each and you may purchase up to the maximum allowed for your chosen plan.',
+    q: 'What is the share price and minimum investment?',
+    a: 'Investment shares are priced at BDT 1,000 per share (One Thousand BDT). You can start with as little as 1 share (BDT 1,000) and may purchase multiple shares through approved BDT payment channels on The Amanah.farm.',
   },
   {
-    q: 'How and when do I receive my returns?',
-    a: 'Returns are distributed quarterly, deposited directly into your registered bank account. You can also choose to reinvest at maturity. Payment timing and rates are defined in your investment agreement.',
+    q: 'How and when are dividend returns distributed?',
+    a: 'Net annual dividends are calculated after deducting all operational costs, production expenses, and maintenance. Dividend payment updates and schedules are communicated on a 6-month basis.',
   },
   {
-    q: 'Is Amanah Farm investment Shariah-compliant?',
-    a: 'Absolutely. All investments operate under authenticated Mudarabah and Musharakah structures. Profit-sharing ratios are pre-agreed, and there is zero interest (Riba), speculation, or ambiguity (Gharar) involved.',
+    q: 'Are returns guaranteed or fixed?',
+    a: 'No. In full compliance with Islamic Sharia Law, no fixed, guaranteed, or predetermined profit levels are offered. Returns are variable and dependent on actual project performance. Any losses or underperformance are shared proportionately based on shareholding.',
   },
   {
-    q: 'What does KYC verification involve?',
-    a: 'KYC (Know Your Customer) requires your National ID card (NID), a recent photo, and bank account details. It typically completes within 24 hours and is required to protect your payout channels and comply with Bangladesh Bank regulations.',
+    q: 'What is the lock period and can I sell/transfer my shares?',
+    a: 'Investments are non-refundable and non-transferable during the first year. After the first year, investors may submit a 1-month written notice to sell or transfer shares. Valuations reflect prevailing market conditions, and settlements are completed within 4 months.',
   },
   {
-    q: 'What is the lock period and can I exit early?',
-    a: 'Each investment plan has a 366-day lock period from the date of activation. Early withdrawal is not available during this window. After the lock period expires, you may request a full exit through the investor portal.',
+    q: 'What happens at the end of the 2-year project period?',
+    a: 'Upon project conclusion, all base project assets (cattle and fish inventory) are liquidated by June 30, 2029. Net proceeds from asset sales are distributed proportionately among all investors based on their shareholding percentage.',
   },
   {
-    q: 'What annual return can I expect?',
-    a: 'Our plans offer between 10% and 18% annual ROI depending on the plan tier and duration. The exact rate is fixed at the time of your investment and guaranteed in your signed agreement.',
+    q: 'How is financial transparency and auditing handled?',
+    a: 'Project Adi maintains comprehensive financial records. Independent, recognized audit firms conduct annual audits, and investors receive annual financial statements and audit reports.',
+  },
+  {
+    q: 'What are the main risk factors involved?',
+    a: 'Livestock and aquaculture carry inherent risks including animal mortality, disease, weather conditions, feed prices, and market price fluctuations. Costs may also shift due to natural disasters or commodity prices, with risks shared proportionately under Sharia partnership principles.',
   },
 ]
 
@@ -46,13 +50,13 @@ export function FAQSection() {
         <div className="text-center mb-14">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold uppercase tracking-widest mb-4">
             <HelpCircle className="h-3.5 w-3.5" />
-            FAQ
+            Frequently Asked Questions
           </div>
           <h2 className="text-3xl sm:text-4xl font-black text-white mb-3">
             Common <span className="gradient-text">Questions</span>
           </h2>
           <p className="text-slate-400 text-sm sm:text-base">
-            Everything you need to know before getting started.
+            Everything you need to know about Project Adi – 2 Year Ownership Program.
           </p>
         </div>
 
@@ -66,7 +70,7 @@ export function FAQSection() {
                 className={cn(
                   'rounded-2xl border transition-all duration-200',
                   isOpen
-                    ? 'bg-slate-900 border-emerald-500/40'
+                    ? 'bg-slate-900 border-emerald-500/40 shadow-lg shadow-emerald-950/20'
                     : 'bg-slate-900/40 border-white/5 hover:border-white/10'
                 )}
               >

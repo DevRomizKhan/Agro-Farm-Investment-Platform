@@ -21,30 +21,30 @@ const slides = [
     image: '/images/carousel/slide1.jpg',
     badge: 'Halal & Shariah Compliant',
     badgeIcon: ShieldCheck,
-    title: 'Invest in Agriculture. Harvest the Future.',
-    subtitle: 'Earn 12% – 18% annual returns with 100% asset-backed cattle & livestock farming in Bangladesh.',
-    primaryCta: { text: 'Start Investing Today', href: ROUTES.REGISTER },
-    secondaryCta: { text: 'View Plans', href: '/#plans' },
+    title: 'Own Agricultural Assets. Share the Harvest.',
+    subtitle: 'Project Adi: A 2-year co-ownership program in cow & fish production starting at BDT 1,000 per share — fully Sharia-compliant.',
+    primaryCta: { text: 'Buy Shares Now', href: ROUTES.REGISTER },
+    secondaryCta: { text: 'View Packages', href: '/#plans' },
   },
   {
     id: 2,
     image: '/images/carousel/slide2.jpg',
-    badge: '100% Asset-Backed Security',
+    badge: '100% Asset-Backed Ownership',
     badgeIcon: Award,
-    title: 'Transparent Smart Farming & High ROI',
-    subtitle: 'Secured by insured livestock, professional veterinary care, and real-time investor updates.',
-    primaryCta: { text: 'Calculate Returns', href: '/#lead-gen' },
-    secondaryCta: { text: 'About Amanah Farm', href: '/#about' },
+    title: 'Transparent Farming. Real Asset Ownership.',
+    subtitle: 'Secured by real cattle and fish production assets, backed by independent annual audits and full financial transparency.',
+    primaryCta: { text: 'Learn About Project Adi', href: ROUTES.ABOUT },
+    secondaryCta: { text: 'Read Terms', href: ROUTES.TERMS },
   },
   {
     id: 3,
     image: '/images/carousel/slide3.jpg',
-    badge: 'Trusted by 1,250+ Investors',
+    badge: 'Trusted Sharia Partnership',
     badgeIcon: TrendingUp,
-    title: 'Build Sustainable Passive Income',
-    subtitle: 'Empower local Bangladesh agriculture while securing consistent, reliable dividend payouts for your family.',
-    primaryCta: { text: 'Join Amanah Farm', href: ROUTES.REGISTER },
-    secondaryCta: { text: 'Read Blog', href: ROUTES.BLOG },
+    title: 'Earn Variable Dividends. Exit After Year One.',
+    subtitle: 'Annual net dividends are calculated after project expenses. Returns are variable, and investors may transfer or sell shares after 1 year under the terms.',
+    primaryCta: { text: 'Join Project Adi', href: ROUTES.REGISTER },
+    secondaryCta: { text: 'View Terms & Policy', href: ROUTES.TERMS },
   },
 ]
 
@@ -150,19 +150,19 @@ export function CarouselSection() {
         <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-xs sm:text-sm text-slate-400 border-t border-white/10 pt-8">
           <div className="flex items-center gap-2">
             <ShieldCheck className="h-4 w-4 text-emerald-400" />
-            <span>Shariah Certified</span>
+            <span>100% Sharia Compliant</span>
           </div>
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-            <span>100% Asset Insured</span>
+            <span>BDT 1,000 / Share</span>
           </div>
           <div className="flex items-center gap-2">
             <TrendingUp className="h-4 w-4 text-emerald-400" />
-            <span>12–18% Annual Return</span>
+            <span>Variable Annual Dividends</span>
           </div>
           <div className="flex items-center gap-2">
             <Leaf className="h-4 w-4 text-emerald-400" />
-            <span>25+ Farm Locations</span>
+            <span>Cow &amp; Fish Production</span>
           </div>
         </div>
 

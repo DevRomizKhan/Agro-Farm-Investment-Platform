@@ -3,37 +3,37 @@ const steps = [
     step: '01',
     title: 'Create Your Account',
     description:
-      'Register with your email and basic details. Verification takes less than 2 minutes.',
+      'Register with your email and basic personal details. Email verification takes less than 2 minutes.',
   },
   {
     step: '02',
     title: 'Complete KYC Verification',
     description:
-      'Submit your NID and bank details. Our team verifies your identity within 24 hours.',
+      'Submit your NID and accurate contact information. Our team verifies your identity and activates your investor account.',
   },
   {
     step: '03',
-    title: 'Choose an Investment Plan',
+    title: 'Purchase Shares (BDT 1,000 each)',
     description:
-      'Browse our investment plans and select one that matches your financial goals.',
+      'Buy shares at BDT 1,000 per share through approved payment methods in BDT currency only. Multiple shares can be purchased.',
   },
   {
     step: '04',
-    title: 'Fund Your Investment',
+    title: 'Own Production Assets',
     description:
-      'Transfer your investment amount via bank transfer or mobile banking.',
+      'Your investment is allocated proportionately into cow and fish production assets under Sharia-compliant partnership principles.',
   },
   {
     step: '05',
-    title: 'Earn Monthly Returns',
+    title: 'Receive Annual Dividends',
     description:
-      'Receive your ROI every month directly to your registered bank account.',
+      'Net dividends (after all operational costs) are communicated on a 6-month basis and distributed annually to all investors.',
   },
   {
     step: '06',
-    title: 'Grow &amp; Reinvest',
+    title: 'Exit or Reinvest After Year 1',
     description:
-      'Reinvest your returns for compounding growth or withdraw at the end of your term.',
+      'After the first year, submit a 1-month written notice to sell or transfer shares. All settlements completed within 4 months.',
   },
 ]
 

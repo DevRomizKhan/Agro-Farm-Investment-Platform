@@ -13,25 +13,25 @@ const values = [
   {
     icon: Target,
     title: 'Our Mission',
-    desc: 'Democratise agricultural investment in Bangladesh — connecting everyday investors to insured, high-yield cattle farming with full transparency.',
+    desc: 'Connect everyday investors to real, asset-backed agricultural production — offering transparent, Sharia-compliant co-ownership of cow and fish farming in Bangladesh.',
   },
   {
     icon: Eye,
     title: 'Our Vision',
-    desc: 'Build Bangladesh\'s most trusted agro-investment ecosystem, empowering 10,000+ investors by 2030 through ethical, asset-backed growth.',
+    desc: 'Build Bangladesh\'s most trusted agro-investment ecosystem, empowering thousands of investors through ethical, proportionate ownership of production-based assets.',
   },
   {
     icon: ShieldCheck,
     title: 'Our Promise',
-    desc: '100% Shariah compliance, quarterly financial audits, and guaranteed dividend disbursements — no hidden fees, no compromises.',
+    desc: '100% Shariah compliance, independent annual audits, and full transparency in income, expenses, and dividends — no fixed guarantees, no compromises.',
   },
 ]
 
 const stats = [
-  { icon: TrendingUp, val: '10–18%', label: 'Annual ROI Range' },
+  { icon: TrendingUp, val: 'Variable', label: 'Net Annual Returns' },
   { icon: Users, val: '500+', label: 'Active Investors' },
-  { icon: Leaf, val: '25+', label: 'Farm Locations' },
-  { icon: ShieldCheck, val: '100%', label: 'On-Time Payouts' },
+  { icon: Leaf, val: 'Cow & Fish', label: 'Production Scope' },
+  { icon: ShieldCheck, val: '100% Sharia', label: 'Compliant Operations' },
 ]
 
 const leadership = [
@@ -55,7 +55,7 @@ export default function AboutPage() {
             Pioneering <span className="gradient-text">Agro Investment</span> in Bangladesh
           </h1>
           <p className="text-slate-300 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
-            Since 2019, we have connected urban capital with sustainable cattle farming — delivering ethical, Shariah-compliant returns to 500+ investors across Bangladesh.
+            We connect investors to a 2-year Sharia-compliant co-ownership program in cow and fish production — fully transparent, asset-backed, and starting at BDT 1,000 per share.
           </p>
         </div>
       </section>
@@ -87,10 +87,10 @@ export default function AboutPage() {
               <span className="gradient-text">Powered by Trust</span>
             </h2>
             <p className="text-slate-300 text-base leading-relaxed">
-              Amanah Farm was founded by {COMPANY_INFO.founder} with a singular goal: make agricultural investment accessible, transparent, and genuinely responsible for Bangladeshi investors.
+              Amanah Farm was founded by {COMPANY_INFO.founder} with one goal: make agricultural co-ownership transparent and genuinely accessible to Bangladeshi investors.
             </p>
             <p className="text-slate-400 text-sm leading-relaxed">
-              Our operations are guided by {COMPANY_INFO.founderTitle} and supported by {COMPANY_INFO.executive}, {COMPANY_INFO.executiveTitle}. Every farm location is managed with careful livestock welfare, clear reporting, and disciplined operations.
+              Our current initiative, <strong className="text-emerald-400">Project Adi</strong>, is a 2-year ownership program (July 2026 – June 2028) focused on cow and fish production. Investors receive proportionate ownership rights and annual net dividends under Islamic Sharia partnership principles.
             </p>
             <Link href={ROUTES.REGISTER} className="btn-primary inline-flex items-center gap-2 text-sm rounded-xl">
               Start Your Investment Journey

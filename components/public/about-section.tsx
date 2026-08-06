@@ -5,9 +5,9 @@ import { COMPANY_INFO, ROUTES } from '@/constants'
 
 const features = [
   { icon: ShieldCheck, label: 'Shariah-Compliant Contracts' },
-  { icon: TrendingUp, label: 'Quarterly Dividend Payouts' },
-  { icon: Users, label: '24/7 Investor Portal Access' },
-  { icon: Leaf, label: 'Fully Insured Livestock Assets' },
+  { icon: TrendingUp, label: 'Annual Net Dividends' },
+  { icon: Users, label: 'Proportionate Asset Ownership' },
+  { icon: Leaf, label: 'Cow & Fish Production' },
 ]
 
 const stats = [
@@ -37,7 +37,7 @@ export function AboutSection() {
             </h2>
 
             <p className="text-slate-300 text-base sm:text-lg leading-relaxed">
-              Amanah Farm connects urban capital to high-yield, sustainable cattle farming across Bangladesh — with zero middlemen, complete transparency, and Shariah-compliant operations.
+              Amanah Farm is a partnership-based agricultural investment initiative connecting investors to proportionate ownership in cow and fish production assets. Project Adi operates under Islamic Sharia principles, with annual net dividends calculated after project expenses, transparent financial records, and no fixed or guaranteed returns.
             </p>
 
             <div className="grid grid-cols-2 gap-3">

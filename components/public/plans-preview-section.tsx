@@ -39,54 +39,54 @@ function ShareBar({ sold, total, ownerPercentage = 40 }: { sold: number; total: 
 
 const STATIC_PLANS = [
   {
-    name: 'Basic Plan',
+    name: 'Basic Share Package',
     tag: 'Entry Level',
-    total_shares: 150,
-    shares_per_amount: 10000,
-    max_shares_per_investor: 30,
-    roi_percentage: 10,
-    duration_months: 12,
+    total_shares: 1000,
+    shares_per_amount: 1000,
+    max_shares_per_investor: 100,
+    roi_percentage: 12,
+    duration_months: 24,
     owner_share_percentage: 40,
     popular: false,
     features: [
-      '10% annual ROI',
-      '366-day lock period',
-      'Quarterly dividend payouts',
-      'Digital investment certificate',
+      'BDT 1,000 per share',
+      '2-Year Program (July 2026 – June 2028)',
+      'Cow & Fish production asset backing',
+      'Sharia compliant net annual dividends',
     ],
   },
   {
-    name: 'Standard Plan',
+    name: 'Standard Share Package',
     tag: 'Most Popular',
-    total_shares: 150,
-    shares_per_amount: 10000,
-    max_shares_per_investor: 30,
-    roi_percentage: 14,
-    duration_months: 12,
+    total_shares: 1000,
+    shares_per_amount: 1000,
+    max_shares_per_investor: 500,
+    roi_percentage: 15,
+    duration_months: 24,
     owner_share_percentage: 40,
     popular: true,
     features: [
-      '14% annual ROI',
-      '366-day lock period',
-      'Up to 30 shares per investor',
-      'Priority customer support',
+      'BDT 1,000 per share',
+      '2-Year Program (July 2026 – June 2028)',
+      'Up to 500 shares per investor',
+      '6-Month dividend updates & annual audits',
     ],
   },
   {
-    name: 'Premium Plan',
-    tag: 'High Returns',
-    total_shares: 150,
-    shares_per_amount: 10000,
-    max_shares_per_investor: 30,
+    name: 'Premium Share Package',
+    tag: 'Maximum Allocation',
+    total_shares: 1000,
+    shares_per_amount: 1000,
+    max_shares_per_investor: 1000,
     roi_percentage: 18,
-    duration_months: 12,
+    duration_months: 24,
     owner_share_percentage: 40,
     popular: false,
     features: [
-      '18% annual ROI',
-      '366-day lock period',
-      'Maximum share allocation',
-      'Dedicated account manager',
+      'BDT 1,000 per share',
+      '2-Year Program (July 2026 – June 2028)',
+      'Full asset liquidation distribution in 2029',
+      'Priority investor support & reports',
     ],
   },
 ]
@@ -126,18 +126,18 @@ export async function PlansPreviewSection() {
         name: p.name,
         tag: p.roi_percentage >= 16 ? 'High Returns' : p.roi_percentage >= 12 ? 'Most Popular' : 'Entry Level',
         total_shares: p.total_shares,
-        shares_per_amount: p.shares_per_amount,
+        shares_per_amount: p.shares_per_amount || 1000,
         max_shares_per_investor: p.max_shares_per_investor,
         roi_percentage: p.roi_percentage,
-        duration_months: p.duration_months,
+        duration_months: p.duration_months || 24,
         owner_share_percentage: p.owner_share_percentage || 40,
         popular: p.roi_percentage >= 12 && p.roi_percentage < 16,
         soldShares: planSharesSold[p.id] || 0,
         features: [
-          `${p.roi_percentage}% annual ROI`,
-          '366-day lock period',
+          `BDT ${(p.shares_per_amount || 1000).toLocaleString()} per share`,
+          '2-Year Program (July 2026 – June 2028)',
           `Max ${p.max_shares_per_investor} shares per investor`,
-          'Digital investment certificate',
+          'Cow & Fish production asset backing',
         ],
       }))
     : STATIC_PLANS.map(p => ({ ...p, id: undefined, soldShares: 0 }))
@@ -153,10 +153,10 @@ export async function PlansPreviewSection() {
             <span>Investment Plans</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-3">
-            Choose Your <span className="gradient-text">Plan</span>
+            Project Adi <span className="gradient-text">Packages</span>
           </h2>
           <p className="text-slate-400 text-sm sm:text-base">
-            Shariah-compliant, asset-backed plans starting from ৳10,000 per share.
+            Shariah-compliant, asset-backed program starting at BDT 1,000 per share (Cow &amp; Fish Production).
           </p>
         </div>
 

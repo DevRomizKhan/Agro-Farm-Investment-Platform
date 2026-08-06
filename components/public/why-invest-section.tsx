@@ -5,37 +5,37 @@ const reasons = [
     icon: ShieldCheck,
     title: 'Secured & Transparent',
     description:
-      'Every investment is documented with full transparency. You can track your investment in real-time from your dashboard.',
+      'Every investment is documented with comprehensive financial records. Independent auditors conduct annual reviews and investors receive full access to income and expense reports.',
   },
   {
     icon: TrendingUp,
-    title: 'Consistent High Returns',
+    title: 'Variable Net Dividends',
     description:
-      'Earn 12–18% annual ROI from proven agricultural operations with a track record of consistent profitability.',
+      'Annual dividends are calculated after all operational costs under Sharia law — no fixed or guaranteed returns. True profit and loss sharing aligned with farm performance.',
   },
   {
     icon: Clock,
-    title: 'Flexible Investment Duration',
+    title: '2-Year Program Duration',
     description:
-      'Choose from 6 to 24-month investment plans. Your capital is deployed into active farming operations immediately.',
+      'Project Adi runs from July 1, 2026 to June 30, 2028. Upon conclusion, all assets are liquidated and net proceeds distributed proportionately to all investors.',
   },
   {
     icon: Users,
     title: 'Expert Farm Management',
     description:
-      'Our team of experienced agronomists and farm managers ensure optimal productivity across all farm sites.',
+      'Our team of experienced agronomists and farm managers ensure optimal productivity in both cattle and fish production across all farm sites.',
   },
   {
     icon: Leaf,
-    title: 'Sustainable Agriculture',
+    title: 'Cow & Fish Production',
     description:
-      'We use environmentally responsible farming practices that improve soil health and long-term agricultural viability.',
+      'The project covers only cow and fish base producing assets. Investor ownership is strictly limited to production assets — not constructional or non-production assets.',
   },
   {
     icon: BarChart3,
-    title: 'Real-Time Analytics',
+    title: 'Real-Time Investor Portal',
     description:
-      'Monitor your investment performance, view ROI history, and access detailed reports from your personal dashboard.',
+      'Monitor your shareholding, access project updates and annual audit reports, and retrieve your investment records from a personal investor dashboard.',
   },
 ]
 
@@ -52,7 +52,7 @@ export function WhyInvestSection() {
           </h2>
           <p className="text-slate-400 max-w-2xl mx-auto">
             We combine modern fintech transparency with time-tested agricultural expertise to deliver
-            consistent returns to our investors.
+            transparent agricultural ownership aligned with Sharia principles and actual farm performance.
           </p>
         </div>
 

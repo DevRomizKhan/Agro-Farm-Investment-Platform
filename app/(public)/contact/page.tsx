@@ -44,7 +44,7 @@ export default function ContactPage() {
             Contact <span className="gradient-text">Amanah Farm</span>
           </h1>
           <p className="text-slate-300 text-base sm:text-lg leading-relaxed">
-            Have questions about plans, payouts, or farm visits? Our team responds within 2 business hours.
+            Have questions about Project Adi share packages, dividend updates, or ownership rights? Our team responds within 2 business hours.
           </p>
         </div>
       </section>

@@ -7,7 +7,7 @@ import { useState } from 'react'
 
 const TRUST_BADGES = [
   { icon: ShieldCheck, text: 'Shariah Certified' },
-  { icon: TrendingUp, text: '10–18% Annual ROI' },
+  { icon: TrendingUp, text: 'Variable Annual Dividends' },
   { icon: Leaf, text: '25+ Farm Locations' },
   { icon: ShieldCheck, text: 'Asset Insured' },
 ]
@@ -70,9 +70,7 @@ export function HeroSection() {
 
         {/* Subtitle */}
         <p className="text-base sm:text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed mb-10">
-          Earn{' '}
-          <strong className="text-emerald-400">10–18% annual returns</strong>{' '}
-          from insured livestock farming across Bangladesh — transparent, ethical, and managed by certified agro experts.
+          Participate in proportionate ownership of cow and fish production assets through a Sharia-compliant partnership — transparent, ethical, and managed by experienced farm teams.
         </p>
 
         {/* CTAs */}
