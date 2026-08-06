@@ -1,1 +1,5 @@
-export default function Loading() { return null }
+import { FormSkeleton } from '@/components/ui/skeleton'
+
+export default function Loading() {
+  return <FormSkeleton fields={7} />
+}

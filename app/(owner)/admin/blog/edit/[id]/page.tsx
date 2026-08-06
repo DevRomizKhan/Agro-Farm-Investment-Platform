@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
 import { ArrowLeft, Save, Eye, Upload, X, Image as ImageIcon, FileText, Video, Loader2 } from 'lucide-react'
+import { FormSkeleton } from '@/components/ui/skeleton'
 import { getBlogPostById, updateBlogPost, uploadBlogMedia, deleteBlogMedia } from '@/actions/blog'
 import { ROUTES, ALLOWED_BLOG_MEDIA_TYPES, MAX_FILE_SIZE } from '@/constants'
 import { blogPostSchema, type BlogPostFormData } from '@/schemas'
@@ -151,11 +152,7 @@ export default function EditBlogPostPage() {
   }
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-green-500" />
-      </div>
-    )
+    return <FormSkeleton fields={7} />
   }
 
   return (

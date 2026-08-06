@@ -1,1 +1,5 @@
-export default function Loading() { return null }
+import { BlogListSkeleton } from '@/components/ui/skeleton'
+
+export default function Loading() {
+  return <BlogListSkeleton />
+}

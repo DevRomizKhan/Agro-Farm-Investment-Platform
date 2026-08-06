@@ -1,5 +1,5 @@
-import { DetailPageSkeleton } from '@/components/ui/skeleton'
+import { DashboardSkeleton } from '@/components/ui/skeleton'
 
 export default function Loading() {
-  return <DetailPageSkeleton />
+  return <DashboardSkeleton />
 }

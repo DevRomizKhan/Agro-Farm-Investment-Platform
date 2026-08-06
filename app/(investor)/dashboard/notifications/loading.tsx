@@ -1,1 +1,5 @@
-export default function Loading() { return null }
+import { ListSkeleton } from '@/components/ui/skeleton'
+
+export default function Loading() {
+  return <ListSkeleton rows={5} />
+}

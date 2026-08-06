@@ -7,6 +7,7 @@ import { Plus, Pencil, Trash2, Eye, Calendar, FolderOpen, Search, Filter } from 
 import { getBlogPosts, deleteBlogPost } from '@/actions/blog'
 import { ROUTES } from '@/constants'
 import type { BlogPostWithAuthor } from '@/types'
+import { AdminBlogListSkeleton } from '@/components/ui/skeleton'
 
 type StatusFilter = 'all' | 'published' | 'draft' | 'archived'
 
@@ -89,11 +90,7 @@ export default function BlogManagementPage() {
   }
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
-      </div>
-    )
+    return <AdminBlogListSkeleton />
   }
 
   return (
