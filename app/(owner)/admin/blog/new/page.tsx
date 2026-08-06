@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
-import { ArrowLeft, Save, Eye, Upload, X, Image as ImageIcon, FileText, Video } from 'lucide-react'
-import { createBlogPost, uploadBlogMedia } from '@/actions/blog'
+import { ArrowLeft, Save, Upload, X, FileText, Video } from 'lucide-react'
+import { createBlogPost } from '@/actions/blog'
 import { ROUTES, ALLOWED_BLOG_MEDIA_TYPES, MAX_FILE_SIZE } from '@/constants'
 import { blogPostSchema, type BlogPostFormData } from '@/schemas'
 
@@ -16,9 +16,8 @@ export default function NewBlogPostPage() {
   const [isUploading, setIsUploading] = useState(false)
   const [uploadedMedia, setUploadedMedia] = useState<Array<{ url: string; type: string; name: string }>>([])
   const [featuredImage, setFeaturedImage] = useState<string>('')
-  const [submitStatus, setSubmitStatus] = useState<'draft' | 'published'>('draft')
 
-  const { register, handleSubmit, watch, formState: { errors } } = useForm<BlogPostFormData>({
+  const { register, handleSubmit, formState: { errors } } = useForm<BlogPostFormData>({
     resolver: zodResolver(blogPostSchema),
     defaultValues: {
       status: 'draft',
@@ -26,23 +25,6 @@ export default function NewBlogPostPage() {
       meta_keywords: [],
     },
   })
-
-  const content = watch('content')
-  const slug = watch('slug')
-  const title = watch('title')
-
-  // Auto-generate slug from title
-  useEffect(() => {
-    if (title && !slug) {
-      const generatedSlug = title
-        .toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-')
-        .trim()
-      // We'll let the server handle uniqueness
-    }
-  }, [title, slug])
 
   const onSubmit = async (data: BlogPostFormData) => {
     setIsLoading(true)
@@ -68,7 +50,7 @@ export default function NewBlogPostPage() {
       } else {
         toast.error(result.error || 'Failed to create blog post')
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to create blog post')
     } finally {
       setIsLoading(false)
@@ -106,7 +88,7 @@ export default function NewBlogPostPage() {
       // For now, we'll upload after the post is created
       // This is a temporary solution - ideally we'd create the post first or use a temp upload
       toast.info('Please save the post first before uploading media')
-    } catch (error) {
+    } catch {
       toast.error('Failed to upload file')
     } finally {
       setIsUploading(false)

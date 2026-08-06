@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { ArrowLeft, User, Mail, Phone, Calendar, TrendingUp } from 'lucide-react'
+import { ArrowLeft, Phone, Calendar, TrendingUp } from 'lucide-react'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { ROUTES } from '@/constants'
 import Link from 'next/link'

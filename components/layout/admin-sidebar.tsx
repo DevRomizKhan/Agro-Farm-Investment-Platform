@@ -29,10 +29,9 @@ const navItems = [
 
 interface AdminSidebarProps {
   userName: string
-  userEmail: string
 }
 
-export function AdminSidebar({ userName, userEmail }: AdminSidebarProps) {
+export function AdminSidebar({ userName }: AdminSidebarProps) {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
 

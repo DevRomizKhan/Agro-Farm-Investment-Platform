@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { KYCForm } from '@/components/features/kyc/kyc-form'
-import { FileText, ShieldAlert, CheckCircle, XCircle, Clock } from 'lucide-react'
+import { CheckCircle, XCircle, Clock } from 'lucide-react'
 import Link from 'next/link'
 import { ROUTES } from '@/constants'
 import { formatDate } from '@/lib/utils'

@@ -25,11 +25,15 @@ export default function VerifyEmailClient({
   const [resendSuccess, setResendSuccess] = useState(false)
 
   useEffect(() => {
+    let cancelled = false
+
     // 1. Check URL hash fragment (common in Supabase redirects)
     if (typeof window !== 'undefined') {
       const hash = window.location.hash
       if (hash.includes('access_token') || hash.includes('type=signup') || hash.includes('type=email')) {
-        setIsVerified(true)
+        queueMicrotask(() => {
+          if (!cancelled) setIsVerified(true)
+        })
       }
     }
 
@@ -50,6 +54,7 @@ export default function VerifyEmailClient({
     })
 
     return () => {
+      cancelled = true
       subscription.unsubscribe()
     }
   }, [])

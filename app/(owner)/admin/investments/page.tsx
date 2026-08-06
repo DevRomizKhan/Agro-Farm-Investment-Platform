@@ -1,8 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { formatCurrency, formatDate } from '@/lib/utils'
-import { TrendingUp, Clock, CheckCircle, ExternalLink, Lock, Unlock, DollarSign } from 'lucide-react'
-import Link from 'next/link'
+import { Clock, CheckCircle, ExternalLink, Lock, Unlock, DollarSign } from 'lucide-react'
 import { ROUTES } from '@/constants'
 import { approveInvestmentAction, processWithdrawalRequestAction, completeWithdrawalAction } from '@/actions/investments'
 import { ApproveInvestmentButton } from '@/components/features/admin/approve-investment-button'
@@ -53,7 +52,6 @@ export default async function AdminInvestmentsPage() {
 
   const pendingInvestments = investments?.filter(i => i.status === 'pending') || []
   const activeInvestments = investments?.filter(i => i.status === 'active') || []
-  const completedInvestments = investments?.filter(i => i.status === 'completed' || i.status === 'cancelled') || []
 
   // Collect all withdrawal requests
   const allWithdrawalRequests = investments?.flatMap(inv =>

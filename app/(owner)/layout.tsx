@@ -22,7 +22,6 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     <div className="flex h-screen bg-slate-950 overflow-hidden">
       <AdminSidebar
         userName={profile?.full_name || user.email || 'Owner'}
-        userEmail={profile?.email || user.email || ''}
       />
       <main className="flex-1 overflow-y-auto lg:pt-0 pt-16">
         <div className="p-4 md:p-6 lg:p-8 min-h-full">

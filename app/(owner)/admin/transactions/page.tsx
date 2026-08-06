@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { CreditCard, ArrowUp, ArrowDown, Clock } from 'lucide-react'
+import { CreditCard, ArrowDown } from 'lucide-react'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { ROUTES } from '@/constants'
 import type { Investment, InvestmentPlan, Profile } from '@/types'

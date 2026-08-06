@@ -4,7 +4,7 @@ import { getBlogPostBySlug, getBlogPosts } from '@/actions/blog'
 import { APP_NAME } from '@/constants'
 import { getBlogPostHref } from '@/lib/utils'
 import Link from 'next/link'
-import { Calendar, Clock, User, ArrowRight, Share2, FolderOpen, Tag } from 'lucide-react'
+import { Calendar, Clock, ArrowRight, Share2, Tag } from 'lucide-react'
 import BlogJsonLd from '@/components/blog/blog-json-ld'
 import PostShareActions from '@/components/blog/post-share-actions'
 

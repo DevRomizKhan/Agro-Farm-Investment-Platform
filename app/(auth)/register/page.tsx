@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import Link from 'next/link'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
-import { Eye, EyeOff, Loader2, Check, CheckCircle2, Circle, ArrowRight } from 'lucide-react'
+import { Eye, EyeOff, Loader2, CheckCircle2, Circle, ArrowRight } from 'lucide-react'
 import { registerSchema, type RegisterFormData } from '@/schemas'
 import { registerAction } from '@/actions/auth'
 import { ROUTES } from '@/constants'
@@ -15,27 +15,18 @@ export default function RegisterPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [done, setDone] = useState(false)
-  const [passwordStrength, setPasswordStrength] = useState({ score: 0, feedback: '' })
   const [emailConfirmationDisabled, setEmailConfirmationDisabled] = useState(false)
 
-  const { register, handleSubmit, watch, formState: { errors, isDirty } } = useForm<RegisterFormData>({
+  const { register, handleSubmit, control, formState: { errors } } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     mode: 'onChange',
   })
 
-  const password = watch('password')
-  const confirmPassword = watch('confirm_password')
+  const password = useWatch({ control, name: 'password' })
+  const confirmPassword = useWatch({ control, name: 'confirm_password' })
 
-  useEffect(() => {
-    // Check if email confirmation is disabled for testing
-    setEmailConfirmationDisabled(process.env.EMAIL_CONFIRMATION_ENABLED === 'false')
-  }, [])
-
-  useEffect(() => {
-    if (!password) {
-      setPasswordStrength({ score: 0, feedback: '' })
-      return
-    }
+  const passwordStrength = useMemo(() => {
+    if (!password) return { score: 0, feedback: '' }
 
     let score = 0
     const feedback = []
@@ -56,12 +47,10 @@ export default function RegisterPage() {
     else feedback.push('Special char')
 
     const strengthLabels = ['Weak', 'Fair', 'Good', 'Strong', 'Very Strong']
-    const strengthColors = ['bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-green-500', 'bg-green-600']
-
-    setPasswordStrength({
+    return {
       score,
       feedback: feedback.length > 0 ? `Add: ${feedback.join(', ')}` : strengthLabels[score - 1] || '',
-    })
+    }
   }, [password])
 
   const onSubmit = async (data: RegisterFormData) => {
@@ -69,6 +58,7 @@ export default function RegisterPage() {
     try {
       const result = await registerAction(data)
       if (result.success) {
+        setEmailConfirmationDisabled(result.needsVerification === false)
         setDone(true)
         toast.success(result.message || 'Account created!')
       } else {

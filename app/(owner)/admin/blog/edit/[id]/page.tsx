@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
-import { ArrowLeft, Save, Eye, Upload, X, Image as ImageIcon, FileText, Video, Loader2 } from 'lucide-react'
+import { ArrowLeft, Save, Eye, Upload, X, FileText, Video, Loader2 } from 'lucide-react'
 import { FormSkeleton } from '@/components/ui/skeleton'
 import { getBlogPostById, updateBlogPost, uploadBlogMedia, deleteBlogMedia } from '@/actions/blog'
 import { ROUTES, ALLOWED_BLOG_MEDIA_TYPES, MAX_FILE_SIZE } from '@/constants'
@@ -21,17 +21,12 @@ export default function EditBlogPostPage() {
   const [isSaving, setIsSaving] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [post, setPost] = useState<(BlogPostWithAuthor & { media: BlogMedia[] }) | null>(null)
-  const [submitStatus, setSubmitStatus] = useState<'draft' | 'published'>('draft')
 
-  const { register, handleSubmit, watch, formState: { errors }, reset } = useForm<BlogPostFormData>({
+  const { register, handleSubmit, watch, getValues, formState: { errors }, reset } = useForm<BlogPostFormData>({
     resolver: zodResolver(blogPostSchema),
   })
 
-  useEffect(() => {
-    loadPost()
-  }, [postId])
-
-  const loadPost = async () => {
+  const loadPost = useCallback(async () => {
     setIsLoading(true)
     try {
       const data = await getBlogPostById(postId)
@@ -60,7 +55,11 @@ export default function EditBlogPostPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [postId, reset])
+
+  useEffect(() => {
+    void loadPost()
+  }, [loadPost])
 
   const onSubmit = async (data: BlogPostFormData) => {
     setIsSaving(true)
@@ -148,7 +147,7 @@ export default function EditBlogPostPage() {
   }
 
   const handleSetFeaturedImage = (url: string) => {
-    reset({ ...watch(), featured_image: url })
+    reset({ ...getValues(), featured_image: url })
   }
 
   if (isLoading) {

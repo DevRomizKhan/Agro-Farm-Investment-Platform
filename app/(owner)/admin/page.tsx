@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { formatCurrency, formatDate } from '@/lib/utils'
-import { Users, TrendingUp, Clock, ShieldCheck, ArrowRight, DollarSign, Layers } from 'lucide-react'
+import { Users, TrendingUp, Clock, ArrowRight, DollarSign, Layers } from 'lucide-react'
 import Link from 'next/link'
 import { ROUTES } from '@/constants'
 
@@ -17,7 +17,6 @@ export default async function AdminDashboardPage() {
   const [
     { count: totalInvestors },
     { count: pendingKYC },
-    { count: approvedKYC },
     { data: recentKYC },
     { data: recentInvestments },
     { data: investmentAgg },
@@ -26,7 +25,6 @@ export default async function AdminDashboardPage() {
   ] = await Promise.all([
     supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'investor'),
     supabase.from('kyc_submissions').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
-    supabase.from('kyc_submissions').select('*', { count: 'exact', head: true }).eq('status', 'approved'),
     supabase.from('kyc_submissions').select('*').eq('status', 'pending').order('created_at', { ascending: false }).limit(5),
     supabase.from('investments').select('*, plan:investment_plans(name, shares_per_amount)').order('created_at', { ascending: false }).limit(5),
     supabase.from('investments').select('amount, shares_purchased, status'),

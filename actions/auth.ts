@@ -117,6 +117,7 @@ export async function registerAction(data: RegisterFormData): Promise<ActionResu
   if (!emailConfirmationEnabled || authData.user?.email_confirmed_at) {
     return {
       success: true,
+      needsVerification: false,
       message: 'Account created successfully! You can now log in.',
     }
   }
@@ -124,6 +125,7 @@ export async function registerAction(data: RegisterFormData): Promise<ActionResu
   // Email confirmation is enabled - user needs to verify
   return {
     success: true,
+    needsVerification: true,
     message: 'Account created! Please check your email to verify your account.',
   }
 }

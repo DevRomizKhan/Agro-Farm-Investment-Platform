@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { formatCurrency, formatDate } from '@/lib/utils'
-import { ShieldAlert, Clock, CheckCircle, XCircle } from 'lucide-react'
+import { formatDate } from '@/lib/utils'
+import { Clock, CheckCircle, XCircle } from 'lucide-react'
 import Link from 'next/link'
 import { ROUTES } from '@/constants'
 

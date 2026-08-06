@@ -21,14 +21,12 @@ export default async function AdminReportsPage() {
   const [
     { data: investments },
     { count: totalInvestors },
-    { data: investorProfiles },
     { data: kycData },
     { data: plans },
     { data: contactSubmissions },
   ] = await Promise.all([
     supabase.from('investments').select('user_id, amount, status, created_at, expected_roi, actual_roi, shares_purchased, plan_id').order('created_at', { ascending: false }),
     supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'investor'),
-    supabase.from('profiles').select('user_id, full_name, email').eq('role', 'investor'),
     supabase.from('kyc_submissions').select('user_id, status'),
     supabase.from('investment_plans').select('id, name, total_shares, shares_per_amount, owner_share_percentage'),
     supabase.from('contact_submissions').select('type, status'),
@@ -40,19 +38,6 @@ export default async function AdminReportsPage() {
   const activeSubscribers = subscribers.filter((submission) => submission.status !== 'unsubscribed' && submission.status !== 'archived').length
   const newSubscribers = subscribers.filter((submission) => submission.status === 'new').length
   const openContacts = contactRequests.filter((submission) => submission.status === 'new' || submission.status === 'in_progress').length
-
-  const investedByInvestor = new Map<string, number>()
-  investments?.filter((investment) => investment.status === 'active').forEach((investment) => {
-    investedByInvestor.set(investment.user_id, (investedByInvestor.get(investment.user_id) || 0) + Number(investment.amount))
-  })
-  const kycByInvestor = new Map((kycData || []).map((submission) => [submission.user_id, submission.status]))
-  const investorDetails = (investorProfiles || [])
-    .map((investor) => ({
-      name: investor.full_name || investor.email || 'Unnamed investor',
-      kycStatus: kycByInvestor.get(investor.user_id) || 'not_submitted',
-      investedAmount: investedByInvestor.get(investor.user_id) || 0,
-    }))
-    .sort((left, right) => right.investedAmount - left.investedAmount)
 
   // Calculate metrics
   const totalInvested = investments?.filter(i => i.status === 'active').reduce((sum, i) => sum + Number(i.amount), 0) || 0
@@ -112,7 +97,6 @@ export default async function AdminReportsPage() {
           contactRequests={contactRequests.length}
           openContacts={openContacts}
           totalSubmissions={submissions.length}
-        //investorDetails={investorDetails}
         />
       </div>
 

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
@@ -23,7 +23,7 @@ export function InvestForm({ plans, planSharesSold = {} }: InvestFormProps) {
   const [selectedPlan, setSelectedPlan] = useState<InvestmentPlan | null>(null)
   const [receiptFile, setReceiptFile] = useState<File | null>(null)
 
-  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<InvestFormData>({
+  const { register, handleSubmit, setValue, control, formState: { errors } } = useForm<InvestFormData>({
     resolver: zodResolver(investSchema),
     defaultValues: {
       plan_id: '',
@@ -31,7 +31,7 @@ export function InvestForm({ plans, planSharesSold = {} }: InvestFormProps) {
     },
   })
 
-  const sharesWatch = watch('shares')
+  const sharesWatch = useWatch({ control, name: 'shares' })
 
   const handlePlanChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const plan = plans.find((p) => p.id === e.target.value) || null
@@ -78,7 +78,7 @@ export function InvestForm({ plans, planSharesSold = {} }: InvestFormProps) {
       } else {
         toast.error(result.error || 'Failed to submit investment')
       }
-    } catch (err) {
+    } catch {
       toast.error('An unexpected error occurred')
     } finally {
       setIsLoading(false)

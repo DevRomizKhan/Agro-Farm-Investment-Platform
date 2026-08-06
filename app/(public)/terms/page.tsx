@@ -27,7 +27,7 @@ import {
   HelpCircle,
   ChevronRight,
 } from 'lucide-react'
-import { APP_NAME, COMPANY_INFO, ROUTES } from '@/constants'
+import { ROUTES } from '@/constants'
 
 interface PolicySection {
   id: string
@@ -379,7 +379,7 @@ export default function TermsPage() {
           <div className="text-center py-16 glass-card border-dashed">
             <HelpCircle className="h-10 w-10 text-slate-500 mx-auto mb-3" />
             <p className="text-white font-bold">No matching policy clauses found</p>
-            <p className="text-xs text-slate-400 mt-1">Try searching with a different term or selecting "All" categories.</p>
+            <p className="text-xs text-slate-400 mt-1">Try searching with a different term or selecting &quot;All&quot; categories.</p>
             <button
               onClick={() => {
                 setSearch('')

@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { Bell, Clock, Trash2 } from 'lucide-react'
+import { Bell, Clock } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 import { ROUTES } from '@/constants'
 import type { Notification } from '@/types'

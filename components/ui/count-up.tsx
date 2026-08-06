@@ -14,16 +14,13 @@ type CountUpProps = {
 
 export function CountUp({ value, suffix = '', prefix = '', decimals = 0, duration = 1400, className = '', label }: CountUpProps) {
   const elementRef = useRef<HTMLSpanElement>(null)
-  const [displayValue, setDisplayValue] = useState(0)
+  const [displayValue, setDisplayValue] = useState(value)
 
   useEffect(() => {
     const element = elementRef.current
     if (!element) return
 
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setDisplayValue(value)
-      return
-    }
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
     let frame = 0
     let startTime: number | null = null

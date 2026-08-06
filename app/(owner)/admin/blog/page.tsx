@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { toast } from 'sonner'
-import { Plus, Pencil, Trash2, Eye, Calendar, FolderOpen, Search, Filter } from 'lucide-react'
+import { Plus, Pencil, Trash2, Eye, Calendar, FolderOpen, Search } from 'lucide-react'
 import { getBlogPosts, deleteBlogPost } from '@/actions/blog'
 import { ROUTES } from '@/constants'
 import type { BlogPostWithAuthor } from '@/types'

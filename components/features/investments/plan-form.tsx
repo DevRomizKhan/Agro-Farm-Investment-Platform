@@ -98,7 +98,7 @@ export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
       } else {
         toast.error(result.error || 'Failed to save plan')
       }
-    } catch (err) {
+    } catch {
       toast.error('An unexpected error occurred')
     } finally {
       setIsLoading(false)

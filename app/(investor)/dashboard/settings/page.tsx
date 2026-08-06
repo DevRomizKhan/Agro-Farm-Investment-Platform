@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { Settings, User, Bell, Shield, LogOut } from 'lucide-react'
+import { User, Bell, LogOut } from 'lucide-react'
 import { ROUTES } from '@/constants'
 import { logoutAction } from '@/actions/auth'
 

@@ -7,9 +7,7 @@ import {
   PhoneCall,
   ShieldCheck,
   Calculator,
-  Download,
   Sparkles,
-  ArrowRight,
 } from 'lucide-react'
 
 export function LeadGenerationSection() {

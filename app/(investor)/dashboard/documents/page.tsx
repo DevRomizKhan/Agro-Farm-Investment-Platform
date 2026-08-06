@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { FileText, Download, Calendar } from 'lucide-react'
+import { FileText } from 'lucide-react'
 import { ROUTES } from '@/constants'
 
 export default async function DocumentsPage() {
