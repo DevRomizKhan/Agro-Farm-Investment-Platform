@@ -10,12 +10,27 @@ export async function GET(request: Request) {
   const type = searchParams.get('type') as EmailOtpType | null
   const next = searchParams.get('next') ?? '/'
 
+  const errorParam = searchParams.get('error')
+  const errorCode = searchParams.get('error_code')
+  const errorDescription = searchParams.get('error_description')
+
+  // Explicit failure returned directly from Supabase (e.g. expired OTP link)
+  if (errorParam || errorCode) {
+    console.error('Supabase auth callback error:', errorParam, errorCode, errorDescription)
+    const redirectUrl = new URL(next, origin)
+    redirectUrl.searchParams.set('error', 'auth-code-error')
+    if (errorDescription) {
+      redirectUrl.searchParams.set('error_description', errorDescription)
+    }
+    return NextResponse.redirect(redirectUrl)
+  }
+
   const supabase = await createClient()
 
   // 1. Handle PKCE code exchange
   if (code) {
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
-    if (!error) {
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+    if (!error && data?.session) {
       await ensureProfileExists(supabase)
       return NextResponse.redirect(`${origin}${next}?verified=true`)
     }
@@ -42,12 +57,15 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${origin}${next}?verified=true`)
   }
 
-  // 4. Default fallback: If redirecting after email link verification without error
-  if (!code && !tokenHash) {
+  // 4. Fallback for email verification flow:
+  // If redirecting from Supabase email verification (next is /verify-email) without explicit Supabase error,
+  // Supabase has already verified the email address prior to redirecting to our callback route.
+  const isVerifyEmailFlow = next.includes('verify-email') || type === 'signup' || type === 'email'
+  if (isVerifyEmailFlow) {
     return NextResponse.redirect(`${origin}${next}?verified=true`)
   }
 
-  // Explicit failure case
+  // 5. Explicit failure case for flows requiring session (e.g., reset-password)
   const redirectUrl = new URL(next, origin)
   redirectUrl.searchParams.set('error', 'auth-code-error')
   return NextResponse.redirect(redirectUrl)

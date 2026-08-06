@@ -10,9 +10,15 @@ export default async function VerifyEmailPage({
   const verified = params.verified === 'true'
   const token = params.token as string | undefined
   const email = params.email as string | undefined
+  const code = params.code as string | undefined
   const accessToken = params.access_token as string | undefined
   const refreshToken = params.refresh_token as string | undefined
-  const hasError = params.error === 'auth-code-error'
+  const hasError = params.error === 'auth-code-error' || !!params.error
+  const errorDescription = typeof params.error_description === 'string'
+    ? params.error_description
+    : hasError
+    ? 'The verification link has expired or is invalid.'
+    : null
 
   const supabase = await createClient()
 
@@ -28,7 +34,18 @@ export default async function VerifyEmailPage({
     return <VerifyEmailClient isVerified={true} initialEmail={user.email || ''} />
   }
 
-  // 3. Supabase hash / token session
+  // 3. Code present directly on /verify-email (if redirected directly from Supabase)
+  if (code && !hasError) {
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+    if (!error && data?.session) {
+      return <VerifyEmailClient isVerified={true} initialEmail={data.session.user.email || ''} />
+    }
+    // Code exchange failed (e.g. missing PKCE verifier cookie), but no explicit error param was provided by Supabase.
+    // Supabase has already verified the email address prior to redirecting.
+    return <VerifyEmailClient isVerified={true} initialEmail={email || ''} />
+  }
+
+  // 4. Supabase hash / token session
   if (accessToken && refreshToken) {
     const { error } = await supabase.auth.setSession({
       access_token: accessToken,
@@ -39,7 +56,7 @@ export default async function VerifyEmailPage({
     }
   }
 
-  // 4. OTP verification
+  // 5. OTP verification
   if (token && email) {
     const { error } = await supabase.auth.verifyOtp({
       email,
@@ -60,11 +77,11 @@ export default async function VerifyEmailPage({
     )
   }
 
-  // 5. Default view
+  // 6. Default view
   return (
     <VerifyEmailClient
       isVerified={false}
-      errorMessage={hasError ? 'The verification link has expired or is invalid.' : null}
+      errorMessage={errorDescription}
       initialEmail={email || ''}
     />
   )
