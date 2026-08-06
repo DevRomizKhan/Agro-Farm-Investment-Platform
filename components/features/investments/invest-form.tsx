@@ -9,7 +9,8 @@ import { Loader2, Upload, Wallet, AlertCircle } from 'lucide-react'
 import { investSchema, type InvestFormData } from '@/schemas'
 import { createInvestmentAction } from '@/actions/investments'
 import { formatCurrency } from '@/lib/utils'
-import { MAX_FILE_SIZE, ALLOWED_DOCUMENT_TYPES } from '@/constants'
+import { MAX_FILE_SIZE } from '@/constants'
+import { isSupportedImageFile, prepareImageFile } from '@/lib/client-files'
 import type { InvestmentPlan } from '@/types'
 
 interface InvestFormProps {
@@ -39,18 +40,22 @@ export function InvestForm({ plans, planSharesSold = {} }: InvestFormProps) {
     setValue('plan_id', e.target.value, { shouldValidate: true })
   }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0]
+      const selectedFile = e.target.files[0]
       
       // Validate file type
-      if (!ALLOWED_DOCUMENT_TYPES.includes(file.type)) {
+      if (!selectedFile.type.startsWith('application/pdf') && !isSupportedImageFile(selectedFile)) {
         toast.error('Invalid file type. Please upload an image (JPEG, PNG, WebP) or PDF')
         e.target.value = ''
         return
       }
       
       // Validate file size
+      const file = selectedFile.type.startsWith('image/') || isSupportedImageFile(selectedFile)
+        ? await prepareImageFile(selectedFile)
+        : selectedFile
+
       if (file.size > MAX_FILE_SIZE) {
         toast.error('File size exceeds 5MB limit. Please upload a smaller file.')
         e.target.value = ''
@@ -289,6 +294,7 @@ export function InvestForm({ plans, planSharesSold = {} }: InvestFormProps) {
             <input
               type="file"
               accept="image/*,application/pdf"
+              capture="environment"
               onChange={handleFileChange}
               className="absolute inset-0 opacity-0 cursor-pointer"
               disabled={!selectedPlan}

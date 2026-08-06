@@ -7,7 +7,8 @@ import { toast } from 'sonner'
 import { Loader2, Upload, User, MapPin, Building2, ShieldCheck, HeartHandshake } from 'lucide-react'
 import { kycSchema, type KYCFormData } from '@/schemas'
 import { submitKYCAction } from '@/actions/kyc'
-import { OCCUPATION_OPTIONS, GENDER_OPTIONS, MAX_FILE_SIZE, ALLOWED_IMAGE_TYPES } from '@/constants'
+import { OCCUPATION_OPTIONS, GENDER_OPTIONS, MAX_FILE_SIZE } from '@/constants'
+import { isSupportedImageFile, prepareImageFile } from '@/lib/client-files'
 
 interface FileInputState {
   photo: File | null
@@ -29,20 +30,22 @@ export function KYCForm() {
     resolver: zodResolver(kycSchema),
   })
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, key: keyof FileInputState) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, key: keyof FileInputState) => {
     if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0]
+      const selectedFile = e.target.files[0]
       
       // Validate file type
-      if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-        toast.error('Invalid file type. Please upload an image (JPEG, PNG, or WebP)')
+      if (!isSupportedImageFile(selectedFile)) {
+        toast.error('Invalid file type. Please choose an image file')
         e.target.value = ''
         return
       }
-      
-      // Validate file size
+
+      const file = await prepareImageFile(selectedFile)
+
+      // Validate the size after camera photos have been normalized.
       if (file.size > MAX_FILE_SIZE) {
-        toast.error('File size exceeds 5MB limit. Please upload a smaller file.')
+        toast.error('Image is still larger than 5MB. Please retake it farther away or choose a smaller image.')
         e.target.value = ''
         return
       }
@@ -276,7 +279,7 @@ export function KYCForm() {
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">Passport Size Photo</label>
             <div className="relative border border-dashed border-slate-700 hover:border-green-500/50 rounded-xl p-4 flex flex-col items-center justify-center bg-slate-800/20 transition-colors">
-              <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'photo')} className="absolute inset-0 opacity-0 cursor-pointer" />
+              <input type="file" accept="image/*" capture="environment" onChange={(e) => handleFileChange(e, 'photo')} className="absolute inset-0 opacity-0 cursor-pointer" />
               <Upload className="h-6 w-6 text-slate-400 mb-2" />
               <p className="text-xs text-slate-400">{files.photo ? files.photo.name : 'Select or drop image file (Max 5MB)'}</p>
             </div>
@@ -286,7 +289,7 @@ export function KYCForm() {
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">Selfie with NID Card</label>
             <div className="relative border border-dashed border-slate-700 hover:border-green-500/50 rounded-xl p-4 flex flex-col items-center justify-center bg-slate-800/20 transition-colors">
-              <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'selfie')} className="absolute inset-0 opacity-0 cursor-pointer" />
+              <input type="file" accept="image/*" capture="user" onChange={(e) => handleFileChange(e, 'selfie')} className="absolute inset-0 opacity-0 cursor-pointer" />
               <Upload className="h-6 w-6 text-slate-400 mb-2" />
               <p className="text-xs text-slate-400">{files.selfie ? files.selfie.name : 'Select or drop image file (Max 5MB)'}</p>
             </div>
@@ -296,7 +299,7 @@ export function KYCForm() {
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">NID Card Front Side</label>
             <div className="relative border border-dashed border-slate-700 hover:border-green-500/50 rounded-xl p-4 flex flex-col items-center justify-center bg-slate-800/20 transition-colors">
-              <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'nid_front')} className="absolute inset-0 opacity-0 cursor-pointer" />
+              <input type="file" accept="image/*" capture="environment" onChange={(e) => handleFileChange(e, 'nid_front')} className="absolute inset-0 opacity-0 cursor-pointer" />
               <Upload className="h-6 w-6 text-slate-400 mb-2" />
               <p className="text-xs text-slate-400">{files.nid_front ? files.nid_front.name : 'Select or drop image file (Max 5MB)'}</p>
             </div>
@@ -306,7 +309,7 @@ export function KYCForm() {
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">NID Card Back Side</label>
             <div className="relative border border-dashed border-slate-700 hover:border-green-500/50 rounded-xl p-4 flex flex-col items-center justify-center bg-slate-800/20 transition-colors">
-              <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'nid_back')} className="absolute inset-0 opacity-0 cursor-pointer" />
+              <input type="file" accept="image/*" capture="environment" onChange={(e) => handleFileChange(e, 'nid_back')} className="absolute inset-0 opacity-0 cursor-pointer" />
               <Upload className="h-6 w-6 text-slate-400 mb-2" />
               <p className="text-xs text-slate-400">{files.nid_back ? files.nid_back.name : 'Select or drop image file (Max 5MB)'}</p>
             </div>

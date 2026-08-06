@@ -30,6 +30,9 @@ const nextConfig: NextConfig = {
   experimental: {
     serverActions: {
       allowedOrigins: ['localhost:3000', appOrigin].filter(Boolean) as string[],
+      // Camera captures are commonly much larger than gallery images. The
+      // client compresses them, but keep enough headroom for four KYC files.
+      bodySizeLimit: '30mb',
     },
   },
 }
