@@ -94,6 +94,9 @@ a {
 /* Gradient text */
 .gradient-text {
   @apply bg-gradient-to-r from-green-400 via-emerald-400 to-teal-400 bg-clip-text text-transparent;
+  /* Safari on iPhone needs the prefixed clipping properties for gradient text. */
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 /* Section wrapper */

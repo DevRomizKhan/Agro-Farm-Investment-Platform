@@ -16,6 +16,10 @@ export function Reveal({ children, className = '', delay = 0 }: RevealProps) {
     const element = elementRef.current
     if (!element) return
 
+    // Older iOS Safari can miss the first IntersectionObserver notification,
+    // which would otherwise leave the section permanently transparent.
+    const revealFallback = window.setTimeout(() => setIsVisible(true), 1200)
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -27,7 +31,10 @@ export function Reveal({ children, className = '', delay = 0 }: RevealProps) {
     )
 
     observer.observe(element)
-    return () => observer.disconnect()
+    return () => {
+      window.clearTimeout(revealFallback)
+      observer.disconnect()
+    }
   }, [])
 
   return (
