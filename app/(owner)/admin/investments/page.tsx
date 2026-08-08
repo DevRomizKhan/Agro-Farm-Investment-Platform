@@ -17,8 +17,13 @@ type WithdrawalRequestWithContext = {
   status: string
   amount: number
   withdrawal_type: string
+  transfer_shares?: number | null
+  transfer_recipient_email?: string | null
   request_reason: string | null
+  owner_response?: string | null
   owner_response_at: string | null
+  created_at: string
+  completed_at?: string | null
   profile?: InvestorProfileSummary
   investment?: {
     plan?: { name?: string }
@@ -59,6 +64,9 @@ export default async function AdminInvestmentsPage() {
   ) || []
   const pendingWithdrawals = allWithdrawalRequests.filter(wr => wr.status === 'pending')
   const approvedWithdrawals = allWithdrawalRequests.filter(wr => wr.status === 'approved')
+  const processedWithdrawals = allWithdrawalRequests
+    .filter(wr => wr.status === 'completed' || wr.status === 'rejected')
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
 
   // Wrap approval logic in an inline server action since it's inside a Server Component
   const handleApprove = async (formData: FormData) => {
@@ -182,7 +190,7 @@ export default async function AdminInvestmentsPage() {
                           {isLocked ? (
                             <div className="flex items-center gap-1 text-yellow-400">
                               <Lock className="h-3 w-3" />
-                              <span className="text-xs">{daysUntilUnlock}d</span>
+                              <span className="text-xs">{daysUntilUnlock}d remaining</span>
                             </div>
                           ) : (
                             <div className="flex items-center gap-1 text-green-400">
@@ -202,12 +210,19 @@ export default async function AdminInvestmentsPage() {
         </div>
 
         {/* Withdrawal Requests */}
-        {(pendingWithdrawals.length > 0 || approvedWithdrawals.length > 0) && (
-          <div className="glass-card p-5 space-y-4 lg:col-span-3">
+        <div className="glass-card p-5 space-y-4 lg:col-span-3">
             <h2 className="font-semibold text-white flex items-center gap-2 pb-3 border-b border-white/5">
               <DollarSign className="h-4.5 w-4.5 text-green-400" />
-              Withdrawal Requests ({pendingWithdrawals.length + approvedWithdrawals.length})
+              Exit Requests ({allWithdrawalRequests.length})
             </h2>
+
+            {pendingWithdrawals.length === 0 && approvedWithdrawals.length === 0 && (
+              <div className="rounded-xl border border-white/5 bg-slate-900/30 py-8 text-center">
+                <DollarSign className="mx-auto mb-2 h-8 w-8 text-slate-600" />
+                <p className="text-sm text-slate-400">No active withdrawal or transfer requests</p>
+                <p className="mt-1 text-xs text-slate-600">Investor requests will appear here after their lock period expires.</p>
+              </div>
+            )}
             
             {pendingWithdrawals.length > 0 && (
               <div className="space-y-3">
@@ -221,16 +236,20 @@ export default async function AdminInvestmentsPage() {
                       </div>
                       <div className="text-right">
                         <span className="text-white font-bold text-sm">{formatCurrency(wr.amount)}</span>
-                        <p className="text-[10px] text-slate-500">{wr.withdrawal_type}</p>
+                        <p className="text-[10px] text-slate-500">{wr.withdrawal_type.replace('_', ' ')}</p>
                       </div>
                     </div>
                     {wr.request_reason && (
                       <p className="text-xs text-slate-400 italic">&quot;{wr.request_reason}&quot;</p>
                     )}
+                    {wr.withdrawal_type === 'share_transfer' && (
+                      <p className="text-xs text-slate-400">Transfer {wr.transfer_shares} shares to <span className="text-white">{wr.transfer_recipient_email || 'recipient account'}</span></p>
+                    )}
                     <div className="flex gap-2 pt-2">
                       <form action={handleWithdrawal} className="flex-1">
                         <input type="hidden" name="request_id" value={wr.id} />
                         <input type="hidden" name="status" value="approved" />
+                        <textarea name="response" rows={2} required placeholder="Write an approval response for the investor..." className="input-base mb-2 w-full resize-none text-xs" />
                         <button type="submit" className="btn-primary w-full py-2 text-xs justify-center">
                           Approve
                         </button>
@@ -238,6 +257,7 @@ export default async function AdminInvestmentsPage() {
                       <form action={handleWithdrawal} className="flex-1">
                         <input type="hidden" name="request_id" value={wr.id} />
                         <input type="hidden" name="status" value="rejected" />
+                        <textarea name="response" rows={2} required placeholder="Required rejection reason..." className="input-base mb-2 w-full resize-none text-xs" />
                         <button type="submit" className="btn-secondary w-full py-2 text-xs justify-center">
                           Reject
                         </button>
@@ -265,13 +285,16 @@ export default async function AdminInvestmentsPage() {
                         </div>
                         <div className="text-right">
                           <span className="text-white font-bold text-sm">{formatCurrency(wr.amount)}</span>
-                          <p className="text-[10px] text-green-400">{daysRemaining} days remaining</p>
+                          <p className="text-[10px] text-green-400">{wr.withdrawal_type === 'share_transfer' ? `${wr.transfer_shares} shares` : `${daysRemaining} days remaining`}</p>
                         </div>
                       </div>
+                      {wr.withdrawal_type === 'share_transfer' && (
+                        <p className="text-xs text-slate-400">Recipient: <span className="text-white">{wr.transfer_recipient_email || 'recipient account'}</span></p>
+                      )}
                       <form action={handleCompleteWithdrawal}>
                         <input type="hidden" name="request_id" value={wr.id} />
                         <button type="submit" className="btn-primary w-full py-2 text-xs justify-center">
-                          Mark as Paid
+                          {wr.withdrawal_type === 'share_transfer' ? 'Complete Share Transfer' : 'Mark as Paid'}
                         </button>
                       </form>
                     </div>
@@ -279,8 +302,27 @@ export default async function AdminInvestmentsPage() {
                 })}
               </div>
             )}
+
+            {processedWithdrawals.length > 0 && (
+              <div className="mt-5 space-y-3 border-t border-white/5 pt-4">
+                <p className="text-xs font-medium text-slate-500">Recent Request History</p>
+                <div className="space-y-2">
+                  {processedWithdrawals.slice(0, 8).map((wr) => (
+                    <div key={wr.id} className="flex flex-col gap-2 rounded-lg border border-white/5 bg-slate-900/30 p-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <p className="text-xs font-medium text-white">{wr.profile?.full_name || 'Unknown Investor'} · {wr.withdrawal_type.replace('_', ' ')}</p>
+                        <p className="text-[10px] text-slate-500">{wr.investment?.plan?.name || 'Unknown Plan'} · {formatDate(wr.created_at)}</p>
+                      </div>
+                      <div className="text-left sm:text-right">
+                        <span className={wr.status === 'completed' ? 'badge-blue' : 'badge-red'}>{wr.status}</span>
+                        <p className="mt-1 text-xs text-slate-400">{formatCurrency(wr.amount)}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
-        )}
       </div>
     </div>
   )

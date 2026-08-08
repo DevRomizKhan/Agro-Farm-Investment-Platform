@@ -182,6 +182,10 @@ export function InvestForm({ plans, planSharesSold = {} }: InvestFormProps) {
                   <span className="text-slate-400 block mb-0.5">Duration</span>
                   <span className="text-white font-semibold">{selectedPlan.duration_months} months</span>
                 </div>
+                <div>
+                  <span className="text-slate-400 block mb-0.5">Exit Lock</span>
+                  <span className="text-yellow-400 font-semibold">{selectedPlan.lock_period_days} days</span>
+                </div>
               </div>
               {/* Share allocation breakdown */}
               <div className="pt-2 border-t border-white/5 space-y-2">

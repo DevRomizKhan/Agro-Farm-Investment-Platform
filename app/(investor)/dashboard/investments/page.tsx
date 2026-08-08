@@ -7,6 +7,7 @@ import { TrendingUp, ExternalLink, ShieldAlert, Clock, Lock, Unlock } from 'luci
 import Link from 'next/link'
 import { ROUTES } from '@/constants'
 import type { InvestmentPlan } from '@/types'
+import { ExitRequestForm } from '@/components/features/investments/exit-request-form'
 
 export default async function InvestmentsPage() {
   const supabase = await createClient()
@@ -114,6 +115,9 @@ export default async function InvestmentsPage() {
                   const approvedWithdrawal = inv.withdrawal_requests?.find(
                     (wr: { status: string }) => wr.status === 'approved'
                   )
+                  const hasOpenExitRequest = Boolean(pendingWithdrawal || approvedWithdrawal)
+                  const latestExitRequest = [...(inv.withdrawal_requests || [])]
+                    .sort((a: { created_at: string }, b: { created_at: string }) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0]
 
                   return (
                     <div
@@ -188,21 +192,32 @@ export default async function InvestmentsPage() {
                         </div>
                       </div>
 
-                      {/* Withdrawal Request Status */}
-                      {pendingWithdrawal && (
-                        <div className="p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
-                          <p className="text-xs text-yellow-400 font-medium">
-                            Pending withdrawal request of {formatCurrency(pendingWithdrawal.amount)} ({pendingWithdrawal.withdrawal_type})
+                      {/* Exit request status and owner response */}
+                      {latestExitRequest && (
+                        <div className={`p-3 rounded-lg border ${
+                          latestExitRequest.status === 'pending' ? 'bg-yellow-500/10 border-yellow-500/20' :
+                          latestExitRequest.status === 'approved' ? 'bg-green-500/10 border-green-500/20' :
+                          latestExitRequest.status === 'completed' ? 'bg-blue-500/10 border-blue-500/20' :
+                          'bg-red-500/10 border-red-500/20'
+                        }`}>
+                          <p className="text-xs font-medium text-white">
+                            Exit request: <span className="capitalize">{latestExitRequest.status}</span>
+                            <span className="text-slate-400"> · {latestExitRequest.withdrawal_type.replace('_', ' ')}</span>
                           </p>
+                          {latestExitRequest.owner_response && (
+                            <p className="mt-1 text-xs text-slate-300">Owner response: {latestExitRequest.owner_response}</p>
+                          )}
                         </div>
                       )}
 
-                      {approvedWithdrawal && (
-                        <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20">
-                          <p className="text-xs text-green-400 font-medium">
-                            Withdrawal approved - Payment processing within 3 months
-                          </p>
-                        </div>
+                      {inv.status === 'active' && !isLocked && !hasOpenExitRequest && (
+                        <ExitRequestForm
+                          investmentId={inv.id}
+                          principal={Number(inv.amount)}
+                          profit={Number(inv.actual_roi || 0)}
+                          shares={Number(inv.shares_purchased || 0)}
+                          lockPeriodDays={Number((plan as { lock_period_days?: number } | null)?.lock_period_days ?? inv.lock_period_days)}
+                        />
                       )}
 
                       <div className="flex justify-between items-center text-xs">

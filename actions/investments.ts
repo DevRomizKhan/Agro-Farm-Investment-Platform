@@ -158,7 +158,7 @@ export async function createInvestmentAction(
         status: 'pending',
         expected_roi: expectedROI,
         receipt_url: publicUrl,
-        lock_period_days: 366,
+        lock_period_days: Number(plan.lock_period_days),
       })
       .select('id')
       .maybeSingle()
@@ -268,7 +268,7 @@ export async function approveInvestmentAction(
   await adminSupabase.from('notifications').insert({
     user_id: inv.user_id,
     title: 'Investment approved',
-    message: `Your investment request has been approved. ${allocatedShares} shares in ${inv.plan.name} are now active with an investment value of ৳${allocatedAmount.toLocaleString()}. The investment term is locked for 366 days.${allocationNote}`,
+    message: `Your investment request has been approved. ${allocatedShares} shares in ${inv.plan.name} are now active with an investment value of ৳${allocatedAmount.toLocaleString()}. The investment term is locked for ${Number(inv.plan.lock_period_days)} days.${allocationNote}`,
     type: 'investment',
     action_url: '/dashboard/investments',
   })
@@ -311,6 +311,7 @@ export async function manageInvestmentPlanAction(
           max_shares_per_investor: validated.data.max_shares_per_investor,
           roi_percentage: validated.data.roi_percentage,
           duration_months: validated.data.duration_months,
+          lock_period_days: validated.data.lock_period_days,
           is_active: validated.data.is_active,
           starts_at: validated.data.starts_at ?? null,
           ends_at: validated.data.ends_at ?? null,
@@ -332,6 +333,7 @@ export async function manageInvestmentPlanAction(
           max_shares_per_investor: validated.data.max_shares_per_investor,
           roi_percentage: validated.data.roi_percentage,
           duration_months: validated.data.duration_months,
+          lock_period_days: validated.data.lock_period_days,
           is_active: validated.data.is_active,
           starts_at: validated.data.starts_at ?? null,
           ends_at: validated.data.ends_at ?? null,
@@ -415,6 +417,9 @@ export async function createWithdrawalRequestAction(
   const investmentId = formData.get('investment_id') as string
   const amount = Number(formData.get('amount'))
   const withdrawalType = formData.get('withdrawal_type') as 'profit_only' | 'full_amount'
+    | 'share_transfer'
+  const transferShares = Number(formData.get('transfer_shares') || 0)
+  const transferRecipientEmail = (formData.get('transfer_recipient_email') as string | null)?.trim().toLowerCase()
   const requestReason = formData.get('request_reason') as string | null
 
   // Validate
@@ -422,6 +427,8 @@ export async function createWithdrawalRequestAction(
     investment_id: investmentId,
     amount,
     withdrawal_type: withdrawalType,
+    transfer_shares: transferShares || undefined,
+    transfer_recipient_email: transferRecipientEmail || undefined,
     request_reason: requestReason || undefined,
   })
   if (!validated.success) {
@@ -439,7 +446,7 @@ export async function createWithdrawalRequestAction(
   if (!investment) return { success: false, error: 'Investment not found' }
   if (investment.status !== 'active') return { success: false, error: 'Investment is not active' }
 
-  // Check if 366-day lock period has expired
+  // Check whether this investment's plan-defined lock period has expired
   if (!investment.lock_expires_at) {
     return { success: false, error: 'Lock period not set' }
   }
@@ -450,29 +457,68 @@ export async function createWithdrawalRequestAction(
     return { success: false, error: `Lock period not expired. ${daysRemaining} days remaining.` }
   }
 
+  // Prevent overlapping exit instructions before validating the requested value.
+  const { data: existingRequests } = await supabase
+    .from('withdrawal_requests')
+    .select('id')
+    .eq('investment_id', investmentId)
+    .in('status', ['pending', 'approved'])
+    .limit(1)
+  if (existingRequests?.length) {
+    return { success: false, error: 'This investment already has an open exit request' }
+  }
+
   // Validate withdrawal amount
   if (withdrawalType === 'profit_only') {
     if (amount > investment.actual_roi) {
       return { success: false, error: 'Amount cannot exceed available profit' }
     }
-  } else {
+  } else if (withdrawalType === 'full_amount') {
     // full_amount
     const totalAvailable = Number(investment.amount) + investment.actual_roi
-    if (amount > totalAvailable) {
-      return { success: false, error: 'Amount cannot exceed total investment + profit' }
+    if (Math.abs(amount - totalAvailable) > 0.01) {
+      return { success: false, error: 'Whole amount withdrawal must include the full investment and available profit' }
     }
-  }
-
-  // Check for existing pending withdrawal requests
-  const { data: existingRequests } = await supabase
-    .from('withdrawal_requests')
-    .select('id')
-    .eq('investment_id', investmentId)
-    .eq('status', 'pending')
-    .limit(1)
-
-  if (existingRequests && existingRequests.length > 0) {
-    return { success: false, error: 'You already have a pending withdrawal request for this investment' }
+  } else {
+    if (!transferRecipientEmail || !transferShares) {
+      return { success: false, error: 'Recipient email and number of shares are required for a transfer' }
+    }
+    if (transferShares > Number(investment.shares_purchased)) {
+      return { success: false, error: 'Transfer shares cannot exceed your current share balance' }
+    }
+    const { data: recipient } = await createAdminClient()
+      .from('profiles')
+      .select('user_id, role, is_active, email')
+      .ilike('email', transferRecipientEmail)
+      .maybeSingle()
+    if (!recipient || recipient.role !== 'investor' || !recipient.is_active) {
+      return { success: false, error: 'No active investor account was found for that email' }
+    }
+    if (recipient.user_id === user.id) {
+      return { success: false, error: 'You cannot transfer shares to yourself' }
+    }
+    const shareValue = Number(investment.amount) / Number(investment.shares_purchased)
+    const calculatedTransferAmount = Math.round(shareValue * transferShares * 100) / 100
+    // Keep the recipient identity in the request; the owner confirms the transfer.
+    const { data: request, error: requestError } = await supabase
+      .from('withdrawal_requests')
+      .insert({
+        investment_id: investmentId,
+        user_id: user.id,
+        amount: calculatedTransferAmount,
+        withdrawal_type: withdrawalType,
+        transfer_shares: transferShares,
+        transfer_recipient_user_id: recipient.user_id,
+        transfer_recipient_email: recipient.email,
+        request_reason: requestReason,
+        status: 'pending',
+      })
+      .select('id')
+      .maybeSingle()
+    if (requestError || !request) return { success: false, error: requestError?.message || 'Failed to create transfer request' }
+    await notifyOwnersOfExitRequest(calculatedTransferAmount, withdrawalType, investment.plan.name)
+    revalidatePath('/dashboard/investments')
+    return { success: true }
   }
 
   try {
@@ -492,29 +538,26 @@ export async function createWithdrawalRequestAction(
 
     if (requestError || !request) throw new Error(requestError?.message || 'Failed to create withdrawal request')
 
-    // Notify owners
-    const adminSupabase = createAdminClient()
-    const { data: owners } = await adminSupabase
-      .from('profiles')
-      .select('user_id')
-      .eq('role', 'owner')
-
-    if (owners) {
-      const ownerNotifications = owners.map((owner) => ({
-        user_id: owner.user_id,
-        title: 'New Withdrawal Request',
-        message: `Withdrawal request of ৳${amount.toLocaleString()} (${withdrawalType}) for investment in ${investment.plan.name}.`,
-        type: 'transaction',
-        action_url: `/admin/investments/${investmentId}`,
-      }))
-      await adminSupabase.from('notifications').insert(ownerNotifications)
-    }
+    await notifyOwnersOfExitRequest(amount, withdrawalType, investment.plan.name)
 
     revalidatePath('/dashboard/investments')
     return { success: true }
   } catch (err: unknown) {
     return { success: false, error: getErrorMessage(err, 'Failed to submit withdrawal request') }
   }
+}
+
+async function notifyOwnersOfExitRequest(amount: number, requestType: string, planName: string) {
+  const adminSupabase = createAdminClient()
+  const { data: owners } = await adminSupabase.from('profiles').select('user_id').eq('role', 'owner')
+  if (!owners?.length) return
+  await adminSupabase.from('notifications').insert(owners.map((owner) => ({
+    user_id: owner.user_id,
+    title: requestType === 'share_transfer' ? 'New Share Transfer Request' : 'New Withdrawal Request',
+    message: `A ${requestType.replace('_', ' ')} request of ৳${amount.toLocaleString()} was submitted for ${planName}.`,
+    type: 'transaction',
+    action_url: '/admin/investments',
+  })))
 }
 
 /**
@@ -541,6 +584,13 @@ export async function processWithdrawalRequestAction(
 
   if (!request) return { success: false, error: 'Withdrawal request not found' }
   if (request.status !== 'pending') return { success: false, error: 'Only pending requests can be processed' }
+  if (status !== 'approved' && status !== 'rejected') {
+    return { success: false, error: 'Invalid request decision' }
+  }
+  const response = ownerResponse?.trim()
+  if (status === 'rejected' && !response) {
+    return { success: false, error: 'Please provide a reason before rejecting this request' }
+  }
 
   try {
     if (status === 'rejected') {
@@ -549,7 +599,7 @@ export async function processWithdrawalRequestAction(
         .from('withdrawal_requests')
         .update({
           status: 'rejected',
-          owner_response: ownerResponse || null,
+          owner_response: response || null,
           owner_response_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })
@@ -562,7 +612,7 @@ export async function processWithdrawalRequestAction(
       await adminSupabase.from('notifications').insert({
         user_id: request.user_id,
         title: 'Withdrawal Request Rejected',
-        message: `Your withdrawal request of ৳${request.amount.toLocaleString()} has been rejected. ${ownerResponse || ''}`,
+        message: `Your withdrawal request of ৳${request.amount.toLocaleString()} has been rejected. ${response || ''}`,
         type: 'transaction',
         action_url: '/dashboard/investments',
       })
@@ -577,7 +627,7 @@ export async function processWithdrawalRequestAction(
       .from('withdrawal_requests')
       .update({
         status: 'approved',
-        owner_response: ownerResponse || null,
+        owner_response: response || null,
         owner_response_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       })
@@ -626,48 +676,12 @@ export async function completeWithdrawalAction(
   if (!request) return { success: false, error: 'Withdrawal request not found' }
   if (request.status !== 'approved') return { success: false, error: 'Only approved requests can be completed' }
 
-  // Check if 3-month window has passed since approval
-  if (request.owner_response_at) {
-    const approvedAt = new Date(request.owner_response_at)
-    const threeMonthsLater = new Date(approvedAt.getTime() + (90 * 24 * 60 * 60 * 1000))
-    const now = new Date()
-    if (now > threeMonthsLater) {
-      return { success: false, error: '3-month payment window has expired' }
-    }
-  }
-
   try {
-    // Mark as completed
-    const { error: updateError } = await supabase
-      .from('withdrawal_requests')
-      .update({
-        status: 'completed',
-        completed_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', requestId)
-
-    if (updateError) throw updateError
-
-    // Create transaction record
-    await supabase.from('transactions').insert({
-      investment_id: request.investment_id,
-      user_id: request.user_id,
-      type: 'withdrawal',
-      amount: request.amount,
-      description: `Withdrawal completed - ${request.withdrawal_type}`,
+    const { error: completionError } = await supabase.rpc('complete_withdrawal_request', {
+      p_request_id: requestId,
+      p_owner_user_id: user.id,
     })
-
-    // If full amount withdrawal, mark investment as completed
-    if (request.withdrawal_type === 'full_amount') {
-      await supabase
-        .from('investments')
-        .update({
-          status: 'completed',
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', request.investment_id)
-    }
+    if (completionError) throw completionError
 
     // Notify investor
     const adminSupabase = createAdminClient()
@@ -678,6 +692,15 @@ export async function completeWithdrawalAction(
       type: 'transaction',
       action_url: '/dashboard/investments',
     })
+    if (request.withdrawal_type === 'share_transfer' && request.transfer_recipient_user_id) {
+      await adminSupabase.from('notifications').insert({
+        user_id: request.transfer_recipient_user_id,
+        title: 'Shares Transferred To You',
+        message: `${request.transfer_shares} shares from ${request.investment?.plan?.name || 'an investment plan'} have been transferred to your portfolio.`,
+        type: 'investment',
+        action_url: '/dashboard/investments',
+      })
+    }
 
     revalidatePath('/admin/investments')
     revalidatePath('/dashboard/investments')

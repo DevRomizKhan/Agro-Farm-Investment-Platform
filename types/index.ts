@@ -10,7 +10,7 @@ export type TransactionType = 'deposit' | 'withdrawal' | 'roi' | 'refund'
 
 export type WithdrawalStatus = 'pending' | 'approved' | 'rejected' | 'completed' | 'cancelled'
 
-export type WithdrawalType = 'profit_only' | 'full_amount'
+export type WithdrawalType = 'profit_only' | 'full_amount' | 'share_transfer'
 
 export interface Profile {
   id: string
@@ -93,6 +93,8 @@ export interface InvestmentPlan {
   max_shares_per_investor: number
   roi_percentage: number
   duration_months: number
+  /** Lock period inherited by new investments in this plan */
+  lock_period_days: number
   /** Manual override — can force-disable a plan regardless of dates */
   is_active: boolean
   /** ISO datetime — plan becomes visible to investors from this moment */
@@ -119,7 +121,7 @@ export interface Investment {
   receipt_url: string | null
   notes: string | null
   approved_by: string | null
-  /** Lock period in days (default 366) */
+  /** Lock period copied from the investment plan */
   lock_period_days: number
   /** When the lock period expires */
   lock_expires_at: string | null
@@ -154,6 +156,9 @@ export interface WithdrawalRequest {
   owner_response: string | null
   owner_response_at: string | null
   completed_at: string | null
+  transfer_recipient_user_id?: string | null
+  transfer_recipient_email?: string | null
+  transfer_shares?: number | null
   created_at: string
   updated_at: string
   // Relations

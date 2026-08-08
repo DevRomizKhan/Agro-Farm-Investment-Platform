@@ -53,6 +53,7 @@ export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
           max_shares_per_investor: initialPlan.max_shares_per_investor,
           roi_percentage: Number(initialPlan.roi_percentage),
           duration_months: initialPlan.duration_months,
+          lock_period_days: initialPlan.lock_period_days || 366,
           is_active: initialPlan.is_active,
           starts_at: toDatetimeLocal(initialPlan.starts_at) || undefined,
           ends_at: toDatetimeLocal(initialPlan.ends_at) || undefined,
@@ -66,6 +67,7 @@ export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
           max_shares_per_investor: 30,
           roi_percentage: 12,
           duration_months: 12,
+          lock_period_days: 366,
           is_active: true,
           starts_at: undefined,
           ends_at: undefined,
@@ -153,6 +155,22 @@ export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
             <p className="mt-1 text-xs text-red-400">{errors.shares_per_amount.message}</p>
           )}
         </div>
+      </div>
+
+      {/* Investor exit lock */}
+      <div>
+        <label className="block text-sm font-medium text-slate-300 mb-1.5">
+          Lock Period (Days)
+        </label>
+        <input {...register('lock_period_days')} type="number" min="1" max="3650" className="input-base py-2.5 text-sm" />
+        {errors.lock_period_days ? (
+          <p className="mt-1 text-xs text-red-400">{errors.lock_period_days.message}</p>
+        ) : (
+          <p className="mt-1 text-xs text-slate-500">Investors can request withdrawal or share transfer after this period.</p>
+        )}
+        <p className="mt-1 text-xs text-slate-500">
+          Changing this value updates all active and pending investments under this plan.
+        </p>
       </div>
 
       <div className="grid grid-cols-2 gap-4">

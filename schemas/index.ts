@@ -77,6 +77,7 @@ export const investmentPlanSchema = z.object({
   max_shares_per_investor: z.coerce.number().int().min(1, 'Max shares per investor must be at least 1'),
   roi_percentage: z.coerce.number().min(0.1).max(100),
   duration_months: z.coerce.number().int().min(1).max(120),
+  lock_period_days: z.coerce.number().int().min(1).max(3650, 'Lock period cannot exceed 10 years'),
   is_active: z.boolean().default(true),
   /** ISO datetime string – when the plan opens for investors (inclusive) */
   starts_at: z.string().nullable().optional(),
@@ -129,7 +130,9 @@ export const kycReviewSchema = z.object({
 export const withdrawalRequestSchema = z.object({
   investment_id: z.string().uuid('Invalid investment'),
   amount: z.coerce.number().min(1, 'Amount must be at least ৳1'),
-  withdrawal_type: z.enum(['profit_only', 'full_amount']),
+  withdrawal_type: z.enum(['profit_only', 'full_amount', 'share_transfer']),
+  transfer_shares: z.coerce.number().int().positive().optional(),
+  transfer_recipient_email: z.string().email('Valid recipient email is required').optional(),
   request_reason: z.string().optional(),
 })
 

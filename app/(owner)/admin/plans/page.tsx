@@ -77,7 +77,7 @@ export default async function AdminPlansPage() {
   const { data: plans } = await supabase
     .from('investment_plans')
     .select(
-      'id, name, description, total_shares, shares_per_amount, owner_share_percentage, max_shares_per_investor, roi_percentage, duration_months, is_active, starts_at, ends_at, created_at, investments(count)'
+      'id, name, description, total_shares, shares_per_amount, owner_share_percentage, max_shares_per_investor, roi_percentage, duration_months, lock_period_days, is_active, starts_at, ends_at, created_at, investments(count)'
     )
     .order('created_at', { ascending: false })
 
@@ -206,6 +206,10 @@ export default async function AdminPlansPage() {
                           <span className="text-green-400 font-bold text-sm">
                             {plan.roi_percentage}% / Year
                           </span>
+                        </div>
+                        <div className="col-span-2">
+                          <span className="text-slate-500 block">Exit Lock Period</span>
+                          <span className="text-yellow-400 font-medium">{plan.lock_period_days} days</span>
                         </div>
                       </div>
 
