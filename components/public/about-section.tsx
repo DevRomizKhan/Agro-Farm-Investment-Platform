@@ -13,9 +13,9 @@ const features = [
 ]
 
 const stats = [
-  { value: 2019, label: 'Founded' },
-  { value: 25, suffix: '+', label: 'Farm Sites' },
-  { value: 500, suffix: '+', label: 'Active Investors' },
+  { value: 2023, label: 'Founded' },
+  { value: 1, suffix: '+', label: 'Farm Sites' },
+  { value: 4, suffix: '+', label: 'Active Investors' },
 ]
 
 export function AboutSection() {

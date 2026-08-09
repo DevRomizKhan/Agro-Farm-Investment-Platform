@@ -16,7 +16,10 @@ export default function PostShareActions({ title }: PostShareActionsProps) {
   }
 
   const copyLink = async () => {
-    if (typeof window === 'undefined') return
+    if (typeof window === 'undefined' || !document.hasFocus() || !navigator.clipboard) {
+      alert('Select this page and try copying the link again.')
+      return
+    }
 
     try {
       await navigator.clipboard.writeText(shareUrl)

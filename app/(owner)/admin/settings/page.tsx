@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { User, Bell, LogOut } from 'lucide-react'
 import { ROUTES } from '@/constants'
 import { logoutAction } from '@/actions/auth'
+import { saveBankTransferSettingsAction } from '@/actions/investments'
 
 export default async function AdminSettingsPage() {
   const supabase = await createClient()
@@ -12,6 +13,12 @@ export default async function AdminSettingsPage() {
   // Verify role
   const { data: profile } = await supabase.from('profiles').select('role, full_name, email').eq('user_id', user.id).maybeSingle()
   if (!profile || profile.role !== 'owner') redirect(ROUTES.INVESTOR_DASHBOARD)
+  const { data: bankSettings } = await supabase.from('bank_transfer_settings').select('*').eq('id', true).maybeSingle()
+
+  const saveBankSettings = async (formData: FormData) => {
+    'use server'
+    await saveBankTransferSettingsAction(formData)
+  }
 
   return (
     <div className="fade-in space-y-8">
@@ -24,6 +31,19 @@ export default async function AdminSettingsPage() {
       </div>
 
       <div className="max-w-2xl space-y-6">
+        <div className="glass-card p-6">
+          <h2 className="mb-2 font-semibold text-white">Investor Bank Transfer Details</h2>
+          <p className="mb-4 text-xs text-slate-400">These details appear only after you approve an investor request. Investors must pay through bank transfer only.</p>
+          <form action={saveBankSettings} className="grid gap-3 sm:grid-cols-2">
+            <input name="account_name" defaultValue={bankSettings?.account_name || ''} required placeholder="Account holder name" className="input-base" />
+            <input name="bank_name" defaultValue={bankSettings?.bank_name || ''} required placeholder="Bank name" className="input-base" />
+            <input name="account_number" defaultValue={bankSettings?.account_number || ''} required placeholder="Account number" className="input-base" />
+            <input name="branch_name" defaultValue={bankSettings?.branch_name || ''} placeholder="Branch" className="input-base" />
+            <input name="routing_number" defaultValue={bankSettings?.routing_number || ''} placeholder="Routing number" className="input-base" />
+            <textarea name="instructions" defaultValue={bankSettings?.instructions || ''} placeholder="Payment instructions" className="input-base sm:col-span-2" rows={3} />
+            <button className="btn-primary justify-center sm:col-span-2">Save Bank Details</button>
+          </form>
+        </div>
         {/* Profile Information */}
         <div className="glass-card p-6">
           <h2 className="font-semibold text-white mb-4 flex items-center gap-2">

@@ -3,10 +3,13 @@ import { createClient } from '@/lib/supabase/server'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { Clock, CheckCircle, ExternalLink, Lock, Unlock, DollarSign } from 'lucide-react'
 import { ROUTES } from '@/constants'
-import { approveInvestmentAction, processWithdrawalRequestAction, completeWithdrawalAction } from '@/actions/investments'
-import { ApproveInvestmentButton } from '@/components/features/admin/approve-investment-button'
+import Link from 'next/link'
+import { approveInvestmentAction, rejectInvestmentAction, confirmInvestmentPaymentAction, rejectInvestmentPaymentAction, processWithdrawalRequestAction, completeWithdrawalAction } from '@/actions/investments'
+import { InvestmentRequestActions } from '@/components/features/admin/investment-request-actions'
+import { ConfirmInvestmentPaymentButton } from '@/components/features/admin/confirm-investment-payment-button'
 
 type InvestorProfileSummary = {
+  id: string
   user_id: string
   full_name: string | null
   email: string | null
@@ -56,6 +59,7 @@ export default async function AdminInvestmentsPage() {
   const profileMap = new Map((profiles as InvestorProfileSummary[] | null)?.map((p) => [p.user_id, p]) || [])
 
   const pendingInvestments = investments?.filter(i => i.status === 'pending') || []
+  const paymentSubmittedInvestments = investments?.filter(i => i.status === 'payment_submitted') || []
   const activeInvestments = investments?.filter(i => i.status === 'active') || []
 
   // Collect all withdrawal requests
@@ -73,6 +77,21 @@ export default async function AdminInvestmentsPage() {
     'use server'
     const id = formData.get('id') as string
     return approveInvestmentAction(id)
+  }
+
+  const handleReject = async (formData: FormData) => {
+    'use server'
+    return rejectInvestmentAction(formData.get('id') as string, formData.get('notes') as string)
+  }
+
+  const handleConfirmPayment = async (formData: FormData) => {
+    'use server'
+    return confirmInvestmentPaymentAction(formData.get('id') as string, formData.get('notes') as string)
+  }
+
+  const handleRejectPayment = async (formData: FormData) => {
+    'use server'
+    return rejectInvestmentPaymentAction(formData.get('id') as string, formData.get('notes') as string)
   }
 
   const handleWithdrawal = async (formData: FormData) => {
@@ -105,14 +124,14 @@ export default async function AdminInvestmentsPage() {
         <div className="glass-card p-5 space-y-4 lg:col-span-1">
           <h2 className="font-semibold text-white flex items-center gap-2 pb-3 border-b border-white/5">
             <Clock className="h-4.5 w-4.5 text-yellow-400" />
-            Pending Deposits ({pendingInvestments.length})
+            Pending Share Requests ({pendingInvestments.length})
           </h2>
           {pendingInvestments.length === 0 ? (
             <p className="text-sm text-slate-500 text-center py-6">No pending deposits</p>
           ) : (
             <div className="space-y-3">
               {pendingInvestments.map((inv) => {
-                const invProfile = profileMap.get(inv.user_id) as { full_name?: string; email?: string } | undefined
+                const invProfile = profileMap.get(inv.user_id) as { id?: string; full_name?: string; email?: string } | undefined
                 const plan = inv.plan as { name?: string; roi_percentage?: number; duration_months?: number; shares_per_amount?: number } | null
                 return (
                   <div key={inv.id} className="p-4 rounded-xl bg-slate-900/40 border border-white/5 space-y-3">
@@ -120,6 +139,7 @@ export default async function AdminInvestmentsPage() {
                       <div>
                         <p className="font-medium text-white text-sm truncate">{invProfile?.full_name || 'Unknown Investor'}</p>
                         <p className="text-xs text-slate-500">{plan?.name || 'Unknown Plan'}</p>
+                        {invProfile?.id && <Link href={`${ROUTES.ADMIN_INVESTORS}/${invProfile.id}`} className="text-[11px] text-green-400 hover:underline">View full investor profile</Link>}
                       </div>
                       <div className="text-right">
                         <span className="text-white font-bold text-sm">{formatCurrency(Number(inv.amount))}</span>
@@ -136,12 +156,22 @@ export default async function AdminInvestmentsPage() {
                       <span className="text-slate-600">{formatDate(inv.created_at)}</span>
                     </div>
 
-                    <ApproveInvestmentButton investmentId={inv.id} action={handleApprove} />
+                    <p className="rounded-lg border border-blue-500/20 bg-blue-500/10 p-2 text-[11px] text-blue-200">Interest request only. No payment has been made.</p>
+                    <InvestmentRequestActions investmentId={inv.id} approve={handleApprove} reject={handleReject} />
                   </div>
                 )
               })}
             </div>
           )}
+        </div>
+
+        <div className="glass-card space-y-4 p-5 lg:col-span-1">
+          <h2 className="flex items-center gap-2 border-b border-white/5 pb-3 font-semibold text-white"><CheckCircle className="h-4.5 w-4.5 text-blue-400" /> Payment Verification ({paymentSubmittedInvestments.length})</h2>
+          {paymentSubmittedInvestments.length === 0 ? <p className="py-6 text-center text-sm text-slate-500">No receipts awaiting verification</p> : <div className="space-y-3">{paymentSubmittedInvestments.map(inv => {
+            const investor = profileMap.get(inv.user_id) as { full_name?: string; email?: string } | undefined
+            const plan = inv.plan as { name?: string } | null
+            return <div key={inv.id} className="space-y-3 rounded-xl border border-white/5 bg-slate-900/40 p-4"><div className="flex justify-between gap-3"><div><p className="text-sm font-medium text-white">{investor?.full_name || 'Unknown Investor'}</p><p className="text-xs text-slate-500">{investor?.email || ''} · {plan?.name || 'Unknown Plan'}</p></div><span className="text-sm font-bold text-white">{formatCurrency(Number(inv.amount))}</span></div>{inv.receipt_url && <a href={inv.receipt_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-green-400 hover:underline"><ExternalLink className="h-3 w-3" /> View bank receipt</a>}<ConfirmInvestmentPaymentButton investmentId={inv.id} action={handleConfirmPayment} reject={handleRejectPayment} /></div>
+          })}</div>}
         </div>
 
         {/* Active contracts */}

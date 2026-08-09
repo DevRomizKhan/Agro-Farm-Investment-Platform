@@ -14,7 +14,19 @@ export type InvestmentResult = {
 }
 
 function getErrorMessage(error: unknown, fallback: string) {
+  if (error instanceof TypeError && error.message === 'Failed to fetch') {
+    return 'Unable to reach the server. Please check your connection and try again.'
+  }
+
   return error instanceof Error ? error.message : fallback
+}
+
+function getInvestmentReviewError(error: { code?: string; message?: string } | null, fallback: string) {
+  if (error?.code === 'PGRST202' || error?.message?.includes('Could not find the function')) {
+    return 'The investment review service is temporarily unavailable. Please apply the latest database migration and try again.'
+  }
+
+  return error?.message || fallback
 }
 
 /**
@@ -29,16 +41,11 @@ export async function createInvestmentAction(
 
   const planId = formData.get('plan_id') as string
   const shares = Number(formData.get('shares'))
-  const receiptFile = formData.get('receipt') as File | null
 
   // Validate
   const validated = investSchema.safeParse({ plan_id: planId, shares })
   if (!validated.success) {
     return { success: false, error: validated.error.issues[0]?.message }
-  }
-
-  if (!receiptFile || receiptFile.size === 0) {
-    return { success: false, error: 'Bank transfer/deposit receipt file is required' }
   }
 
   // Check KYC verification status
@@ -129,22 +136,7 @@ export async function createInvestmentAction(
   }
 
   try {
-    // 1. Upload receipt to Storage
-    const uniqueName = `${user.id}/receipt-${generateFileName(receiptFile.name)}`
-    const { error: uploadError } = await supabase.storage
-      .from(SUPABASE_STORAGE_BUCKETS.RECEIPTS)
-      .upload(uniqueName, receiptFile, {
-        cacheControl: '3600',
-        upsert: true,
-      })
-
-    if (uploadError) throw new Error(`Receipt upload failed: ${uploadError.message}`)
-
-    const { data: { publicUrl } } = supabase.storage
-      .from(SUPABASE_STORAGE_BUCKETS.RECEIPTS)
-      .getPublicUrl(uniqueName)
-
-    // Calculate expected profit/ROI
+    // The investor has not paid anything at this stage.
     const expectedROI = calculateROI(amount, plan.roi_percentage, plan.duration_months)
 
     // 2. Insert Investment
@@ -157,22 +149,13 @@ export async function createInvestmentAction(
         shares_purchased: shares,
         status: 'pending',
         expected_roi: expectedROI,
-        receipt_url: publicUrl,
+        receipt_url: null,
         lock_period_days: Number(plan.lock_period_days),
       })
       .select('id')
       .maybeSingle()
 
     if (invError || !inv) throw new Error(invError?.message || 'Failed to create investment')
-
-    // 3. Create Transaction log
-    await supabase.from('transactions').insert({
-      investment_id: inv.id,
-      user_id: user.id,
-      type: 'deposit',
-      amount,
-      description: `Pending deposit for ${shares} shares in ${plan.name} plan`,
-    })
 
     // Notify admins/owners
     const adminSupabase = createAdminClient()
@@ -185,7 +168,7 @@ export async function createInvestmentAction(
       const ownerNotifications = owners.map((owner) => ({
         user_id: owner.user_id,
         title: 'New Investment Pending',
-        message: `New pending investment of ${shares} shares (৳${amount.toLocaleString()}) received for ${plan.name}.`,
+        message: `New share interest request for ${shares} shares (৳${amount.toLocaleString()}) received for ${plan.name}. No payment has been made.`,
         type: 'investment',
         action_url: `/admin/investments/${inv.id}`,
       }))
@@ -223,8 +206,7 @@ export async function approveInvestmentAction(
   if (!inv) return { success: false, error: 'Investment not found' }
   if (inv.status !== 'pending') return { success: false, error: 'Only pending investments can be approved' }
 
-  // Allocation is performed inside one database transaction. It locks the plan,
-  // reserves shares for older pending requests, and floors the result at zero.
+  // Approval reserves the requested shares but does not activate or record payment.
   const { data: allocation, error: allocationError } = await supabase.rpc('approve_investment_request', {
     p_investment_id: investmentId,
     p_approved_by: profile.id,
@@ -233,18 +215,18 @@ export async function approveInvestmentAction(
 
   if (allocationError) {
     console.error('Investment approval failed:', allocationError.message)
-    if (allocationError.message.includes('No shares remain')) {
+    if (allocationError.message.includes('shares')) {
       const adminSupabase = createAdminClient()
       await adminSupabase.from('notifications').insert({
         user_id: inv.user_id,
         title: 'Investment request update',
-        message: `Your request for ${inv.shares_purchased} shares in ${inv.plan.name} could not be activated. All eligible shares have been allocated according to request priority and investor limits. Please wait for availability or contact support for assistance.`,
+        message: `Your request for ${inv.shares_purchased} shares in ${inv.plan.name} could not be approved because the requested allocation is no longer available.`,
         type: 'investment',
         action_url: '/dashboard/investments',
       })
       return {
         success: false,
-        error: 'This request cannot be approved because the remaining plan shares or this investor’s maximum has already been allocated.',
+        error: 'This request cannot be approved because the requested shares are no longer available.',
       }
     }
     return { success: false, error: 'We could not approve this investment right now. Please try again.' }
@@ -257,18 +239,13 @@ export async function approveInvestmentAction(
 
   const allocatedShares = Number(result.allocated_shares)
   const allocatedAmount = Number(result.amount)
-  const requestedShares = Number(inv.shares_purchased)
-  const excludedShares = Math.max(0, requestedShares - allocatedShares)
-  const allocationNote = excludedShares > 0
-    ? ` ${excludedShares} of your requested ${requestedShares} shares could not be allocated because the available share limit was reached.`
-    : ''
 
   // Create notifications
   const adminSupabase = createAdminClient()
   await adminSupabase.from('notifications').insert({
     user_id: inv.user_id,
-    title: 'Investment approved',
-    message: `Your investment request has been approved. ${allocatedShares} shares in ${inv.plan.name} are now active with an investment value of ৳${allocatedAmount.toLocaleString()}. The investment term is locked for ${Number(inv.plan.lock_period_days)} days.${allocationNote}`,
+    title: 'Investment request approved',
+    message: `Your request for ${allocatedShares} shares in ${inv.plan.name} is approved. Transfer ৳${allocatedAmount.toLocaleString()} through the bank details shown in your dashboard, then upload the receipt.`,
     type: 'investment',
     action_url: '/dashboard/investments',
   })
@@ -280,6 +257,98 @@ export async function approveInvestmentAction(
   return { success: true }
 }
 
+export async function rejectInvestmentAction(investmentId: string, notes: string): Promise<InvestmentResult> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: 'Unauthorized' }
+  const { data: profile } = await supabase.from('profiles').select('role, id').eq('user_id', user.id).maybeSingle()
+  if (!profile || profile.role !== 'owner') return { success: false, error: 'Forbidden: Owners only' }
+  const { data: investment } = await supabase.from('investments').select('user_id, plan:investment_plans(name)').eq('id', investmentId).eq('status', 'pending').maybeSingle()
+  if (!investment) return { success: false, error: 'Pending request not found' }
+  const reason = notes.trim()
+  if (!reason) return { success: false, error: 'A rejection reason is required' }
+  const { error } = await supabase.rpc('reject_investment_request', { p_investment_id: investmentId, p_rejected_by: profile.id, p_reason: reason })
+  if (error) return { success: false, error: getInvestmentReviewError(error, 'We could not reject this investment request right now.') }
+  await createAdminClient().from('notifications').insert({ user_id: investment.user_id, title: 'Investment request rejected', message: `Your share request for ${(investment.plan as { name?: string } | null)?.name || 'the selected plan'} was rejected. Reason: ${reason}`, type: 'investment', action_url: '/dashboard/investments' })
+  revalidatePath('/admin/investments'); revalidatePath('/dashboard/investments')
+  return { success: true }
+}
+
+export async function submitInvestmentPaymentAction(formData: FormData): Promise<InvestmentResult> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: 'Unauthorized' }
+  const investmentId = String(formData.get('investment_id') || '')
+  const receiptFile = formData.get('receipt') as File | null
+  if (!receiptFile || receiptFile.size === 0) return { success: false, error: 'Bank transfer receipt is required' }
+  const { data: investment } = await supabase.from('investments').select('id, user_id, status').eq('id', investmentId).eq('user_id', user.id).maybeSingle()
+  if (!investment || investment.status !== 'approved') return { success: false, error: 'Only an owner-approved request can receive payment' }
+  const uniqueName = `${user.id}/receipt-${generateFileName(receiptFile.name)}`
+  const { error: uploadError } = await supabase.storage.from(SUPABASE_STORAGE_BUCKETS.RECEIPTS).upload(uniqueName, receiptFile, { cacheControl: '3600', upsert: true })
+  if (uploadError) return { success: false, error: `Receipt upload failed: ${uploadError.message}` }
+  const { data: { publicUrl } } = supabase.storage.from(SUPABASE_STORAGE_BUCKETS.RECEIPTS).getPublicUrl(uniqueName)
+  const { error } = await supabase.from('investments').update({ status: 'payment_submitted', receipt_url: publicUrl, payment_submitted_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq('id', investmentId).eq('user_id', user.id).eq('status', 'approved')
+  if (error) return { success: false, error: error.message }
+  const adminSupabase = createAdminClient()
+  const { data: owners } = await adminSupabase.from('profiles').select('user_id').eq('role', 'owner')
+  if (owners?.length) {
+    await adminSupabase.from('notifications').insert(owners.map((owner) => ({
+      user_id: owner.user_id,
+      title: 'Payment receipt awaiting verification',
+      message: 'An investor submitted a bank payment receipt for verification.',
+      type: 'investment',
+      action_url: '/admin/investments',
+    })))
+  }
+  revalidatePath('/dashboard/investments'); revalidatePath('/admin/investments')
+  return { success: true }
+}
+
+export async function confirmInvestmentPaymentAction(investmentId: string, notes?: string): Promise<InvestmentResult> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: 'Unauthorized' }
+  const { data: profile } = await supabase.from('profiles').select('role, id').eq('user_id', user.id).maybeSingle()
+  if (!profile || profile.role !== 'owner') return { success: false, error: 'Forbidden: Owners only' }
+  const { error } = await supabase.rpc('activate_paid_investment', { p_investment_id: investmentId, p_verified_by: profile.id, p_notes: notes || null })
+  if (error) return { success: false, error: error.message }
+  const { data: investment } = await supabase.from('investments').select('user_id, plan:investment_plans(name)').eq('id', investmentId).maybeSingle()
+  if (investment) await createAdminClient().from('notifications').insert({ user_id: investment.user_id, title: 'Payment verified', message: `Your payment for ${(investment.plan as { name?: string } | null)?.name || 'your investment'} was verified and your investment is now active.`, type: 'investment', action_url: '/dashboard/investments' })
+  revalidatePath('/admin/investments'); revalidatePath('/dashboard/investments'); revalidatePath('/dashboard');
+  return { success: true }
+}
+
+export async function rejectInvestmentPaymentAction(investmentId: string, notes: string): Promise<InvestmentResult> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: 'Unauthorized' }
+  const { data: profile } = await supabase.from('profiles').select('role, id').eq('user_id', user.id).maybeSingle()
+  if (!profile || profile.role !== 'owner') return { success: false, error: 'Forbidden: Owners only' }
+  const reason = notes.trim()
+  if (!reason) return { success: false, error: 'A rejection reason is required' }
+  const { data: investment } = await supabase.from('investments').select('user_id, plan:investment_plans(name)').eq('id', investmentId).eq('status', 'payment_submitted').maybeSingle()
+  if (!investment) return { success: false, error: 'Payment submission not found' }
+  const { error } = await supabase.rpc('reject_investment_payment', { p_investment_id: investmentId, p_rejected_by: profile.id, p_reason: reason })
+  if (error) return { success: false, error: getInvestmentReviewError(error, 'We could not reject this payment right now.') }
+  await createAdminClient().from('notifications').insert({ user_id: investment.user_id, title: 'Payment verification rejected', message: `Your payment verification for ${(investment.plan as { name?: string } | null)?.name || 'your share request'} was rejected. Reason: ${reason}`, type: 'investment', action_url: '/dashboard/investments' })
+  revalidatePath('/admin/investments'); revalidatePath('/dashboard/investments')
+  return { success: true }
+}
+
+export async function saveBankTransferSettingsAction(formData: FormData): Promise<InvestmentResult> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: 'Unauthorized' }
+  const { data: profile } = await supabase.from('profiles').select('role, id').eq('user_id', user.id).maybeSingle()
+  if (!profile || profile.role !== 'owner') return { success: false, error: 'Forbidden: Owners only' }
+  const values = { id: true, account_name: String(formData.get('account_name') || '').trim(), bank_name: String(formData.get('bank_name') || '').trim(), account_number: String(formData.get('account_number') || '').trim(), branch_name: String(formData.get('branch_name') || '').trim() || null, routing_number: String(formData.get('routing_number') || '').trim() || null, instructions: String(formData.get('instructions') || '').trim() || null, updated_by: profile.id, updated_at: new Date().toISOString() }
+  if (!values.account_name || !values.bank_name || !values.account_number) return { success: false, error: 'Account name, bank name, and account number are required' }
+  const { error } = await supabase.from('bank_transfer_settings').upsert(values, { onConflict: 'id' })
+  if (error) return { success: false, error: error.message }
+  revalidatePath('/admin/settings'); revalidatePath('/dashboard/investments')
+  return { success: true }
+}
+
 /**
  * Create or edit investment plan (Owner Action)
  */
@@ -287,17 +356,17 @@ export async function manageInvestmentPlanAction(
   data: InvestmentPlanFormData,
   planId?: string
 ): Promise<InvestmentResult> {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { success: false, error: 'Unauthorized' }
-
-  const { data: profile } = await supabase.from('profiles').select('role, id').eq('user_id', user.id).maybeSingle()
-  if (!profile || profile.role !== 'owner') return { success: false, error: 'Forbidden: Owners only' }
-
-  const validated = investmentPlanSchema.safeParse(data)
-  if (!validated.success) return { success: false, error: validated.error.issues[0]?.message }
-
   try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: 'Unauthorized' }
+
+    const { data: profile } = await supabase.from('profiles').select('role, id').eq('user_id', user.id).maybeSingle()
+    if (!profile || profile.role !== 'owner') return { success: false, error: 'Forbidden: Owners only' }
+
+    const validated = investmentPlanSchema.safeParse(data)
+    if (!validated.success) return { success: false, error: validated.error.issues[0]?.message }
+
     if (planId) {
       // Update plan
       const { error } = await supabase

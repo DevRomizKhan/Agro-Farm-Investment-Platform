@@ -1,11 +1,10 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { APP_NAME, ROUTES } from '@/constants'
-import { Check, ArrowRight, Sparkles, AlertCircle } from 'lucide-react'
-import { formatCurrency, isPlanCurrentlyActive } from '@/lib/utils'
+import { Check, ArrowRight, Sparkles } from 'lucide-react'
+import { formatCurrency, isPlanCurrentlyActive, isPlanUpcoming } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/server'
-import { createAdminClient } from '@/lib/supabase/admin'
-import { RefreshButton } from '@/components/public/refresh-button'
+import { UpcomingPlanCard } from '@/components/public/upcoming-plans'
 
 export const metadata: Metadata = {
   title: `Investment Plans — ${APP_NAME}`,
@@ -19,41 +18,6 @@ const HOW_IT_WORKS = [
   { n: '04', title: 'Receive Annual Dividends', desc: 'Net dividends are calculated annually after all expenses and communicated on a 6-month basis.' },
 ]
 
-/** Live share availability bar */
-function ShareBar({ sold, total, ownerPercentage = 40 }: { sold: number; total: number; ownerPercentage?: number }) {
-  const ownerShares = Math.floor(total * (ownerPercentage / 100))
-  const investorShares = total - ownerShares
-  const availableShares = Math.max(0, investorShares - sold)
-  const pct = investorShares > 0 ? Math.min(100, Math.round((sold / investorShares) * 100)) : 0
-  const remaining = availableShares
-  const almostFull = remaining <= Math.ceil(investorShares * 0.2)
-
-  return (
-    <div>
-      <div className="flex justify-between items-center mb-1.5">
-        <span className={`text-xs font-semibold ${almostFull ? 'text-orange-400' : 'text-emerald-400'}`}>
-          {remaining} shares remaining
-        </span>
-        <span className="text-xs text-slate-500">{pct}% filled</span>
-      </div>
-      <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
-        <div
-          className={`h-full rounded-full transition-all duration-500 ${almostFull ? 'bg-gradient-to-r from-orange-500 to-red-500' : 'bg-gradient-to-r from-emerald-500 to-teal-400'}`}
-          style={{ width: `${pct}%` }}
-        />
-      </div>
-      {almostFull && remaining > 0 && (
-        <p className="text-xs text-orange-400 mt-1.5 flex items-center gap-1">
-          <AlertCircle className="h-3.5 w-3.5" /> Filling fast — limited shares left
-        </p>
-      )}
-      {remaining === 0 && (
-        <p className="text-xs text-red-400 mt-1.5 font-medium">Plan fully subscribed</p>
-      )}
-    </div>
-  )
-}
-
 const STATIC_PLANS = [
   {
     id: undefined as string | undefined,
@@ -66,7 +30,6 @@ const STATIC_PLANS = [
     duration_months: 24,
     owner_share_percentage: 40,
     popular: false,
-    soldShares: 0,
     features: [
       'BDT 1,000 per share — affordable entry',
       '2-Year Program (July 2026 – June 2028)',
@@ -86,7 +49,6 @@ const STATIC_PLANS = [
     duration_months: 24,
     owner_share_percentage: 40,
     popular: true,
-    soldShares: 0,
     features: [
       'BDT 1,000 per share',
       '2-Year Program (July 2026 – June 2028)',
@@ -106,7 +68,6 @@ const STATIC_PLANS = [
     duration_months: 24,
     owner_share_percentage: 40,
     popular: false,
-    soldShares: 0,
     features: [
       'BDT 1,000 per share',
       '2-Year Program (July 2026 – June 2028)',
@@ -126,28 +87,23 @@ export default async function PlansPage() {
     .eq('is_active', true)
     .order('roi_percentage', { ascending: true })
 
-  const dbPlans = (allActivePlans || []).filter(p => isPlanCurrentlyActive(p))
-  const hasRealPlans = dbPlans.length > 0
+  const configuredPlans = allActivePlans || []
+  const dbPlans = configuredPlans.filter(p => isPlanCurrentlyActive(p))
+  const upcomingPlans = configuredPlans
+    .filter(isPlanUpcoming)
+    .map(plan => ({
+      id: plan.id,
+      name: plan.name,
+      totalShares: plan.total_shares || 1000,
+      sharePrice: plan.shares_per_amount || 1000,
+      maxSharesPerInvestor: plan.max_shares_per_investor || 100,
+      roiPercentage: plan.roi_percentage,
+      durationMonths: plan.duration_months || 24,
+      startsAt: plan.starts_at!,
+    }))
+  const hasConfiguredPlans = configuredPlans.length > 0
 
-  // Sold shares per plan
-  const planSharesSold: Record<string, number> = {}
-  if (hasRealPlans) {
-    const planIds = dbPlans.map(p => p.id)
-    // Public users cannot read the investments table directly because of RLS.
-    // Aggregate only the non-sensitive share count on the server with the
-    // service-role client; no investment/user data is sent to the browser.
-    const { data: soldData } = await createAdminClient()
-      .from('investments')
-      .select('plan_id, shares_purchased')
-      .in('plan_id', planIds)
-      .eq('status', 'active')
-
-    soldData?.forEach(inv => {
-      planSharesSold[inv.plan_id] = (planSharesSold[inv.plan_id] || 0) + Number(inv.shares_purchased || 0)
-    })
-  }
-
-  const displayPlans = hasRealPlans
+  const displayPlans = hasConfiguredPlans
     ? dbPlans.map(p => ({
         id: p.id,
         name: p.name,
@@ -159,7 +115,6 @@ export default async function PlansPage() {
         duration_months: p.duration_months || 24,
         owner_share_percentage: p.owner_share_percentage || 40,
         popular: p.roi_percentage >= 12 && p.roi_percentage < 16,
-        soldShares: planSharesSold[p.id] || 0,
         features: [
           `BDT ${(p.shares_per_amount || 1000).toLocaleString()} per share`,
           `${p.duration_months || 24}-month program duration`,
@@ -190,20 +145,10 @@ export default async function PlansPage() {
         </div>
       </section>
 
-      {/* Live Availability notice */}
-      <div className="max-w-6xl mx-auto px-4 mb-6 flex items-center justify-between">
-        <p className="text-xs text-slate-500">
-          Share availability updates in real time. Purchase now to secure your position.
-        </p>
-        <RefreshButton />
-      </div>
-
       {/* Plans Grid */}
       <section className="max-w-6xl mx-auto px-4 pb-20">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
           {displayPlans.map((plan) => {
-            const isSoldOut = plan.id ? plan.soldShares >= plan.total_shares : false
-
             return (
               <div
                 key={plan.id ?? plan.name}
@@ -221,7 +166,7 @@ export default async function PlansPage() {
                   </div>
                 )}
 
-                <p className="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-1">{plan.tag}</p>
+                {!plan.popular && <p className="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-1">{plan.tag}</p>}
                 <h2 className="text-2xl font-black text-white mb-5">{plan.name}</h2>
 
                 {/* ROI */}
@@ -246,12 +191,6 @@ export default async function PlansPage() {
                       <p className="text-white font-bold">{plan.max_shares_per_investor} shares · {formatCurrency(plan.max_shares_per_investor * plan.shares_per_amount)} max</p>
                     </div>
                   </div>
-
-                  {/* Live share bar */}
-                  {plan.id && <ShareBar sold={plan.soldShares} total={plan.total_shares} ownerPercentage={plan.owner_share_percentage || 40} />}
-                  {!plan.id && (
-                    <div className="text-xs text-slate-500 text-center py-1">{plan.total_shares} total shares available</div>
-                  )}
                 </div>
 
                 {/* Features */}
@@ -265,23 +204,23 @@ export default async function PlansPage() {
                 </ul>
 
                 <Link
-                  href={isSoldOut ? '#' : ROUTES.REGISTER}
+                  href={ROUTES.REGISTER}
                   className={`flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-bold transition-all ${
-                    isSoldOut
-                      ? 'bg-slate-800 text-slate-500 cursor-not-allowed'
-                      : plan.popular
+                    plan.popular
                       ? 'btn-primary'
                       : 'btn-secondary'
                   }`}
                 >
-                  {isSoldOut ? 'Sold Out' : 'Start Investing'}
-                  {!isSoldOut && <ArrowRight className="h-4 w-4" />}
+                  Start Investing
+                  <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
             )
           })}
+          {upcomingPlans.map(plan => <UpcomingPlanCard key={plan.id} plan={plan} />)}
         </div>
       </section>
+
 
       {/* How It Works */}
       <section className="border-t border-white/5 bg-slate-900/30 py-20">

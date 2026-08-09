@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { formatCurrency, formatDate } from '@/lib/utils'
-import { Users, TrendingUp, Clock, ArrowRight, DollarSign, Layers } from 'lucide-react'
+import { Users, TrendingUp, Clock, ArrowRight, DollarSign, Layers, FileClock, ReceiptText } from 'lucide-react'
 import Link from 'next/link'
 import { ROUTES } from '@/constants'
 
@@ -17,6 +17,8 @@ export default async function AdminDashboardPage() {
   const [
     { count: totalInvestors },
     { count: pendingKYC },
+    { count: pendingShareRequests },
+    { count: pendingPaymentVerifications },
     { data: recentKYC },
     { data: recentInvestments },
     { data: investmentAgg },
@@ -25,11 +27,13 @@ export default async function AdminDashboardPage() {
   ] = await Promise.all([
     supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'investor'),
     supabase.from('kyc_submissions').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+    supabase.from('investments').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+    supabase.from('investments').select('*', { count: 'exact', head: true }).eq('status', 'payment_submitted'),
     supabase.from('kyc_submissions').select('*').eq('status', 'pending').order('created_at', { ascending: false }).limit(5),
     supabase.from('investments').select('*, plan:investment_plans(name, shares_per_amount)').order('created_at', { ascending: false }).limit(5),
     supabase.from('investments').select('amount, shares_purchased, status'),
     supabase.from('investment_plans').select('*').eq('is_active', true),
-    supabase.from('investments').select('plan_id, shares_purchased, status').eq('status', 'active'),
+    supabase.from('investments').select('plan_id, shares_purchased, status').in('status', ['active', 'pending']),
   ])
 
   // Fetch profiles for KYC submissions
@@ -54,8 +58,13 @@ export default async function AdminDashboardPage() {
 
   // Calculate shares sold per plan
   const planSharesMap: Record<string, number> = {}
-  allInvestments?.forEach((inv: { plan_id: string; shares_purchased: number }) => {
-    planSharesMap[inv.plan_id] = (planSharesMap[inv.plan_id] || 0) + inv.shares_purchased
+  const pendingPlanSharesMap: Record<string, number> = {}
+  allInvestments?.forEach((inv: { plan_id: string; shares_purchased: number; status: string }) => {
+    if (inv.status === 'active') {
+      planSharesMap[inv.plan_id] = (planSharesMap[inv.plan_id] || 0) + inv.shares_purchased
+    } else if (inv.status === 'pending') {
+      pendingPlanSharesMap[inv.plan_id] = (pendingPlanSharesMap[inv.plan_id] || 0) + inv.shares_purchased
+    }
   })
 
   // Calculate per-plan share breakdown
@@ -63,18 +72,24 @@ export default async function AdminDashboardPage() {
     const totalShares = plan.total_shares || 150
     const ownerShares = Math.floor(totalShares * (plan.owner_share_percentage / 100))
     const soldShares = planSharesMap[plan.id] || 0
-    const availableShares = Math.max(0, totalShares - ownerShares - soldShares)
+    const pendingShares = pendingPlanSharesMap[plan.id] || 0
+    const availableShares = Math.max(0, totalShares - ownerShares - soldShares - pendingShares)
     const investorShares = Math.max(0, totalShares - ownerShares)
-    const soldPercentage = investorShares > 0 ? Math.round((soldShares / investorShares) * 100) : 0
+    const soldPercentage = totalShares > 0 ? (soldShares / totalShares) * 100 : 0
+    const pendingPercentage = totalShares > 0 ? (pendingShares / totalShares) * 100 : 0
+    const ownerPercentage = totalShares > 0 ? (ownerShares / totalShares) * 100 : 0
     
     return {
       ...plan,
       totalShares,
       ownerShares,
       soldShares,
+      pendingShares,
       availableShares,
       investorShares,
       soldPercentage,
+      pendingPercentage,
+      ownerPercentage,
     }
   })
 
@@ -93,7 +108,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         <div className="stat-card">
           <div className="flex items-center justify-between">
             <p className="text-sm text-slate-400">Total Investors</p>
@@ -137,6 +152,28 @@ export default async function AdminDashboardPage() {
           <p className="text-2xl font-bold text-white">{pendingKYC || 0}</p>
           <p className="text-xs text-slate-500">Awaiting document verification</p>
         </div>
+
+        <Link href={ROUTES.ADMIN_INVESTMENTS} className="stat-card transition-colors hover:border-amber-500/30">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-slate-400">Pending Share Requests</p>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/10">
+              <FileClock className="h-4.5 w-4.5 text-amber-400" aria-hidden="true" />
+            </div>
+          </div>
+          <p className="text-2xl font-bold text-white">{pendingShareRequests || 0}</p>
+          <p className="text-xs text-slate-500">Awaiting owner allocation review</p>
+        </Link>
+
+        <Link href={ROUTES.ADMIN_INVESTMENTS} className="stat-card transition-colors hover:border-blue-500/30">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-slate-400">Payment Verification</p>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-500/10">
+              <ReceiptText className="h-4.5 w-4.5 text-blue-400" aria-hidden="true" />
+            </div>
+          </div>
+          <p className="text-2xl font-bold text-white">{pendingPaymentVerifications || 0}</p>
+          <p className="text-xs text-slate-500">Receipts awaiting bank verification</p>
+        </Link>
       </div>
 
       {/* Per-Plan Share Breakdown */}
@@ -165,10 +202,10 @@ export default async function AdminDashboardPage() {
                       <p className="text-xs text-slate-500 mt-0.5">{plan.roi_percentage}% ROI · {plan.duration_months} months</p>
                     </div>
                     <span className={`text-xs font-medium ${isFull ? 'text-red-400' : almostFull ? 'text-orange-400' : 'text-emerald-400'}`}>
-                      {plan.availableShares} available
+                      {plan.availableShares} available after review
                     </span>
                   </div>
-                  <div className="grid grid-cols-4 gap-3 text-xs">
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs">
                     <div>
                       <span className="text-slate-400 block mb-0.5">Total</span>
                       <span className="text-white font-medium">{plan.totalShares}</span>
@@ -182,18 +219,25 @@ export default async function AdminDashboardPage() {
                       <span className="text-green-400 font-medium">{plan.soldShares}</span>
                     </div>
                     <div>
+                      <span className="text-slate-400 block mb-0.5">Pending</span>
+                      <span className="text-amber-400 font-medium">{plan.pendingShares}</span>
+                    </div>
+                    <div>
                       <span className="text-slate-400 block mb-0.5">Available</span>
                       <span className="text-blue-400 font-medium">{plan.availableShares}</span>
                     </div>
                   </div>
-                  <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full ${isFull ? 'bg-red-500' : almostFull ? 'bg-orange-500' : 'bg-emerald-500'}`}
-                      style={{ width: `${plan.soldPercentage}%` }}
-                    />
+                  <div className="h-2 rounded-full overflow-hidden bg-slate-700 flex" aria-label={`${plan.name}: ${plan.ownerShares} owner shares, ${plan.soldShares} sold shares, ${plan.pendingShares} pending shares, ${plan.availableShares} available shares`}>
+                    <div className="h-full bg-purple-500" style={{ width: `${plan.ownerPercentage}%` }} title={`Owner: ${plan.ownerShares} shares`} />
+                    <div className="h-full bg-emerald-500" style={{ width: `${plan.soldPercentage}%` }} title={`Sold: ${plan.soldShares} shares`} />
+                    <div className="h-full bg-amber-400" style={{ width: `${plan.pendingPercentage}%` }} title={`Pending review: ${plan.pendingShares} shares`} />
                   </div>
                   <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-500">{plan.soldPercentage}% of investor shares sold</span>
+                    <span className="text-slate-500">
+                      {plan.pendingShares > 0
+                        ? `${plan.pendingShares} shares await owner review`
+                        : `${Math.round(plan.soldPercentage)}% of total shares sold`}
+                    </span>
                     {isFull && (
                       <span className="text-red-400 font-medium">Fully Subscribed</span>
                     )}

@@ -121,6 +121,10 @@ a {
   @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium
          bg-blue-500/10 text-blue-400 border border-blue-500/20;
 }
+
+.badge-purple {
+  @apply inline-flex items-center rounded-full bg-purple-500/15 px-2.5 py-1 text-xs font-medium text-purple-300;
+}
 .badge-gray {
   @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium
          bg-slate-500/10 text-slate-400 border border-slate-500/20;

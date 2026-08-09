@@ -5,12 +5,10 @@ import { useForm, useWatch } from 'react-hook-form'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
-import { Loader2, Upload, Wallet, AlertCircle } from 'lucide-react'
+import { Loader2, Wallet, AlertCircle } from 'lucide-react'
 import { investSchema, type InvestFormData } from '@/schemas'
 import { createInvestmentAction } from '@/actions/investments'
 import { formatCurrency } from '@/lib/utils'
-import { MAX_FILE_SIZE } from '@/constants'
-import { isSupportedImageFile, prepareImageFile } from '@/lib/client-files'
 import type { InvestmentPlan } from '@/types'
 
 interface InvestFormProps {
@@ -22,7 +20,6 @@ export function InvestForm({ plans, planSharesSold = {} }: InvestFormProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [selectedPlan, setSelectedPlan] = useState<InvestmentPlan | null>(null)
-  const [receiptFile, setReceiptFile] = useState<File | null>(null)
 
   const { register, handleSubmit, setValue, control, formState: { errors } } = useForm<InvestFormData>({
     resolver: zodResolver(investSchema),
@@ -40,45 +37,16 @@ export function InvestForm({ plans, planSharesSold = {} }: InvestFormProps) {
     setValue('plan_id', e.target.value, { shouldValidate: true })
   }
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const selectedFile = e.target.files[0]
-      
-      // Validate file type
-      if (!selectedFile.type.startsWith('application/pdf') && !isSupportedImageFile(selectedFile)) {
-        toast.error('Invalid file type. Please upload an image (JPEG, PNG, WebP) or PDF')
-        e.target.value = ''
-        return
-      }
-      
-      // Validate file size
-      const file = selectedFile.type.startsWith('image/') || isSupportedImageFile(selectedFile)
-        ? await prepareImageFile(selectedFile)
-        : selectedFile
-
-      if (file.size > MAX_FILE_SIZE) {
-        toast.error('File size exceeds 5MB limit. Please upload a smaller file.')
-        e.target.value = ''
-        return
-      }
-      
-      setReceiptFile(file)
-    }
-  }
-
   const onSubmit = async (data: InvestFormData) => {
-    if (!receiptFile) return toast.error('Deposit receipt image or PDF is required')
-
     setIsLoading(true)
     try {
       const formData = new FormData()
       formData.append('plan_id', data.plan_id)
       formData.append('shares', String(data.shares))
-      formData.append('receipt', receiptFile)
 
       const result = await createInvestmentAction(formData)
       if (result.success) {
-        toast.success('Investment request submitted! Your application is under review.')
+        toast.success('Interest request submitted. The owner will review it before any payment is made.')
         router.refresh()
       } else {
         toast.error(result.error || 'Failed to submit investment')
@@ -90,7 +58,7 @@ export function InvestForm({ plans, planSharesSold = {} }: InvestFormProps) {
     }
   }
 
-  // Calculate expected profit based on shares
+  // Calculate probable profit based on shares
   const calculateExpectedProfit = () => {
     if (!selectedPlan || !sharesWatch) return 0
     const shares = Number(sharesWatch)
@@ -118,19 +86,20 @@ export function InvestForm({ plans, planSharesSold = {} }: InvestFormProps) {
     return Math.max(0, totalShares - ownerShares - soldShares)
   }
 
-  // Calculate owner shares for selected plan
-  const getOwnerShares = () => {
-    if (!selectedPlan) return 0
-    const totalShares = selectedPlan.total_shares || 150
-    return Math.floor(totalShares * ((selectedPlan.owner_share_percentage || 40) / 100))
-  }
-
-  // Calculate total investor shares for selected plan (total - owner reserved)
-  const getInvestorShares = () => {
-    if (!selectedPlan) return 0
-    const totalShares = selectedPlan.total_shares || 150
-    const ownerShares = getOwnerShares()
-    return totalShares - ownerShares
+  const getShareRequestIssues = () => {
+    if (!selectedPlan || !sharesWatch) return []
+    const requestedShares = Number(sharesWatch)
+    if (!Number.isFinite(requestedShares) || requestedShares <= 0) return []
+    const issues: string[] = []
+    const availableShares = getAvailableShares()
+    const maximumShares = selectedPlan.max_shares_per_investor || 30
+    if (requestedShares > availableShares) {
+      issues.push(`You requested ${requestedShares} shares, but only ${availableShares} shares are currently available.`)
+    }
+    if (requestedShares > maximumShares) {
+      issues.push(`This plan allows a maximum of ${maximumShares} shares per investor; your request is ${requestedShares} shares.`)
+    }
+    return issues
   }
 
   return (
@@ -157,12 +126,6 @@ export function InvestForm({ plans, planSharesSold = {} }: InvestFormProps) {
 
         {selectedPlan && (() => {
           const total = selectedPlan.total_shares || 150
-          const ownerShares = getOwnerShares()
-          const sold = planSharesSold[selectedPlan.id] || 0
-          const available = getAvailableShares()
-          const investorShares = getInvestorShares()
-          const soldPercentage = investorShares > 0 ? Math.round((sold / investorShares) * 100) : 0
-          const almostFull = available <= Math.ceil(investorShares * 0.2)
           return (
             <div className="p-4 rounded-xl bg-slate-800/40 border border-white/5 space-y-3">
               <div className="grid grid-cols-2 gap-3 text-xs">
@@ -187,48 +150,10 @@ export function InvestForm({ plans, planSharesSold = {} }: InvestFormProps) {
                   <span className="text-yellow-400 font-semibold">{selectedPlan.lock_period_days} days</span>
                 </div>
               </div>
-              {/* Share allocation breakdown */}
               <div className="pt-2 border-t border-white/5 space-y-2">
                 <div className="flex justify-between items-center text-xs">
                   <span className="text-slate-400">Total Shares</span>
                   <span className="text-white font-medium">{total}</span>
-                </div>
-                <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-400">Owner Shares (Reserved)</span>
-                  <span className="text-purple-400 font-medium">{ownerShares}</span>
-                </div>
-                <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-400">Shares Sold</span>
-                  <span className="text-green-400 font-medium">{sold}</span>
-                </div>
-                <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-400">Available Shares</span>
-                  <span className="text-blue-400 font-medium">{available}</span>
-                </div>
-                {/* Live share availability */}
-                <div className="pt-2 border-t border-white/5">
-                  <div className="flex justify-between items-center mb-1.5">
-                    <span className={`text-xs font-semibold ${almostFull ? 'text-orange-400' : 'text-emerald-400'}`}>
-                      {available} shares available for purchase
-                    </span>
-                    <span className="text-xs text-slate-500">{soldPercentage}% of investor shares sold</span>
-                  </div>
-                  <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full ${almostFull ? 'bg-orange-500' : 'bg-emerald-500'}`}
-                      style={{ width: `${soldPercentage}%` }}
-                    />
-                  </div>
-                  {almostFull && available > 0 && (
-                    <p className="text-xs text-orange-400 mt-1 flex items-center gap-1">
-                      <AlertCircle className="h-3 w-3" /> Limited availability — act fast
-                    </p>
-                  )}
-                  {available === 0 && (
-                    <p className="text-xs text-red-400 mt-1 flex items-center gap-1">
-                      <AlertCircle className="h-3 w-3" /> Fully subscribed — no shares available
-                    </p>
-                  )}
                 </div>
               </div>
             </div>
@@ -244,18 +169,33 @@ export function InvestForm({ plans, planSharesSold = {} }: InvestFormProps) {
               type="number"
               className="input-base"
               placeholder="e.g. 10"
-              disabled={!selectedPlan || getAvailableShares() === 0}
+              disabled={!selectedPlan}
               min="1"
-              max={Math.min(selectedPlan?.max_shares_per_investor || 30, getAvailableShares())}
+              max={selectedPlan?.total_shares || undefined}
             />
           </div>
           {errors.shares && <p className="mt-1.5 text-xs text-red-400">{errors.shares.message}</p>}
           {selectedPlan && (
             <p className="mt-1.5 text-xs text-slate-500">
-              Maximum {Math.min(selectedPlan.max_shares_per_investor || 30, getAvailableShares())} shares per investor ({getAvailableShares()} available)
+              Maximum {selectedPlan.max_shares_per_investor || 30} shares per investor. The owner will confirm final availability when reviewing your request.
             </p>
           )}
         </div>
+
+        {getShareRequestIssues().length > 0 && (
+          <div className="rounded-xl border border-orange-500/25 bg-orange-500/10 p-4" role="alert">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-orange-300" />
+              <div>
+                <p className="text-sm font-semibold text-orange-200">This share request cannot be submitted</p>
+                <ul className="mt-2 space-y-1 text-xs leading-relaxed text-orange-100/80">
+                  {getShareRequestIssues().map(issue => <li key={issue}>• {issue}</li>)}
+                </ul>
+                <p className="mt-2 text-xs text-orange-100/70">Reduce the requested shares and submit again, or choose another active plan.</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Investment amount calculation */}
         {selectedPlan && sharesWatch && (
@@ -265,17 +205,17 @@ export function InvestForm({ plans, planSharesSold = {} }: InvestFormProps) {
               <span className="text-white font-bold">{formatCurrency(calculateInvestmentAmount())}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-slate-400 text-xs">Expected Return Rate</span>
+              <span className="text-slate-400 text-xs">Probable Return Rate</span>
               <span className="text-green-400 font-semibold">{selectedPlan.roi_percentage}% / Year</span>
             </div>
           </div>
         )}
 
-        {/* Expected profit calculation */}
+        {/* Probable profit calculation */}
         {selectedPlan && sharesWatch && (
           <div className="p-4 rounded-xl bg-green-500/5 border border-green-500/10 text-sm flex justify-between items-center">
             <div>
-              <span className="text-slate-400 text-xs block">Expected Return at Maturity</span>
+              <span className="text-slate-400 text-xs block">Probable Return at Maturity</span>
               <span className="text-green-400 font-bold text-lg">
                 {formatCurrency(calculateExpectedProfit())}
               </span>
@@ -289,32 +229,13 @@ export function InvestForm({ plans, planSharesSold = {} }: InvestFormProps) {
           </div>
         )}
 
-        {/* Receipt Upload */}
-        <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">
-            Bank Transfer / Deposit Receipt
-          </label>
-          <div className="relative border border-dashed border-slate-700 hover:border-green-500/50 rounded-xl p-6 flex flex-col items-center justify-center bg-slate-800/20 transition-colors">
-            <input
-              type="file"
-              accept="image/*,application/pdf"
-              capture="environment"
-              onChange={handleFileChange}
-              className="absolute inset-0 opacity-0 cursor-pointer"
-              disabled={!selectedPlan}
-            />
-            <Upload className="h-6 w-6 text-slate-400 mb-2" />
-            <p className="text-xs text-slate-400">
-              {receiptFile ? receiptFile.name : 'Upload bank statement, slip, or mobile transaction screenshot'}
-            </p>
-          </div>
+        <div className="rounded-xl border border-blue-500/20 bg-blue-500/10 p-4 text-xs text-blue-200">
+          No payment is required now. If the owner approves your request, bank-transfer details and receipt upload will become available in your investment history.
         </div>
 
-        <button type="submit" disabled={isLoading || !selectedPlan || getAvailableShares() === 0} className="btn-primary w-full py-3.5">
+        <button type="submit" disabled={isLoading || !selectedPlan || getShareRequestIssues().length > 0} className="btn-primary w-full py-3.5">
           {isLoading ? (
             <><Loader2 className="h-4 w-4 animate-spin" /> Submitting Request...</>
-          ) : getAvailableShares() === 0 ? (
-            'Plan Fully Subscribed'
           ) : (
             'Request Investment Approval'
           )}

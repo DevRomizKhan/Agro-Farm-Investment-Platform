@@ -2,7 +2,7 @@ export type UserRole = 'owner' | 'investor'
 
 export type KYCStatus = 'pending' | 'approved' | 'rejected' | 'not_submitted'
 
-export type InvestmentStatus = 'active' | 'completed' | 'cancelled' | 'pending'
+export type InvestmentStatus = 'active' | 'completed' | 'cancelled' | 'pending' | 'approved' | 'payment_submitted' | 'rejected'
 
 export type NotificationType = 'kyc' | 'investment' | 'transaction' | 'system' | 'announcement'
 

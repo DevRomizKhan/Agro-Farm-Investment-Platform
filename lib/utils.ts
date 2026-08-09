@@ -147,3 +147,7 @@ export function isPlanCurrentlyActive(plan: Pick<InvestmentPlan, 'is_active' | '
   return true
 }
 
+/** Returns true when an enabled plan is scheduled to open in the future. */
+export function isPlanUpcoming(plan: Pick<InvestmentPlan, 'is_active' | 'starts_at'>): boolean {
+  return Boolean(plan.is_active && plan.starts_at && Date.now() < new Date(plan.starts_at).getTime())
+}

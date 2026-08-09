@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { ROUTES } from '@/constants'
 import type { InvestmentPlan } from '@/types'
 import { ExitRequestForm } from '@/components/features/investments/exit-request-form'
+import { PaymentReceiptForm } from '@/components/features/investments/payment-receipt-form'
 
 export default async function InvestmentsPage() {
   const supabase = await createClient()
@@ -38,6 +39,11 @@ export default async function InvestmentsPage() {
     .select('*, plan:investment_plans(*), withdrawal_requests(*)')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
+
+  const needsBankDetails = investments?.some(inv => inv.status === 'approved') || false
+  const { data: bankSettings } = needsBankDetails
+    ? await createAdminClient().from('bank_transfer_settings').select('account_name, bank_name, account_number, branch_name, routing_number, instructions').eq('id', true).maybeSingle()
+    : { data: null }
 
   // Calculate sold shares for each plan
   const planIds = plans.map(p => p.id)
@@ -139,6 +145,12 @@ export default async function InvestmentsPage() {
                               ? 'badge-green'
                               : inv.status === 'pending'
                               ? 'badge-yellow'
+                              : inv.status === 'approved'
+                              ? 'badge-blue'
+                              : inv.status === 'payment_submitted'
+                              ? 'badge-purple'
+                              : inv.status === 'rejected'
+                              ? 'badge-red'
                               : inv.status === 'completed'
                               ? 'badge-blue'
                               : 'badge-red'
@@ -218,6 +230,40 @@ export default async function InvestmentsPage() {
                           shares={Number(inv.shares_purchased || 0)}
                           lockPeriodDays={Number((plan as { lock_period_days?: number } | null)?.lock_period_days ?? inv.lock_period_days)}
                         />
+                      )}
+
+                      {inv.status === 'approved' && bankSettings && (
+                        <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-xs text-slate-300">
+                          <p className="mb-2 font-semibold text-emerald-300">Approved — transfer through bank only</p>
+                          <p>Account name: <span className="text-white">{bankSettings.account_name}</span></p>
+                          <p>Bank: <span className="text-white">{bankSettings.bank_name}</span></p>
+                          <p>Account: <span className="text-white">{bankSettings.account_number}</span></p>
+                          {bankSettings.branch_name && <p>Branch: <span className="text-white">{bankSettings.branch_name}</span></p>}
+                          {bankSettings.routing_number && <p>Routing: <span className="text-white">{bankSettings.routing_number}</span></p>}
+                          {bankSettings.instructions && <p className="mt-2 text-slate-400">{bankSettings.instructions}</p>}
+                          <div className="mt-4"><PaymentReceiptForm investmentId={inv.id} /></div>
+                        </div>
+                      )}
+                      {inv.status === 'payment_submitted' && <p className="rounded-xl border border-yellow-500/20 bg-yellow-500/10 p-3 text-xs text-yellow-200">Payment receipt submitted. Please wait for owner verification.</p>}
+
+                      {inv.status !== 'active' && inv.status !== 'completed' && (
+                        <div className="rounded-xl border border-slate-700 bg-slate-800/50 p-3 text-xs text-slate-300">
+                          <p className="font-semibold text-white">Shares are not transferable</p>
+                          <p className="mt-1 leading-relaxed">
+                            {inv.status === 'pending' && 'Transfer is unavailable while the owner reviews your share request.'}
+                            {inv.status === 'approved' && 'Transfer is unavailable until you complete the bank payment and the owner verifies your receipt.'}
+                            {inv.status === 'payment_submitted' && 'Transfer is unavailable while the owner verifies your submitted bank payment.'}
+                            {inv.status === 'rejected' && `Transfer is unavailable because the owner rejected this request${inv.notes ? `: ${inv.notes}` : '.'}`}
+                            {inv.status === 'cancelled' && 'Transfer is unavailable because this investment request was cancelled.'}
+                          </p>
+                        </div>
+                      )}
+
+                      {inv.notes && inv.status !== 'rejected' && (inv.status === 'approved' || inv.status === 'payment_submitted' || inv.status === 'active') && (
+                        <div className={`rounded-xl border p-3 text-xs ${inv.status === 'rejected' ? 'border-red-500/20 bg-red-500/10 text-red-200' : 'border-slate-700 bg-slate-800/50 text-slate-300'}`}>
+                          <p className="font-semibold text-white">Owner response</p>
+                          <p className="mt-1 leading-relaxed">{inv.notes}</p>
+                        </div>
                       )}
 
                       <div className="flex justify-between items-center text-xs">
