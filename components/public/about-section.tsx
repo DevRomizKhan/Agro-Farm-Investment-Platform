@@ -39,7 +39,7 @@ export function AboutSection() {
             </h2>
 
             <p className="text-slate-300 text-base sm:text-lg leading-relaxed">
-              Amanah Farm is a partnership-based agricultural investment initiative connecting investors to proportionate ownership in cow and fish production assets. Project Adi operates under Islamic Sharia principles, with annual net dividends calculated after project expenses, transparent financial records, and no fixed or guaranteed returns.
+              Amanah Farm is a partnership-based agricultural investment initiative connecting investors to proportionate ownership in cow and fish production assets. Project Adi operates under Islamic Sharia principles, with annual net dividends calculated after project expenses, transparent financial records.
             </p>
 
             <div className="grid grid-cols-2 gap-3 motion-stagger">

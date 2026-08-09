@@ -65,7 +65,7 @@ export function HeroSection() {
         {/* Headline */}
         <h1 className="text-4xl sm:text-6xl md:text-7xl font-black text-white leading-[1.1] tracking-tight mb-6 max-w-4xl">
           Invest in Agriculture.{' '}
-          <span className="gradient-text">Harvest</span> the Future.
+          <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-emerald-300 via-white to-emerald-300 animate-pulse">Harvest</span> the Future.
         </h1>
 
         {/* Subtitle */}
