@@ -65,7 +65,7 @@ export function HeroSection() {
         </div>
 
         {/* Headline */}
-        <h1 className="text-4xl sm:text-6xl md:text-7xl font-black text-white leading-[1.15] tracking-tight mb-6 max-w-4xl">
+        <h1 className="text-4xl sm:text-6xl md:text-7xl font-[950] text-white leading-[1.15] tracking-tight mb-6 max-w-4xl">
           {t.hero.titleLine1}{' '}
           <br />
           <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-emerald-300 via-white to-emerald-300 animate-pulse">
