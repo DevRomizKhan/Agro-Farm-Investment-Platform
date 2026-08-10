@@ -85,23 +85,23 @@ export async function PlansPreviewSection() {
 
   const plans = configuredPlans.length > 0
     ? activePlans.slice(0, 3).map(p => ({
-        id: p.id,
-        name: p.name,
-        tag: p.roi_percentage >= 16 ? 'High Returns' : p.roi_percentage >= 12 ? 'Most Popular' : 'Entry Level',
-        total_shares: p.total_shares,
-        shares_per_amount: p.shares_per_amount || 1000,
-        max_shares_per_investor: p.max_shares_per_investor,
-        roi_percentage: p.roi_percentage,
-        duration_months: p.duration_months || 24,
-        owner_share_percentage: p.owner_share_percentage || 40,
-        popular: p.roi_percentage >= 12 && p.roi_percentage < 16,
-        features: [
-          `BDT ${(p.shares_per_amount || 1000).toLocaleString()} per share`,
-          '2-Year Program (July 2026 – June 2028)',
-          `Max ${p.max_shares_per_investor} shares per investor`,
-          'Cow & Fish production asset backing',
-        ],
-      }))
+      id: p.id,
+      name: p.name,
+      tag: p.roi_percentage >= 16 ? 'High Returns' : p.roi_percentage >= 12 ? 'Most Popular' : 'Entry Level',
+      total_shares: p.total_shares,
+      shares_per_amount: p.shares_per_amount || 1000,
+      max_shares_per_investor: p.max_shares_per_investor,
+      roi_percentage: p.roi_percentage,
+      duration_months: p.duration_months || 24,
+      owner_share_percentage: p.owner_share_percentage || 40,
+      popular: p.roi_percentage >= 12 && p.roi_percentage < 16,
+      features: [
+        `BDT ${(p.shares_per_amount || 1000).toLocaleString()} per share`,
+        '2-Year Program (July 2026 – June 2028)',
+        `Max ${p.max_shares_per_investor} shares per investor`,
+        'Cow & Fish production asset backing',
+      ],
+    }))
     : STATIC_PLANS.map(p => ({ ...p, id: undefined }))
 
   return (
@@ -129,11 +129,10 @@ export async function PlansPreviewSection() {
               {plans.map((plan) => (
                 <div
                   key={plan.id ?? plan.name}
-                  className={`relative p-6 sm:p-8 rounded-3xl flex flex-col transition-all duration-300 ${
-                    plan.popular
+                  className={`relative p-6 sm:p-8 rounded-3xl flex flex-col transition-all duration-300 ${plan.popular
                       ? 'bg-slate-900 border-2 border-emerald-500/60 shadow-xl shadow-emerald-950/40'
                       : 'bg-slate-900/40 border border-white/10 hover:border-white/20'
-                  }`}
+                    }`}
                 >
                   {plan.popular && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2">
@@ -191,9 +190,8 @@ export async function PlansPreviewSection() {
                   {/* CTA */}
                   <Link
                     href={ROUTES.REGISTER}
-                    className={`flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-all ${
-                      plan.popular ? 'btn-primary' : 'btn-secondary'
-                    }`}
+                    className={`flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-all ${plan.popular ? 'btn-primary' : 'btn-secondary'
+                      }`}
                   >
                     <span>Start Investing</span>
                     <ArrowRight className="h-4 w-4" />

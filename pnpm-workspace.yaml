@@ -1,4 +1,9 @@
+onlyBuiltDependencies:
+  - core-js
+  - pg
+
 allowBuilds:
   '@next/swc-linux-x64-gnu': false
+  core-js: true
   sharp: false
   unrs-resolver: false
