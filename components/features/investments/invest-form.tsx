@@ -10,6 +10,8 @@ import { investSchema, type InvestFormData } from '@/schemas'
 import { createInvestmentAction } from '@/actions/investments'
 import { formatCurrency } from '@/lib/utils'
 import type { InvestmentPlan } from '@/types'
+import { useLanguage } from '@/lib/i18n/context'
+import { translations } from '@/lib/i18n/translations'
 
 interface InvestFormProps {
   plans: InvestmentPlan[]
@@ -18,6 +20,8 @@ interface InvestFormProps {
 
 export function InvestForm({ plans, planSharesSold = {} }: InvestFormProps) {
   const router = useRouter()
+  const { lang } = useLanguage()
+  const t = translations[lang].investForm
   const [isLoading, setIsLoading] = useState(false)
   const [selectedPlan, setSelectedPlan] = useState<InvestmentPlan | null>(null)
 
@@ -46,43 +50,39 @@ export function InvestForm({ plans, planSharesSold = {} }: InvestFormProps) {
 
       const result = await createInvestmentAction(formData)
       if (result.success) {
-        toast.success('Interest request submitted. The owner will review it before any payment is made.')
+        toast.success(t.successMessage)
         router.refresh()
       } else {
-        toast.error(result.error || 'Failed to submit investment')
+        toast.error(result.error || t.errorMessage)
       }
     } catch {
-      toast.error('An unexpected error occurred')
+      toast.error(t.unexpectedError)
     } finally {
       setIsLoading(false)
     }
   }
 
-  // Calculate probable profit based on shares
   const calculateExpectedProfit = () => {
     if (!selectedPlan || !sharesWatch) return 0
     const shares = Number(sharesWatch)
     if (isNaN(shares) || shares <= 0) return 0
-    const amount = shares * (selectedPlan.shares_per_amount || 10000)
+    const amount = shares * (selectedPlan.shares_per_amount || 1000)
     const monthlyRate = selectedPlan.roi_percentage / 100 / 12
     return amount * monthlyRate * selectedPlan.duration_months
   }
 
-  // Calculate total investment amount from shares
   const calculateInvestmentAmount = () => {
     if (!selectedPlan || !sharesWatch) return 0
     const shares = Number(sharesWatch)
     if (isNaN(shares) || shares <= 0) return 0
-    return shares * (selectedPlan.shares_per_amount || 10000)
+    return shares * (selectedPlan.shares_per_amount || 1000)
   }
 
-  // Calculate available shares for selected plan (excluding owner shares)
   const getAvailableShares = () => {
     if (!selectedPlan) return 0
     const totalShares = selectedPlan.total_shares || 150
     const ownerShares = Math.floor(totalShares * ((selectedPlan.owner_share_percentage || 40) / 100))
     const soldShares = planSharesSold[selectedPlan.id] || 0
-    // Available = Total - Owner Reserved - Sold
     return Math.max(0, totalShares - ownerShares - soldShares)
   }
 
@@ -94,10 +94,14 @@ export function InvestForm({ plans, planSharesSold = {} }: InvestFormProps) {
     const availableShares = getAvailableShares()
     const maximumShares = selectedPlan.max_shares_per_investor || 30
     if (requestedShares > availableShares) {
-      issues.push(`You requested ${requestedShares} shares, but only ${availableShares} shares are currently available.`)
+      issues.push(t.sharesRequestedExceedsAvailable
+        .replace('{requested}', String(requestedShares))
+        .replace('{available}', String(availableShares)))
     }
     if (requestedShares > maximumShares) {
-      issues.push(`This plan allows a maximum of ${maximumShares} shares per investor; your request is ${requestedShares} shares.`)
+      issues.push(t.maxSharesPerInvestorExceeded
+        .replace('{max}', String(maximumShares))
+        .replace('{requested}', String(requestedShares)))
     }
     return issues
   }
@@ -105,19 +109,23 @@ export function InvestForm({ plans, planSharesSold = {} }: InvestFormProps) {
   return (
     <div className="glass-card p-6 max-w-xl mx-auto space-y-6">
       <div className="flex items-center gap-3 pb-4 border-b border-white/5">
-        <Wallet className="h-5 w-5 text-green-400" />
-        <h2 className="text-lg font-semibold text-white">New Investment</h2>
+        <Wallet className="h-5 w-5 text-emerald-400" />
+        <h2 className="text-lg font-semibold text-white">
+          {t.title}
+        </h2>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         {/* Choose Plan */}
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">Select Investment Plan</label>
+          <label className="block text-sm font-medium text-slate-300 mb-2">
+            {t.selectPlan}
+          </label>
           <select onChange={handlePlanChange} className="input-base" defaultValue="">
-            <option value="" disabled>Choose an active plan</option>
+            <option value="" disabled>{t.chooseActivePlan}</option>
             {plans.map((plan) => (
               <option key={plan.id} value={plan.id}>
-                {plan.name} ({plan.roi_percentage}% / yr)
+                {plan.name} ({plan.roi_percentage}% / {t.year})
               </option>
             ))}
           </select>
@@ -130,30 +138,30 @@ export function InvestForm({ plans, planSharesSold = {} }: InvestFormProps) {
             <div className="p-4 rounded-xl bg-slate-800/40 border border-white/5 space-y-3">
               <div className="grid grid-cols-2 gap-3 text-xs">
                 <div>
-                  <span className="text-slate-400 block mb-0.5">Price / Share</span>
-                  <span className="text-white font-semibold">{formatCurrency(selectedPlan.shares_per_amount || 10000)}</span>
+                  <span className="text-slate-400 block mb-0.5">{t.pricePerShare}</span>
+                  <span className="text-white font-semibold">{formatCurrency(selectedPlan.shares_per_amount || 1000)}</span>
                 </div>
                 <div>
-                  <span className="text-slate-400 block mb-0.5">Annual ROI</span>
+                  <span className="text-slate-400 block mb-0.5">{t.annualRoi}</span>
                   <span className="text-emerald-400 font-semibold">{selectedPlan.roi_percentage}%</span>
                 </div>
                 <div>
-                  <span className="text-slate-400 block mb-0.5">Max Shares / Investor</span>
-                  <span className="text-white font-semibold">{selectedPlan.max_shares_per_investor || 30}</span>
+                  <span className="text-slate-400 block mb-0.5">{t.maxSharesPerInvestor}</span>
+                  <span className="text-white font-semibold">{selectedPlan.max_shares_per_investor || 30} {t.maxSharesLabel}</span>
                 </div>
                 <div>
-                  <span className="text-slate-400 block mb-0.5">Duration</span>
-                  <span className="text-white font-semibold">{selectedPlan.duration_months} months</span>
+                  <span className="text-slate-400 block mb-0.5">{t.duration}</span>
+                  <span className="text-white font-semibold">{selectedPlan.duration_months} {t.months}</span>
                 </div>
                 <div>
-                  <span className="text-slate-400 block mb-0.5">Exit Lock</span>
-                  <span className="text-yellow-400 font-semibold">{selectedPlan.lock_period_days} days</span>
+                  <span className="text-slate-400 block mb-0.5">{t.exitLock}</span>
+                  <span className="text-yellow-400 font-semibold">{selectedPlan.lock_period_days} {t.days}</span>
                 </div>
               </div>
               <div className="pt-2 border-t border-white/5 space-y-2">
                 <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-400">Total Shares</span>
-                  <span className="text-white font-medium">{total}</span>
+                  <span className="text-slate-400">{t.totalShares}</span>
+                  <span className="text-white font-medium">{total} {t.maxSharesLabel}</span>
                 </div>
               </div>
             </div>
@@ -162,13 +170,15 @@ export function InvestForm({ plans, planSharesSold = {} }: InvestFormProps) {
 
         {/* Shares */}
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">Number of Shares</label>
+          <label className="block text-sm font-medium text-slate-300 mb-2">
+            {t.numberOfShares}
+          </label>
           <div className="relative">
             <input
               {...register('shares')}
               type="number"
               className="input-base"
-              placeholder="e.g. 10"
+              placeholder={t.sharesPlaceholder}
               disabled={!selectedPlan}
               min="1"
               max={selectedPlan?.total_shares || undefined}
@@ -177,7 +187,7 @@ export function InvestForm({ plans, planSharesSold = {} }: InvestFormProps) {
           {errors.shares && <p className="mt-1.5 text-xs text-red-400">{errors.shares.message}</p>}
           {selectedPlan && (
             <p className="mt-1.5 text-xs text-slate-500">
-              Maximum {selectedPlan.max_shares_per_investor || 30} shares per investor. The owner will confirm final availability when reviewing your request.
+              {t.maxSharesPerInvestorHint.replace('{max}', String(selectedPlan.max_shares_per_investor || 30))}
             </p>
           )}
         </div>
@@ -187,11 +197,12 @@ export function InvestForm({ plans, planSharesSold = {} }: InvestFormProps) {
             <div className="flex items-start gap-2">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-orange-300" />
               <div>
-                <p className="text-sm font-semibold text-orange-200">This share request cannot be submitted</p>
+                <p className="text-sm font-semibold text-orange-200">
+                  {t.shareRequestCannotSubmit}
+                </p>
                 <ul className="mt-2 space-y-1 text-xs leading-relaxed text-orange-100/80">
                   {getShareRequestIssues().map(issue => <li key={issue}>• {issue}</li>)}
                 </ul>
-                <p className="mt-2 text-xs text-orange-100/70">Reduce the requested shares and submit again, or choose another active plan.</p>
               </div>
             </div>
           </div>
@@ -201,27 +212,27 @@ export function InvestForm({ plans, planSharesSold = {} }: InvestFormProps) {
         {selectedPlan && sharesWatch && (
           <div className="p-4 rounded-xl bg-slate-800/40 border border-white/5 text-sm">
             <div className="flex justify-between items-center mb-2">
-              <span className="text-slate-400 text-xs">Investment Amount</span>
+              <span className="text-slate-400 text-xs">{t.investmentAmount}</span>
               <span className="text-white font-bold">{formatCurrency(calculateInvestmentAmount())}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-slate-400 text-xs">Probable Return Rate</span>
-              <span className="text-green-400 font-semibold">{selectedPlan.roi_percentage}% / Year</span>
+              <span className="text-slate-400 text-xs">{t.probableReturnRate}</span>
+              <span className="text-emerald-400 font-semibold">{selectedPlan.roi_percentage}% / {t.year}</span>
             </div>
           </div>
         )}
 
         {/* Probable profit calculation */}
         {selectedPlan && sharesWatch && (
-          <div className="p-4 rounded-xl bg-green-500/5 border border-green-500/10 text-sm flex justify-between items-center">
+          <div className="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 text-sm flex justify-between items-center">
             <div>
-              <span className="text-slate-400 text-xs block">Probable Return at Maturity</span>
-              <span className="text-green-400 font-bold text-lg">
+              <span className="text-slate-400 text-xs block">{t.probableReturnAtMaturity}</span>
+              <span className="text-emerald-400 font-bold text-lg">
                 {formatCurrency(calculateExpectedProfit())}
               </span>
             </div>
             <div className="text-right">
-              <span className="text-slate-400 text-xs block">Total Capital + ROI</span>
+              <span className="text-slate-400 text-xs block">{t.totalCapitalPlusRoi}</span>
               <span className="text-white font-semibold">
                 {formatCurrency(calculateInvestmentAmount() + calculateExpectedProfit())}
               </span>
@@ -229,15 +240,15 @@ export function InvestForm({ plans, planSharesSold = {} }: InvestFormProps) {
           </div>
         )}
 
-        <div className="rounded-xl border border-blue-500/20 bg-blue-500/10 p-4 text-xs text-blue-200">
-          No payment is required now. If the owner approves your request, bank-transfer details and receipt upload will become available in your investment history.
+        <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-xs text-emerald-200">
+          {t.noPaymentRequired}
         </div>
 
         <button type="submit" disabled={isLoading || !selectedPlan || getShareRequestIssues().length > 0} className="btn-primary w-full py-3.5">
           {isLoading ? (
-            <><Loader2 className="h-4 w-4 animate-spin" /> Submitting Request...</>
+            <><Loader2 className="h-4 w-4 animate-spin" /> {t.submittingRequest}</>
           ) : (
-            'Request Investment Approval'
+            t.requestInvestmentApproval
           )}
         </button>
       </form>

@@ -95,7 +95,7 @@ export function KYCForm() {
       {/* 1. Personal Information */}
       <div className="glass-card p-6">
         <div className="flex items-center gap-3 mb-6 pb-4 border-b border-white/5">
-          <User className="h-5 w-5 text-green-400" />
+          <User className="h-5 w-5 text-emerald-400" />
           <h2 className="text-lg font-semibold text-white">Personal Information</h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -168,7 +168,7 @@ export function KYCForm() {
       {/* 2. Address Details */}
       <div className="glass-card p-6">
         <div className="flex items-center gap-3 mb-6 pb-4 border-b border-white/5">
-          <MapPin className="h-5 w-5 text-green-400" />
+          <MapPin className="h-5 w-5 text-emerald-400" />
           <h2 className="text-lg font-semibold text-white">Address Details</h2>
         </div>
         <div className="space-y-5">
@@ -189,7 +189,7 @@ export function KYCForm() {
       {/* 3. Nominee & Emergency Contact */}
       <div className="glass-card p-6">
         <div className="flex items-center gap-3 mb-6 pb-4 border-b border-white/5">
-          <HeartHandshake className="h-5 w-5 text-green-400" />
+          <HeartHandshake className="h-5 w-5 text-emerald-400" />
           <h2 className="text-lg font-semibold text-white">Nominee &amp; Emergency Contact</h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -238,7 +238,7 @@ export function KYCForm() {
       {/* 4. Bank Details */}
       <div className="glass-card p-6">
         <div className="flex items-center gap-3 mb-6 pb-4 border-b border-white/5">
-          <Building2 className="h-5 w-5 text-green-400" />
+          <Building2 className="h-5 w-5 text-emerald-400" />
           <h2 className="text-lg font-semibold text-white">Bank Details (For Payouts)</h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -271,14 +271,14 @@ export function KYCForm() {
       {/* 5. Document Uploads */}
       <div className="glass-card p-6">
         <div className="flex items-center gap-3 mb-6 pb-4 border-b border-white/5">
-          <Upload className="h-5 w-5 text-green-400" />
+          <Upload className="h-5 w-5 text-emerald-400" />
           <h2 className="text-lg font-semibold text-white">Required Documents</h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Photo */}
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">Passport Size Photo</label>
-            <div className="relative border border-dashed border-slate-700 hover:border-green-500/50 rounded-xl p-4 flex flex-col items-center justify-center bg-slate-800/20 transition-colors">
+            <div className="relative border border-dashed border-slate-700 hover:border-emerald-500/50 rounded-xl p-4 flex flex-col items-center justify-center bg-slate-800/20 transition-colors">
               <input type="file" accept="image/*" capture="environment" onChange={(e) => handleFileChange(e, 'photo')} className="absolute inset-0 opacity-0 cursor-pointer" />
               <Upload className="h-6 w-6 text-slate-400 mb-2" />
               <p className="text-xs text-slate-400">{files.photo ? files.photo.name : 'Select or drop image file (Max 5MB)'}</p>
@@ -288,7 +288,7 @@ export function KYCForm() {
           {/* Selfie */}
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">Selfie with NID Card</label>
-            <div className="relative border border-dashed border-slate-700 hover:border-green-500/50 rounded-xl p-4 flex flex-col items-center justify-center bg-slate-800/20 transition-colors">
+            <div className="relative border border-dashed border-slate-700 hover:border-emerald-500/50 rounded-xl p-4 flex flex-col items-center justify-center bg-slate-800/20 transition-colors">
               <input type="file" accept="image/*" capture="user" onChange={(e) => handleFileChange(e, 'selfie')} className="absolute inset-0 opacity-0 cursor-pointer" />
               <Upload className="h-6 w-6 text-slate-400 mb-2" />
               <p className="text-xs text-slate-400">{files.selfie ? files.selfie.name : 'Select or drop image file (Max 5MB)'}</p>
@@ -298,7 +298,7 @@ export function KYCForm() {
           {/* NID Front */}
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">NID Card Front Side</label>
-            <div className="relative border border-dashed border-slate-700 hover:border-green-500/50 rounded-xl p-4 flex flex-col items-center justify-center bg-slate-800/20 transition-colors">
+            <div className="relative border border-dashed border-slate-700 hover:border-emerald-500/50 rounded-xl p-4 flex flex-col items-center justify-center bg-slate-800/20 transition-colors">
               <input type="file" accept="image/*" capture="environment" onChange={(e) => handleFileChange(e, 'nid_front')} className="absolute inset-0 opacity-0 cursor-pointer" />
               <Upload className="h-6 w-6 text-slate-400 mb-2" />
               <p className="text-xs text-slate-400">{files.nid_front ? files.nid_front.name : 'Select or drop image file (Max 5MB)'}</p>
@@ -308,7 +308,7 @@ export function KYCForm() {
           {/* NID Back */}
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">NID Card Back Side</label>
-            <div className="relative border border-dashed border-slate-700 hover:border-green-500/50 rounded-xl p-4 flex flex-col items-center justify-center bg-slate-800/20 transition-colors">
+            <div className="relative border border-dashed border-slate-700 hover:border-emerald-500/50 rounded-xl p-4 flex flex-col items-center justify-center bg-slate-800/20 transition-colors">
               <input type="file" accept="image/*" capture="environment" onChange={(e) => handleFileChange(e, 'nid_back')} className="absolute inset-0 opacity-0 cursor-pointer" />
               <Upload className="h-6 w-6 text-slate-400 mb-2" />
               <p className="text-xs text-slate-400">{files.nid_back ? files.nid_back.name : 'Select or drop image file (Max 5MB)'}</p>

@@ -269,7 +269,7 @@ export default function EditBlogPostPage() {
           <div className="glass-card p-6">
             <h3 className="text-lg font-semibold text-white mb-4">Media</h3>
             
-            <div className="border-2 border-dashed border-slate-700 rounded-lg p-8 text-center hover:border-green-500/50 transition-colors">
+            <div className="border-2 border-dashed border-slate-700 rounded-lg p-8 text-center hover:border-emerald-500/50 transition-colors">
               <input
                 type="file"
                 onChange={handleFileUpload}
@@ -283,7 +283,7 @@ export default function EditBlogPostPage() {
                 className="cursor-pointer flex flex-col items-center gap-3"
               >
                 {isUploading ? (
-                  <Loader2 className="h-8 w-8 text-green-500 animate-spin" />
+                  <Loader2 className="h-8 w-8 text-emerald-500 animate-spin" />
                 ) : (
                   <Upload className="h-8 w-8 text-slate-400" />
                 )}
@@ -329,7 +329,7 @@ export default function EditBlogPostPage() {
                       onClick={() => handleSetFeaturedImage(media.file_url)}
                       className={`absolute bottom-2 left-2 px-2 py-1 rounded text-xs transition-opacity ${
                         watch('featured_image') === media.file_url
-                          ? 'bg-green-500 text-white'
+                          ? 'bg-emerald-500 text-white'
                           : 'bg-black/60 text-white opacity-0 group-hover:opacity-100'
                       }`}
                     >

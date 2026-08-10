@@ -16,7 +16,7 @@ function getPlanStatus(plan: InvestmentPlan): {
 } {
   if (!plan.is_active) {
     return {
-      label: 'Disabled',
+      label: 'নিষ্ক্রিয়',
       badge: 'badge-gray',
       icon: <XCircle className="h-3.5 w-3.5" />,
     }
@@ -26,7 +26,7 @@ function getPlanStatus(plan: InvestmentPlan): {
 
   if (plan.starts_at && now < new Date(plan.starts_at).getTime()) {
     return {
-      label: 'Scheduled',
+      label: 'নির্ধারিত',
       badge: 'badge-yellow',
       icon: <Timer className="h-3.5 w-3.5" />,
     }
@@ -34,15 +34,15 @@ function getPlanStatus(plan: InvestmentPlan): {
 
   if (plan.ends_at && now >= new Date(plan.ends_at).getTime()) {
     return {
-      label: 'Expired',
+      label: 'মেয়াদ শেষ',
       badge: 'badge-red',
       icon: <XCircle className="h-3.5 w-3.5" />,
     }
   }
 
   return {
-    label: 'Live',
-    badge: 'badge-green',
+    label: 'সক্রিয়',
+    badge: 'badge-primary',
     icon: <CheckCircle2 className="h-3.5 w-3.5" />,
   }
 }
@@ -50,7 +50,7 @@ function getPlanStatus(plan: InvestmentPlan): {
 /** Format a datetime string into a short human-readable form */
 function fmtDt(iso: string | null | undefined): string {
   if (!iso) return '—'
-  return new Date(iso).toLocaleString('en-GB', {
+  return new Date(iso).toLocaleString('bn-BD', {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
@@ -108,9 +108,9 @@ export default async function AdminPlansPage() {
       {/* Header */}
       <div className="page-header">
         <div>
-          <h1 className="page-title">Investment Plans Management</h1>
+          <h1 className="page-title">বিনিয়োগ প্ল্যান ব্যবস্থাপনা</h1>
           <p className="page-subtitle">
-            Configure agricultural investment packages, ROI rates, limits, and visibility schedules
+            কৃষি বিনিয়োগ প্যাকেজ, লাভের হার, সীমা এবং দৃশ্যমানতার সময়সূচি নির্ধারণ করুন
           </p>
         </div>
       </div>
@@ -120,13 +120,13 @@ export default async function AdminPlansPage() {
         <div className="lg:col-span-2 space-y-6">
           <div className="glass-card p-6">
             <h2 className="font-semibold text-white mb-5 flex items-center gap-2">
-              <FileText className="h-5 w-5 text-green-400" />
-              Existing Investment Plans ({plans?.length || 0})
+              <FileText className="h-5 w-5 text-emerald-400" />
+              বিদ্যমান বিনিয়োগ প্ল্যান ({plans?.length || 0})
             </h2>
 
             {!plans || plans.length === 0 ? (
               <p className="text-sm text-slate-500 text-center py-12">
-                No investment plans configured yet.
+                এখনো কোনো বিনিয়োগ প্ল্যান যোগ করা হয়নি।
               </p>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -141,14 +141,14 @@ export default async function AdminPlansPage() {
                   return (
                     <div
                       key={plan.id}
-                      className="p-5 rounded-xl border border-white/5 bg-slate-900/40 space-y-4 hover:border-green-500/20 transition-all"
+                      className="p-5 rounded-xl border border-white/5 bg-slate-900/40 space-y-4 hover:border-emerald-500/20 transition-all"
                     >
                       {/* Plan header */}
                       <div className="flex justify-between items-start gap-4">
                         <div>
                           <h3 className="font-bold text-white text-base">{plan.name}</h3>
                           <p className="text-xs text-slate-500 mt-1">
-                            {plan.duration_months} Months Duration
+                            মেয়াদ: {plan.duration_months} মাস
                           </p>
                         </div>
                         <span className={`${status.badge} inline-flex items-center gap-1`}>
@@ -166,50 +166,50 @@ export default async function AdminPlansPage() {
                       {/* Financials */}
                       <div className="grid grid-cols-2 gap-3 text-xs pt-3 border-t border-white/5">
                         <div>
-                          <span className="text-slate-500 block">Total Shares</span>
+                          <span className="text-slate-500 block">মোট শেয়ার</span>
                           <span className="text-white font-medium">
                             {plan.total_shares || 150}
                           </span>
                         </div>
                         <div>
-                          <span className="text-slate-500 block">Sold Shares</span>
+                          <span className="text-slate-500 block">বিক্রিত শেয়ার</span>
                           <span className="text-yellow-400 font-medium">
                             {soldShares}
                           </span>
                         </div>
                         <div>
-                          <span className="text-slate-500 block">Available Shares</span>
-                          <span className="text-green-400 font-medium">
+                          <span className="text-slate-500 block">উপলব্ধ শেয়ার</span>
+                          <span className="text-emerald-400 font-medium">
                             {availableShares}
                           </span>
                         </div>
                         <div>
-                          <span className="text-slate-500 block">Per Share Amount</span>
+                          <span className="text-slate-500 block">প্রতি শেয়ারের মূল্য</span>
                           <span className="text-white font-medium">
                             {formatCurrency(Number(plan.shares_per_amount || 10000))}
                           </span>
                         </div>
                         <div>
-                          <span className="text-slate-500 block">Owner Share %</span>
+                          <span className="text-slate-500 block">মালিকের শেয়ার %</span>
                           <span className="text-white font-medium">
                             {plan.owner_share_percentage || 40}%
                           </span>
                         </div>
                         <div>
-                          <span className="text-slate-500 block">Max Shares/Investor</span>
+                          <span className="text-slate-500 block">বিনিয়োগকারীপ্রতি সর্বোচ্চ শেয়ার</span>
                           <span className="text-white font-medium">
                             {plan.max_shares_per_investor || 30}
                           </span>
                         </div>
                         <div className="col-span-2">
-                          <span className="text-slate-500 block">Annual ROI Rate</span>
-                          <span className="text-green-400 font-bold text-sm">
-                            {plan.roi_percentage}% / Year
+                          <span className="text-slate-500 block">বার্ষিক লাভের হার</span>
+                          <span className="text-emerald-400 font-bold text-sm">
+                            {plan.roi_percentage}% / বছর
                           </span>
                         </div>
                         <div className="col-span-2">
-                          <span className="text-slate-500 block">Exit Lock Period</span>
-                          <span className="text-yellow-400 font-medium">{plan.lock_period_days} days</span>
+                          <span className="text-slate-500 block">উত্তোলন লক সময়কাল</span>
+                          <span className="text-yellow-400 font-medium">{plan.lock_period_days} দিন</span>
                         </div>
                       </div>
 
@@ -218,30 +218,30 @@ export default async function AdminPlansPage() {
                         <div className="flex items-center gap-1.5 mb-2">
                           <CalendarClock className="h-3.5 w-3.5 text-slate-400" />
                           <span className="text-xs font-medium text-slate-400">
-                            Visibility Schedule
+                            দৃশ্যমানতার সময়সূচি
                           </span>
                         </div>
                         <div className="grid grid-cols-2 gap-2 text-xs">
                           <div>
-                            <span className="text-slate-500 block">Opens At</span>
+                            <span className="text-slate-500 block">শুরুর সময়</span>
                             <span
                               className={
                                 plan.starts_at ? 'text-slate-200' : 'text-slate-600 italic'
                               }
                             >
                               {fmtDt(plan.starts_at)}
-                              {!plan.starts_at && ' (immediate)'}
+                              {!plan.starts_at && ' (তাৎক্ষণিক)'}
                             </span>
                           </div>
                           <div>
-                            <span className="text-slate-500 block">Closes At</span>
+                            <span className="text-slate-500 block">শেষের সময়</span>
                             <span
                               className={
                                 plan.ends_at ? 'text-slate-200' : 'text-slate-600 italic'
                               }
                             >
                               {fmtDt(plan.ends_at)}
-                              {!plan.ends_at && ' (no expiry)'}
+                              {!plan.ends_at && ' (মেয়াদহীন)'}
                             </span>
                           </div>
                         </div>
@@ -250,16 +250,16 @@ export default async function AdminPlansPage() {
                         <div
                           className={`mt-1 inline-flex items-center gap-1.5 text-xs px-2 py-0.5 rounded-full border ${
                             isCurrentlyLive
-                              ? 'bg-green-500/10 border-green-500/20 text-green-400'
+                              ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
                               : 'bg-slate-800/50 border-white/5 text-slate-500'
                           }`}
                         >
                           <span
                             className={`h-1.5 w-1.5 rounded-full ${
-                              isCurrentlyLive ? 'bg-green-400 animate-pulse' : 'bg-slate-600'
+                              isCurrentlyLive ? 'bg-emerald-400 animate-pulse' : 'bg-slate-600'
                             }`}
                           />
-                          {isCurrentlyLive ? 'Visible to investors now' : 'Hidden from investors'}
+                          {isCurrentlyLive ? 'এখন বিনিয়োগকারীদের জন্য দৃশ্যমান' : 'বিনিয়োগকারীদের জন্য লুকানো'}
                         </div>
                       </div>
 
@@ -270,7 +270,7 @@ export default async function AdminPlansPage() {
                           className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-slate-800/50 text-white text-xs font-medium hover:bg-slate-700/50 transition-colors"
                         >
                           <Edit className="h-3.5 w-3.5" />
-                          Edit
+                          সম্পাদনা
                         </Link>
                         <DeletePlanButton
                           planId={plan.id}
@@ -288,8 +288,8 @@ export default async function AdminPlansPage() {
         {/* Right: Plan Creation Form */}
         <div className="glass-card p-6 space-y-6">
           <div className="flex items-center gap-2.5 pb-4 border-b border-white/5">
-            <Plus className="h-5 w-5 text-green-400" />
-            <h2 className="text-base font-semibold text-white">Create New Plan</h2>
+            <Plus className="h-5 w-5 text-emerald-400" />
+            <h2 className="text-base font-semibold text-white">নতুন প্ল্যান তৈরি করুন</h2>
           </div>
           <PlanForm />
         </div>

@@ -10,9 +10,11 @@ import { Eye, EyeOff, Loader2, Mail } from 'lucide-react'
 import { loginSchema, type LoginFormData } from '@/schemas'
 import { loginAction, resendVerificationEmailAction } from '@/actions/auth'
 import { ROUTES } from '@/constants'
+import { useLanguage } from '@/lib/i18n/context'
 
 export default function LoginPage() {
   const router = useRouter()
+  const { t } = useLanguage()
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [needsVerification, setNeedsVerification] = useState(false)
@@ -28,14 +30,14 @@ export default function LoginPage() {
     try {
       const result = await loginAction(data)
       if (result.success) {
-        toast.success('Welcome back!')
+        toast.success(t.auth.welcomeBack)
         router.push(ROUTES.INVESTOR_DASHBOARD)
         router.refresh()
       } else {
         if (result.needsVerification) {
           setNeedsVerification(true)
           setEmailForResend(result.email || data.email)
-          toast.error(result.error || 'Email not verified')
+          toast.error(result.error || t.auth.verificationRequiredTitle)
         } else {
           toast.error(result.error || 'Login failed')
         }
@@ -62,8 +64,8 @@ export default function LoginPage() {
   return (
     <div className="fade-in">
       <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold text-white mb-2">Welcome Back</h1>
-        <p className="text-slate-400 text-sm">Sign in to access your investment dashboard</p>
+        <h1 className="text-2xl font-bold text-white mb-2">{t.auth.welcomeBack}</h1>
+        <p className="text-slate-400 text-sm">{t.auth.signInSubtitle}</p>
       </div>
 
       {needsVerification && (
@@ -71,16 +73,16 @@ export default function LoginPage() {
           <div className="flex items-start gap-3">
             <Mail className="h-5 w-5 text-yellow-400 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <p className="text-sm text-yellow-200 font-medium mb-2">Email Verification Required</p>
+              <p className="text-sm text-yellow-200 font-medium mb-2">{t.auth.verificationRequiredTitle}</p>
               <p className="text-xs text-yellow-300/80 mb-3">
-                Please verify your email address before logging in. Check your inbox for the verification link.
+                {t.auth.verificationRequiredDesc}
               </p>
               <button
                 onClick={handleResendVerification}
                 disabled={isResending}
                 className="text-xs text-yellow-400 hover:text-yellow-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isResending ? 'Sending...' : 'Resend verification email'}
+                {isResending ? t.auth.sending : t.auth.resendVerification}
               </button>
             </div>
           </div>
@@ -90,11 +92,11 @@ export default function LoginPage() {
       <div className="glass-card p-8">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Email Address</label>
+            <label className="block text-sm font-medium text-slate-300 mb-2">{t.auth.email}</label>
             <input
               {...register('email')}
               type="email"
-              placeholder="you@example.com"
+              placeholder={t.auth.emailPlaceholder}
               className="input-base"
               autoComplete="email"
             />
@@ -102,7 +104,7 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Password</label>
+            <label className="block text-sm font-medium text-slate-300 mb-2">{t.auth.password}</label>
             <div className="relative">
               <input
                 {...register('password')}
@@ -123,20 +125,20 @@ export default function LoginPage() {
           </div>
 
           <div className="flex justify-end">
-            <Link href={ROUTES.FORGOT_PASSWORD} className="text-sm text-green-400 hover:text-green-300 transition-colors">
-              Forgot password?
+            <Link href={ROUTES.FORGOT_PASSWORD} className="text-sm text-emerald-400 hover:text-emerald-300 transition-colors">
+              {t.auth.forgotPasswordLink}
             </Link>
           </div>
 
           <button type="submit" disabled={isLoading} className="btn-primary w-full">
-            {isLoading ? <><Loader2 className="h-4 w-4 animate-spin" /> Signing In...</> : 'Sign In'}
+            {isLoading ? <><Loader2 className="h-4 w-4 animate-spin" /> {t.auth.signingIn}</> : t.auth.signInBtn}
           </button>
         </form>
 
         <p className="text-center text-sm text-slate-400 mt-6">
-          Don&apos;t have an account?{' '}
-          <Link href={ROUTES.REGISTER} className="text-green-400 hover:text-green-300 font-medium transition-colors">
-            Create Account
+          {t.auth.noAccount}{' '}
+          <Link href={ROUTES.REGISTER} className="text-emerald-400 hover:text-emerald-300 font-medium transition-colors">
+            {t.auth.createAccountBtn}
           </Link>
         </p>
       </div>

@@ -45,11 +45,11 @@ export default async function EditInvestorPage({ params }: { params: Promise<{ i
       <div className="page-header">
         <Link href={`${ROUTES.ADMIN_INVESTORS}/${id}`} className="flex items-center gap-2 text-slate-400 hover:text-white text-sm mb-4">
           <ArrowLeft className="h-4 w-4" />
-          Back to Investor Details
+          বিনিয়োগকারীর বিস্তারিত পাতায় ফিরে যান
         </Link>
         <div>
-          <h1 className="page-title">Edit Investor</h1>
-          <p className="page-subtitle">Update investor information</p>
+          <h1 className="page-title">বিনিয়োগকারীর তথ্য সম্পাদনা</h1>
+          <p className="page-subtitle">বিনিয়োগকারীর তথ্য হালনাগাদ করুন</p>
         </div>
       </div>
 
@@ -58,49 +58,49 @@ export default async function EditInvestorPage({ params }: { params: Promise<{ i
         <form action={handleUpdate} className="space-y-4">
           <input type="hidden" name="id" value={investor.id} />
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">Full Name</label>
+            <label className="block text-sm font-medium text-slate-300 mb-1.5">পূর্ণ নাম</label>
             <input
               name="full_name"
               type="text"
               defaultValue={investor.full_name || ''}
               className="input-base py-2.5 text-sm"
-              placeholder="Enter full name"
+              placeholder="পূর্ণ নাম লিখুন"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">Email</label>
+            <label className="block text-sm font-medium text-slate-300 mb-1.5">ইমেইল</label>
             <input
               name="email"
               type="email"
               defaultValue={investor.email || ''}
               className="input-base py-2.5 text-sm"
-              placeholder="Enter email address"
+              placeholder="ইমেইল ঠিকানা লিখুন"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">Phone</label>
+            <label className="block text-sm font-medium text-slate-300 mb-1.5">মোবাইল নম্বর</label>
             <input
               name="phone"
               type="tel"
               defaultValue={investor.phone || ''}
               className="input-base py-2.5 text-sm"
-              placeholder="Enter phone number"
+              placeholder="মোবাইল নম্বর লিখুন"
             />
           </div>
 
           <div className="flex gap-3 pt-4">
             <button type="submit" className="btn-primary flex-1">
-              Save Changes
+              পরিবর্তন সংরক্ষণ করুন
             </button>
             <Link
               href={`${ROUTES.ADMIN_INVESTORS}/${id}`}
               className="btn-secondary flex-1"
             >
-              Cancel
+              বাতিল করুন
             </Link>
           </div>
         </form>

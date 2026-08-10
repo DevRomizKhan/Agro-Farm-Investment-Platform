@@ -1,8 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { formatCurrency, formatDate } from '@/lib/utils'
-import { Users, TrendingUp, Clock, ArrowRight, DollarSign, Layers, FileClock, ReceiptText } from 'lucide-react'
-import Link from 'next/link'
-import { ROUTES } from '@/constants'
+import { AdminDashboardClient } from '@/components/features/dashboard/admin-dashboard-client'
 
 type ProfileSummary = {
   user_id: string
@@ -42,7 +39,6 @@ export default async function AdminDashboardPage() {
     .from('profiles')
     .select('id, user_id, full_name, email')
     .in('user_id', kycUserIds)
-  const kycProfileMap = new Map((kycProfiles as ProfileSummary[] | null)?.map((p) => [p.user_id, p]) || [])
 
   // Fetch profiles for investments
   const investmentUserIds = recentInvestments?.map(i => i.user_id) || []
@@ -50,7 +46,6 @@ export default async function AdminDashboardPage() {
     .from('profiles')
     .select('id, user_id, full_name, email')
     .in('user_id', investmentUserIds)
-  const investmentProfileMap = new Map((investmentProfiles as ProfileSummary[] | null)?.map((p) => [p.user_id, p]) || [])
 
   const activeInvestments = investmentAgg?.filter(i => i.status === 'active') || []
   const totalInvested = activeInvestments.reduce((s, i) => s + Number(i.amount), 0)
@@ -94,233 +89,18 @@ export default async function AdminDashboardPage() {
   })
 
   return (
-    <div className="fade-in space-y-8">
-      {/* Header */}
-      <div className="page-header">
-        <div>
-          <h1 className="page-title">Owner Dashboard</h1>
-          <p className="page-subtitle">Platform share allocation, capital overview, and verification queue</p>
-        </div>
-        <div className="flex gap-3">
-          <Link href={ROUTES.ADMIN_KYC} className="btn-secondary">Pending KYC ({pendingKYC || 0})</Link>
-          <Link href={ROUTES.ADMIN_PLANS} className="btn-primary">+ New Plan</Link>
-        </div>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-        <div className="stat-card">
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-slate-400">Total Investors</p>
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-green-500/10">
-              <Users className="h-4.5 w-4.5 text-green-400" />
-            </div>
-          </div>
-          <p className="text-2xl font-bold text-white">{totalInvestors || 0}</p>
-          <p className="text-xs text-slate-500">Registered investor accounts</p>
-        </div>
-
-        <div className="stat-card">
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-slate-400">Total Invested</p>
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/10">
-              <DollarSign className="h-4.5 w-4.5 text-emerald-400" />
-            </div>
-          </div>
-          <p className="text-2xl font-bold text-white">{formatCurrency(totalInvested)}</p>
-          <p className="text-xs text-slate-500">Active portfolio capital</p>
-        </div>
-
-        <div className="stat-card">
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-slate-400">Shares Allocated</p>
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-500/10">
-              <Layers className="h-4.5 w-4.5 text-teal-400" />
-            </div>
-          </div>
-          <p className="text-2xl font-bold text-white font-mono">{totalSharesSold} <span className="text-sm font-normal text-slate-400">shares</span></p>
-          <p className="text-xs text-slate-500">Total active shares purchased</p>
-        </div>
-
-        <div className="stat-card">
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-slate-400">Pending KYC</p>
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-yellow-500/10">
-              <Clock className="h-4.5 w-4.5 text-yellow-400" />
-            </div>
-          </div>
-          <p className="text-2xl font-bold text-white">{pendingKYC || 0}</p>
-          <p className="text-xs text-slate-500">Awaiting document verification</p>
-        </div>
-
-        <Link href={ROUTES.ADMIN_INVESTMENTS} className="stat-card transition-colors hover:border-amber-500/30">
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-slate-400">Pending Share Requests</p>
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/10">
-              <FileClock className="h-4.5 w-4.5 text-amber-400" aria-hidden="true" />
-            </div>
-          </div>
-          <p className="text-2xl font-bold text-white">{pendingShareRequests || 0}</p>
-          <p className="text-xs text-slate-500">Awaiting owner allocation review</p>
-        </Link>
-
-        <Link href={ROUTES.ADMIN_INVESTMENTS} className="stat-card transition-colors hover:border-blue-500/30">
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-slate-400">Payment Verification</p>
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-500/10">
-              <ReceiptText className="h-4.5 w-4.5 text-blue-400" aria-hidden="true" />
-            </div>
-          </div>
-          <p className="text-2xl font-bold text-white">{pendingPaymentVerifications || 0}</p>
-          <p className="text-xs text-slate-500">Receipts awaiting bank verification</p>
-        </Link>
-      </div>
-
-      {/* Per-Plan Share Breakdown */}
-      <div className="glass-card p-6">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="font-semibold text-white flex items-center gap-2">
-            <Layers className="h-5 w-5 text-green-400" />
-            Plan-wise Share Allocation
-          </h2>
-          <Link href={ROUTES.ADMIN_PLANS} className="text-sm text-green-400 hover:text-green-300 flex items-center gap-1">
-            Manage Plans <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
-        </div>
-        {!planBreakdown || planBreakdown.length === 0 ? (
-          <div className="text-center py-8 text-slate-500 text-sm">No active investment plans</div>
-        ) : (
-          <div className="space-y-4">
-            {planBreakdown.map((plan) => {
-              const almostFull = plan.availableShares <= Math.ceil(plan.investorShares * 0.2)
-              const isFull = plan.availableShares === 0
-              return (
-                <div key={plan.id} className="p-4 rounded-xl bg-slate-800/40 border border-white/5 space-y-3">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="font-medium text-white text-sm">{plan.name}</h3>
-                      <p className="text-xs text-slate-500 mt-0.5">{plan.roi_percentage}% ROI · {plan.duration_months} months</p>
-                    </div>
-                    <span className={`text-xs font-medium ${isFull ? 'text-red-400' : almostFull ? 'text-orange-400' : 'text-emerald-400'}`}>
-                      {plan.availableShares} available after review
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs">
-                    <div>
-                      <span className="text-slate-400 block mb-0.5">Total</span>
-                      <span className="text-white font-medium">{plan.totalShares}</span>
-                    </div>
-                    <div>
-                      <span className="text-slate-400 block mb-0.5">Owner</span>
-                      <span className="text-purple-400 font-medium">{plan.ownerShares}</span>
-                    </div>
-                    <div>
-                      <span className="text-slate-400 block mb-0.5">Sold</span>
-                      <span className="text-green-400 font-medium">{plan.soldShares}</span>
-                    </div>
-                    <div>
-                      <span className="text-slate-400 block mb-0.5">Pending</span>
-                      <span className="text-amber-400 font-medium">{plan.pendingShares}</span>
-                    </div>
-                    <div>
-                      <span className="text-slate-400 block mb-0.5">Available</span>
-                      <span className="text-blue-400 font-medium">{plan.availableShares}</span>
-                    </div>
-                  </div>
-                  <div className="h-2 rounded-full overflow-hidden bg-slate-700 flex" aria-label={`${plan.name}: ${plan.ownerShares} owner shares, ${plan.soldShares} sold shares, ${plan.pendingShares} pending shares, ${plan.availableShares} available shares`}>
-                    <div className="h-full bg-purple-500" style={{ width: `${plan.ownerPercentage}%` }} title={`Owner: ${plan.ownerShares} shares`} />
-                    <div className="h-full bg-emerald-500" style={{ width: `${plan.soldPercentage}%` }} title={`Sold: ${plan.soldShares} shares`} />
-                    <div className="h-full bg-amber-400" style={{ width: `${plan.pendingPercentage}%` }} title={`Pending review: ${plan.pendingShares} shares`} />
-                  </div>
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-500">
-                      {plan.pendingShares > 0
-                        ? `${plan.pendingShares} shares await owner review`
-                        : `${Math.round(plan.soldPercentage)}% of total shares sold`}
-                    </span>
-                    {isFull && (
-                      <span className="text-red-400 font-medium">Fully Subscribed</span>
-                    )}
-                    {almostFull && !isFull && (
-                      <span className="text-orange-400 font-medium">Limited Availability</span>
-                    )}
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        )}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Pending KYC */}
-        <div className="glass-card p-6">
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="font-semibold text-white">Pending KYC Verification</h2>
-            <Link href={ROUTES.ADMIN_KYC} className="text-sm text-green-400 hover:text-green-300 flex items-center gap-1">
-              View all <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
-          </div>
-          {!recentKYC || recentKYC.length === 0 ? (
-            <div className="text-center py-8 text-slate-500 text-sm">No pending KYC submissions</div>
-          ) : (
-            <div className="space-y-3">
-              {recentKYC.map((k) => {
-                const userProfile = kycProfileMap.get(k.user_id) as { full_name?: string; email?: string } | undefined
-                return (
-                  <div key={k.id} className="flex items-center gap-3 p-3 rounded-xl bg-slate-800/40">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-yellow-500/10 text-yellow-400 text-xs font-bold flex-shrink-0">
-                      {userProfile?.full_name?.charAt(0) || '?'}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-white truncate">{userProfile?.full_name || k.full_name}</p>
-                      <p className="text-xs text-slate-500">{formatDate(k.created_at)}</p>
-                    </div>
-                    <Link href={`${ROUTES.ADMIN_KYC}/${k.id}`} className="text-xs text-green-400 hover:underline font-medium">Review →</Link>
-                  </div>
-                )
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* Recent Investments */}
-        <div className="glass-card p-6">
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="font-semibold text-white">Recent Share Purchases</h2>
-            <Link href={ROUTES.ADMIN_INVESTMENTS} className="text-sm text-green-400 hover:text-green-300 flex items-center gap-1">
-              View all <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
-          </div>
-          {!recentInvestments || recentInvestments.length === 0 ? (
-            <div className="text-center py-8 text-slate-500 text-sm">No investments recorded yet</div>
-          ) : (
-            <div className="space-y-3">
-              {recentInvestments.map((inv) => {
-                const userProfile = investmentProfileMap.get(inv.user_id) as { full_name?: string; email?: string } | undefined
-                const plan = inv.plan as { name?: string; shares_per_amount?: number } | null
-                return (
-                  <div key={inv.id} className="flex items-center gap-3 p-3 rounded-xl bg-slate-800/40">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-400 flex-shrink-0">
-                      <TrendingUp className="h-4 w-4" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-white truncate">{userProfile?.full_name || 'Unknown Investor'}</p>
-                      <p className="text-xs text-slate-400">
-                        {plan?.name || 'Unknown Plan'} · <span className="font-mono text-emerald-400">{inv.shares_purchased || 0} shares</span>
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium text-white">{formatCurrency(Number(inv.amount))}</p>
-                      <span className={inv.status === 'active' ? 'badge-green text-xs' : 'badge-yellow text-xs'}>{inv.status}</span>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
+    <AdminDashboardClient
+      totalInvestors={totalInvestors || 0}
+      totalInvested={totalInvested}
+      totalSharesSold={totalSharesSold}
+      pendingKYC={pendingKYC || 0}
+      pendingShareRequests={pendingShareRequests || 0}
+      pendingPaymentVerifications={pendingPaymentVerifications || 0}
+      planBreakdown={planBreakdown}
+      recentKYC={recentKYC || []}
+      recentInvestments={recentInvestments || []}
+      kycProfiles={(kycProfiles as ProfileSummary[]) || []}
+      investmentProfiles={(investmentProfiles as ProfileSummary[]) || []}
+    />
   )
 }

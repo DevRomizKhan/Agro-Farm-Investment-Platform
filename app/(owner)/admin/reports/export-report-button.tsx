@@ -271,10 +271,10 @@ export function ExportReportButton(props: ExportReportButtonProps) {
           </DialogHeader>
           <div className="grid grid-cols-2 gap-4 py-4">
             <Button onClick={exportCSV} variant="outline" className="flex flex-col items-center gap-3 h-32 border-slate-700 hover:bg-slate-800">
-              <FileText className="h-8 w-8 text-green-400" /><div className="text-center"><div className="font-medium">CSV</div><div className="text-xs text-slate-400">Spreadsheet format</div></div>
+              <FileText className="h-8 w-8 text-emerald-400" /><div className="text-center"><div className="font-medium">CSV</div><div className="text-xs text-slate-400">Spreadsheet format</div></div>
             </Button>
             <Button onClick={exportPDF} variant="outline" className="flex flex-col items-center gap-3 h-32 border-slate-700 hover:bg-slate-800">
-              <File className="h-8 w-8 text-blue-400" /><div className="text-center"><div className="font-medium">PDF</div><div className="text-xs text-slate-400">Professional report</div></div>
+              <File className="h-8 w-8 text-emerald-400" /><div className="text-center"><div className="font-medium">PDF</div><div className="text-xs text-slate-400">Professional report</div></div>
             </Button>
           </div>
           <DialogFooter><Button variant="ghost" onClick={() => setShowModal(false)} className="text-slate-400 hover:text-white">Cancel</Button></DialogFooter>

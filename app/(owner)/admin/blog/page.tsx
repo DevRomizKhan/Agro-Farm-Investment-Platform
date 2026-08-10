@@ -79,7 +79,7 @@ export default function BlogManagementPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'published':
-        return 'bg-green-500/10 text-green-400 border-green-500/20'
+        return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
       case 'draft':
         return 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
       case 'archived':
@@ -151,7 +151,7 @@ export default function BlogManagementPage() {
       ) : (
         <div className="grid gap-4">
           {filteredPosts.map((post) => (
-            <div key={post.id} className="glass-card p-5 hover:border-green-500/30 transition-colors">
+            <div key={post.id} className="glass-card p-5 hover:border-emerald-500/30 transition-colors">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 mb-2">

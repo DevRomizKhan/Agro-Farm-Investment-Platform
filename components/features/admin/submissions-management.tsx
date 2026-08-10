@@ -17,9 +17,9 @@ const statusOptions: { value: SubmissionStatus; label: string }[] = [
 ]
 
 const statusStyles: Record<SubmissionStatus, string> = {
-  new: 'badge-green',
+  new: 'badge-primary',
   in_progress: 'badge-yellow',
-  contacted: 'badge-blue',
+  contacted: 'badge-green',
   resolved: 'badge-gray',
   unsubscribed: 'badge-red',
   archived: 'badge-gray',
@@ -139,7 +139,7 @@ export function SubmissionsManagement({ submissions: initialSubmissions }: { sub
                 <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className={submission.type === 'contact' ? 'badge-blue' : 'badge-green'}>{submission.type === 'contact' ? 'Contact request' : 'Newsletter'}</span>
+                      <span className={submission.type === 'contact' ? 'badge-green' : 'badge-primary'}>{submission.type === 'contact' ? 'Contact request' : 'Newsletter'}</span>
                       <span className={statusStyles[draft.status]}>{statusOptions.find((option) => option.value === draft.status)?.label}</span>
                       <span className="text-xs text-slate-500">{formatDate(submission.created_at)}</span>
                     </div>

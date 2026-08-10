@@ -1,38 +1,52 @@
-import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+'use client'
+
+import { useEffect, useState } from 'react'
 import { Bell, Clock } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 import { ROUTES } from '@/constants'
+import { createClient } from '@/lib/supabase/client'
+import { useLanguage } from '@/lib/i18n/context'
+import { redirect } from 'next/navigation'
 
-export default async function NotificationsPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect(ROUTES.LOGIN)
+export default function NotificationsPage() {
+  const { lang } = useLanguage()
+  const [notifications, setNotifications] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const { data: notifications } = await supabase
-    .from('notifications')
-    .select('*')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false })
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { window.location.href = ROUTES.LOGIN; return }
+      const { data } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+      setNotifications(data || [])
+      setLoading(false)
+    }
+    fetchNotifications()
+  }, [])
+
+  if (loading) return <div className="fade-in flex items-center justify-center min-h-48"><div className="h-6 w-6 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin" /></div>
 
   return (
     <div className="fade-in space-y-8">
-      {/* Header */}
       <div className="page-header">
         <div>
-          <h1 className="page-title">Notifications</h1>
-          <p className="page-subtitle">Stay updated with your investment activities</p>
+          <h1 className="page-title">{lang === 'bn' ? 'বিজ্ঞপ্তিসমূহ' : 'Notifications'}</h1>
+          <p className="page-subtitle">{lang === 'bn' ? 'আপনার বিনিয়োগ কার্যক্রমের সর্বশেষ আপডেট' : 'Stay updated with your investment activities'}</p>
         </div>
       </div>
 
-      {/* Notifications List */}
       <div className="glass-card p-6">
-        {!notifications || notifications.length === 0 ? (
+        {notifications.length === 0 ? (
           <div className="text-center py-12">
             <Bell className="h-12 w-12 text-slate-600 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-white mb-2">No Notifications</h3>
+            <h3 className="text-lg font-semibold text-white mb-2">{lang === 'bn' ? 'কোনো বিজ্ঞপ্তি নেই' : 'No Notifications'}</h3>
             <p className="text-slate-400 text-sm max-w-md mx-auto">
-              You&apos;re all caught up! New notifications will appear here.
+              {lang === 'bn' ? 'আপনি সর্বশেষ আপডেট পড়েছেন! নতুন বিজ্ঞপ্তি এলে এখানে দেখাবে।' : "You're all caught up! New notifications will appear here."}
             </p>
           </div>
         ) : (
@@ -40,11 +54,11 @@ export default async function NotificationsPage() {
             {notifications.map((notification) => (
               <div
                 key={notification.id}
-                className="p-4 rounded-xl border border-white/5 bg-slate-900/40 hover:border-green-500/20 transition-colors"
+                className="p-4 rounded-xl border border-white/5 bg-slate-900/40 hover:border-emerald-500/20 transition-colors"
               >
                 <div className="flex items-start gap-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-500/10 border border-green-500/20 flex-shrink-0">
-                    <Bell className="h-5 w-5 text-green-400" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10 border border-emerald-500/20 flex-shrink-0">
+                    <Bell className="h-5 w-5 text-emerald-400" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="font-semibold text-white text-sm">{notification.title}</h4>

@@ -9,6 +9,7 @@ import { Loader2, Plus, Edit3, CalendarClock, Info } from 'lucide-react'
 import { investmentPlanSchema, type InvestmentPlanFormData } from '@/schemas'
 import { manageInvestmentPlanAction } from '@/actions/investments'
 import type { InvestmentPlan } from '@/types'
+import { useLanguage } from '@/lib/i18n/context'
 
 interface PlanFormProps {
   initialPlan?: InvestmentPlan | null
@@ -33,6 +34,7 @@ function fromDatetimeLocal(local: string): string | null {
 }
 
 export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
+  const { lang } = useLanguage()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
 
@@ -87,7 +89,7 @@ export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
       const result = await manageInvestmentPlanAction(payload, initialPlan?.id)
       if (result.success) {
         toast.success(
-          initialPlan ? 'Investment plan updated successfully' : 'New investment plan created'
+          initialPlan ? (lang === 'bn' ? 'বিনিয়োগ প্ল্যান সফলভাবে হালনাগাদ হয়েছে' : 'Investment plan updated successfully') : (lang === 'bn' ? 'নতুন বিনিয়োগ প্ল্যান তৈরি হয়েছে' : 'New investment plan created')
         )
         if (onSuccess) onSuccess()
         if (initialPlan) {
@@ -98,10 +100,10 @@ export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
           router.refresh()
         }
       } else {
-        toast.error(result.error || 'Failed to save plan')
+        toast.error(result.error || (lang === 'bn' ? 'প্ল্যান সংরক্ষণ করা যায়নি' : 'Failed to save plan'))
       }
     } catch {
-      toast.error('An unexpected error occurred')
+      toast.error(lang === 'bn' ? 'একটি অপ্রত্যাশিত সমস্যা হয়েছে' : 'An unexpected error occurred')
     } finally {
       setIsLoading(false)
     }
@@ -111,24 +113,24 @@ export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       {/* Plan Name */}
       <div>
-        <label className="block text-sm font-medium text-slate-300 mb-1.5">Plan Name</label>
+        <label className="block text-sm font-medium text-slate-300 mb-1.5">প্ল্যানের নাম</label>
         <input
           {...register('name')}
           type="text"
           className="input-base py-2.5 text-sm"
-          placeholder="e.g. Rice Farm Starter"
+          placeholder={lang === 'bn' ? 'যেমন: ধান চাষ স্টার্টার' : 'e.g. Rice Farm Starter'}
         />
         {errors.name && <p className="mt-1 text-xs text-red-400">{errors.name.message}</p>}
       </div>
 
       {/* Description */}
       <div>
-        <label className="block text-sm font-medium text-slate-300 mb-1.5">Description</label>
+        <label className="block text-sm font-medium text-slate-300 mb-1.5">বিবরণ</label>
         <textarea
           {...register('description')}
           rows={2}
           className="input-base py-2.5 text-sm resize-none"
-          placeholder="Short description of agricultural yields and farm location"
+          placeholder={lang === 'bn' ? 'কৃষি উৎপাদন ও খামারের অবস্থানের সংক্ষিপ্ত বিবরণ' : 'Short description of agricultural yields and farm location'}
         />
         {errors.description && (
           <p className="mt-1 text-xs text-red-400">{errors.description.message}</p>
@@ -139,7 +141,7 @@ export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-slate-300 mb-1.5">
-            Total Shares
+            মোট শেয়ার
           </label>
           <input {...register('total_shares')} type="number" className="input-base py-2.5 text-sm" />
           {errors.total_shares && (
@@ -148,7 +150,7 @@ export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
         </div>
         <div>
           <label className="block text-sm font-medium text-slate-300 mb-1.5">
-            Amount Per Share (৳)
+            প্রতি শেয়ারের মূল্য (৳)
           </label>
           <input {...register('shares_per_amount')} type="number" className="input-base py-2.5 text-sm" />
           {errors.shares_per_amount && (
@@ -160,23 +162,23 @@ export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
       {/* Investor exit lock */}
       <div>
         <label className="block text-sm font-medium text-slate-300 mb-1.5">
-          Lock Period (Days)
+          লক সময়কাল (দিন)
         </label>
         <input {...register('lock_period_days')} type="number" min="1" max="3650" className="input-base py-2.5 text-sm" />
         {errors.lock_period_days ? (
           <p className="mt-1 text-xs text-red-400">{errors.lock_period_days.message}</p>
         ) : (
-          <p className="mt-1 text-xs text-slate-500">Investors can request withdrawal or share transfer after this period.</p>
+          <p className="mt-1 text-xs text-slate-500">এই সময়ের পর বিনিয়োগকারীরা উত্তোলন বা শেয়ার হস্তান্তরের আবেদন করতে পারবেন।</p>
         )}
         <p className="mt-1 text-xs text-slate-500">
-          Changing this value updates all active and pending investments under this plan.
+          এই মান পরিবর্তন করলে প্ল্যানের সব সক্রিয় ও অপেক্ষমাণ বিনিয়োগ হালনাগাদ হবে।
         </p>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-slate-300 mb-1.5">
-            Owner Share (%)
+            মালিকের শেয়ার (%)
           </label>
           <input {...register('owner_share_percentage')} type="number" step="0.1" className="input-base py-2.5 text-sm" />
           {errors.owner_share_percentage && (
@@ -185,7 +187,7 @@ export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
         </div>
         <div>
           <label className="block text-sm font-medium text-slate-300 mb-1.5">
-            Max Shares Per Investor
+            বিনিয়োগকারীপ্রতি সর্বোচ্চ শেয়ার
           </label>
           <input {...register('max_shares_per_investor')} type="number" className="input-base py-2.5 text-sm" />
           {errors.max_shares_per_investor && (
@@ -198,7 +200,7 @@ export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-slate-300 mb-1.5">
-            ROI Percentage (%)
+            লাভের হার (%)
           </label>
           <input
             {...register('roi_percentage')}
@@ -212,7 +214,7 @@ export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
         </div>
         <div>
           <label className="block text-sm font-medium text-slate-300 mb-1.5">
-            Duration (Months)
+            মেয়াদ (মাস)
           </label>
           <input
             {...register('duration_months')}
@@ -228,23 +230,21 @@ export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
       {/* ─── Plan Visibility Schedule ────────────────────────────────── */}
       <div className="pt-3 border-t border-white/5 space-y-3">
         <div className="flex items-center gap-2 mb-1">
-          <CalendarClock className="h-4 w-4 text-green-400" />
-          <span className="text-sm font-medium text-slate-300">Visibility Schedule</span>
+          <CalendarClock className="h-4 w-4 text-emerald-400" />
+          <span className="text-sm font-medium text-slate-300">দৃশ্যমানতার সময়সূচি</span>
         </div>
 
-        <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-500/5 border border-blue-500/20">
-          <Info className="h-4 w-4 text-blue-400 mt-0.5 shrink-0" />
+        <div className="flex items-start gap-2 p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/20">
+          <Info className="h-4 w-4 text-emerald-400 mt-0.5 shrink-0" />
           <p className="text-xs text-slate-400">
-            The plan is visible to investors only between the <strong className="text-slate-300">Start</strong> and{' '}
-            <strong className="text-slate-300">End</strong> times. Leave both blank to make it
-            permanently visible (while Active is checked).
+            {lang === 'bn' ? <>প্ল্যানটি শুধু <strong className="text-slate-300">শুরুর</strong> এবং <strong className="text-slate-300">শেষের</strong> সময়ের মধ্যে বিনিয়োগকারীরা দেখতে পারবেন। সবসময় দৃশ্যমান রাখতে দুটি ঘরই খালি রাখুন (এবং সক্রিয় রাখুন)।</> : <>The plan is visible to investors only between the <strong className="text-slate-300">Start</strong> and <strong className="text-slate-300">End</strong> times. Leave both blank to make it permanently visible (while Active is checked).</>}
           </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-1.5">
-              Opens At <span className="text-slate-500 font-normal">(optional)</span>
+              {lang === 'bn' ? 'শুরুর সময়' : 'Opens At'} <span className="text-slate-500 font-normal">({lang === 'bn' ? 'ঐচ্ছিক' : 'optional'})</span>
             </label>
             <input
               {...register('starts_at')}
@@ -254,12 +254,12 @@ export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
             {errors.starts_at ? (
               <p className="mt-1 text-xs text-red-400">{errors.starts_at.message}</p>
             ) : (
-              <p className="mt-1 text-xs text-slate-500">Plan becomes visible from this time</p>
+              <p className="mt-1 text-xs text-slate-500">{lang === 'bn' ? 'এই সময় থেকে প্ল্যানটি দৃশ্যমান হবে' : 'Plan becomes visible from this time'}</p>
             )}
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-1.5">
-              Closes At <span className="text-slate-500 font-normal">(optional)</span>
+              {lang === 'bn' ? 'শেষের সময়' : 'Closes At'} <span className="text-slate-500 font-normal">({lang === 'bn' ? 'ঐচ্ছিক' : 'optional'})</span>
             </label>
             <input
               {...register('ends_at')}
@@ -269,7 +269,7 @@ export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
             {errors.ends_at ? (
               <p className="mt-1 text-xs text-red-400">{errors.ends_at.message}</p>
             ) : (
-              <p className="mt-1 text-xs text-slate-500">Plan disappears after this time</p>
+              <p className="mt-1 text-xs text-slate-500">{lang === 'bn' ? 'এই সময়ের পর প্ল্যানটি লুকানো থাকবে' : 'Plan disappears after this time'}</p>
             )}
           </div>
         </div>
@@ -281,23 +281,23 @@ export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
           {...register('is_active')}
           id="is_active"
           type="checkbox"
-          className="h-4 w-4 rounded border-slate-600 bg-slate-800 accent-green-500 cursor-pointer"
+          className="h-4 w-4 rounded border-slate-600 bg-slate-800 accent-emerald-500 cursor-pointer"
         />
         <label htmlFor="is_active" className="text-sm text-slate-300 cursor-pointer">
-          Plan is Active{' '}
+          {lang === 'bn' ? 'প্ল্যানটি সক্রিয় ' : 'Plan is Active '}
           <span className="text-slate-500 font-normal">
-            (uncheck to force-hide even within schedule)
+            {lang === 'bn' ? '(সময়সূচির মধ্যে থাকলেও লুকাতে আনচেক করুন)' : '(uncheck to force-hide even within schedule)'}
           </span>
         </label>
       </div>
 
       <button type="submit" disabled={isLoading} className="btn-primary w-full py-2.5 mt-2">
         {isLoading ? (
-          <><Loader2 className="h-4 w-4 animate-spin" /> Saving...</>
+          <><Loader2 className="h-4 w-4 animate-spin" /> {lang === 'bn' ? 'সংরক্ষণ হচ্ছে...' : 'Saving...'}</>
         ) : initialPlan ? (
-          <><Edit3 className="h-4 w-4" /> Save Plan Changes</>
+          <><Edit3 className="h-4 w-4" /> {lang === 'bn' ? 'প্ল্যানের পরিবর্তন সংরক্ষণ করুন' : 'Save Plan Changes'}</>
         ) : (
-          <><Plus className="h-4 w-4" /> Create Investment Plan</>
+          <><Plus className="h-4 w-4" /> {lang === 'bn' ? 'বিনিয়োগ প্ল্যান তৈরি করুন' : 'Create Investment Plan'}</>
         )}
       </button>
     </form>

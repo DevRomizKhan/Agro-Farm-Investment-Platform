@@ -6,31 +6,30 @@ import Image from 'next/image'
 import { Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Youtube, Send, CheckCircle2, TrendingUp, ArrowRight } from 'lucide-react'
 import { APP_NAME, COMPANY_INFO, ROUTES } from '@/constants'
 import { submitContactSubmission } from '@/actions/contact-submissions'
-
-const links = {
-  company: [
-    { label: 'Home', href: ROUTES.HOME },
-    { label: 'About Us', href: ROUTES.ABOUT },
-    { label: 'Investment Plans', href: ROUTES.PLANS },
-    { label: 'Blog', href: ROUTES.BLOG },
-    { label: 'Gallery', href: ROUTES.GALLERY },
-    { label: 'Contact Us', href: ROUTES.CONTACT },
-  ],
-  investors: [
-    { label: 'Register', href: ROUTES.REGISTER },
-    { label: 'Investor Login', href: ROUTES.LOGIN },
-    { label: 'Dashboard', href: ROUTES.INVESTOR_DASHBOARD },
-    { label: 'KYC Verification', href: ROUTES.INVESTOR_KYC },
-    { label: 'Privacy Policy', href: ROUTES.PRIVACY },
-    { label: 'Terms & Conditions', href: ROUTES.TERMS },
-  ],
-}
+import { useLanguage } from '@/lib/i18n/context'
 
 export function PublicFooter() {
   const [email, setEmail] = useState('')
   const [subscribed, setSubscribed] = useState(false)
   const [newsletterError, setNewsletterError] = useState('')
   const [newsletterLoading, setNewsletterLoading] = useState(false)
+  const { t } = useLanguage()
+
+  const links = {
+    company: [
+      { label: t.header.home, href: ROUTES.HOME },
+      { label: t.header.about, href: ROUTES.ABOUT },
+      { label: t.header.plans, href: ROUTES.PLANS },
+      { label: t.header.blog, href: ROUTES.BLOG },
+      { label: t.header.contact, href: ROUTES.CONTACT },
+    ],
+    investors: [
+      { label: t.header.register, href: ROUTES.REGISTER },
+      { label: t.header.login, href: ROUTES.LOGIN },
+      { label: 'Privacy Policy', href: ROUTES.PRIVACY },
+      { label: 'Terms & Conditions', href: ROUTES.TERMS },
+    ],
+  }
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -44,31 +43,31 @@ export function PublicFooter() {
   }
 
   return (
-    <footer className="bg-slate-950 border-t border-emerald-500/10">
+    <footer className="bg-slate-950 border-t border-emerald-900/30">
 
       {/* ── CTA Banner ──────────────────────────────── */}
-      <div className="border-b border-white/5 py-14">
+      <div className="border-b border-emerald-900/30 py-14">
         <div className="section-container">
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-950 via-slate-900 to-teal-950 border border-emerald-500/30 p-8 sm:p-12 text-center">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-emerald-950/40 to-slate-900 border border-emerald-900/40 p-8 sm:p-12 text-center">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.12),transparent_70%)]" />
             <div className="relative z-10 max-w-xl mx-auto space-y-5">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold uppercase tracking-widest">
                 <TrendingUp className="h-3.5 w-3.5" />
-                Start Growing Wealth
+                {t.footer.bannerBadge}
               </div>
               <h2 className="text-2xl sm:text-3xl font-black text-white">
-                Join Project Adi — Own Agricultural Assets
+                {t.footer.bannerTitle}
               </h2>
-              <p className="text-slate-300 text-sm">
-                BDT 1,000 per share · Cow &amp; Fish production · 2-Year program (July 2026 – June 2028) · 100% Sharia-compliant.
+              <p className="text-slate-300 text-sm leading-relaxed">
+                {t.footer.bannerSubtitle}
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
                 <Link href={ROUTES.REGISTER} className="btn-primary group w-full sm:w-auto">
-                  Create Free Account
+                  {t.footer.createFreeAccount}
                   <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
-                <Link href={ROUTES.CONTACT} className="btn-secondary w-full sm:w-auto border-white/10 bg-white/5 hover:bg-white/10">
-                  Contact Us
+                <Link href={ROUTES.CONTACT} className="btn-secondary w-full sm:w-auto">
+                  {t.footer.contactUs}
                 </Link>
               </div>
             </div>
@@ -86,7 +85,7 @@ export function PublicFooter() {
               <Image src="/logo.png" alt={APP_NAME} width={150} height={44} className="h-11 w-auto object-contain" />
             </Link>
             <p className="text-sm text-slate-400 leading-relaxed max-w-xs">
-              Bangladesh&apos;s premier Shariah-compliant agricultural investment platform — secure, transparent, and profitable.
+              {t.footer.brandDescription}
             </p>
             <div className="space-y-2.5">
               {[
@@ -94,7 +93,7 @@ export function PublicFooter() {
                 { Icon: Phone, text: COMPANY_INFO.phone },
                 { Icon: Mail, text: COMPANY_INFO.email },
               ].map(({ Icon, text }) => (
-                <div key={text} className="flex items-center gap-3 text-xs text-slate-300">
+                <div key={text} className="flex items-center gap-3 text-xs text-slate-400">
                   <Icon className="h-4 w-4 text-emerald-400 shrink-0" />
                   {text}
                 </div>
@@ -104,7 +103,7 @@ export function PublicFooter() {
 
           {/* Company links (2 cols) */}
           <div className="md:col-span-2">
-            <p className="text-xs font-black text-white uppercase tracking-widest mb-4">Company</p>
+            <p className="text-xs font-black text-white uppercase tracking-widest mb-4">{t.footer.companyTitle}</p>
             <ul className="space-y-2.5">
               {links.company.map((l) => (
                 <li key={l.label}>
@@ -118,7 +117,7 @@ export function PublicFooter() {
 
           {/* Investor links (2 cols) */}
           <div className="md:col-span-2">
-            <p className="text-xs font-black text-white uppercase tracking-widest mb-4">Investors</p>
+            <p className="text-xs font-black text-white uppercase tracking-widest mb-4">{t.footer.investorTitle}</p>
             <ul className="space-y-2.5">
               {links.investors.map((l) => (
                 <li key={l.label}>
@@ -132,30 +131,30 @@ export function PublicFooter() {
 
           {/* Newsletter (4 cols) */}
           <div className="md:col-span-4">
-            <p className="text-xs font-black text-white uppercase tracking-widest mb-4">Newsletter</p>
+            <p className="text-xs font-black text-white uppercase tracking-widest mb-4">{t.footer.newsletterTitle}</p>
             <p className="text-xs text-slate-400 mb-4 leading-relaxed">
-              Get regular farm updates and investor reports.
+              {t.footer.newsletterSubtitle}
             </p>
             {subscribed ? (
-              <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs flex items-center gap-2">
+              <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs flex items-center gap-2 transition-colors">
                 <CheckCircle2 className="h-4 w-4 shrink-0" />
-                Subscribed successfully!
+                {t.footer.subscribedMessage}
               </div>
             ) : (
               <form onSubmit={handleSubscribe} className="relative">
                 <input
                   type="email"
                   required
-                  placeholder="Your email address"
+                  placeholder={t.footer.emailPlaceholder}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-4 pr-12 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs placeholder:text-slate-500 focus:outline-none focus:border-emerald-500"
+                  className="w-full pl-4 pr-12 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 transition-colors"
                 />
                 <button
                   type="submit"
                   aria-label="Subscribe"
                   disabled={newsletterLoading}
-                  className="absolute right-2 top-2 bottom-2 w-10 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-lg transition-colors flex items-center justify-center disabled:opacity-50"
+                  className="absolute right-2 top-2 bottom-2 w-10 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition-colors flex items-center justify-center disabled:opacity-50"
                 >
                   <Send className="h-3.5 w-3.5" />
                 </button>
@@ -167,9 +166,9 @@ export function PublicFooter() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-12 pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="mt-12 pt-8 border-t border-emerald-900/30 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-slate-500">
-            © {new Date().getFullYear()} {APP_NAME}. All rights reserved.
+            © {new Date().getFullYear()} {APP_NAME}. {t.footer.copyright}
           </p>
           <div className="flex items-center gap-2.5">
             {[
@@ -184,7 +183,7 @@ export function PublicFooter() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={label}
-                className="h-9 w-9 flex items-center justify-center rounded-xl bg-slate-900 text-slate-400 hover:text-emerald-400 hover:bg-emerald-500/10 border border-white/5 hover:border-emerald-500/30 transition-all"
+                className="h-9 w-9 flex items-center justify-center rounded-xl bg-slate-900 text-slate-400 hover:text-emerald-400 hover:bg-emerald-500/10 border border-slate-700/60 hover:border-emerald-500/40 transition-all"
               >
                 <Icon className="h-4 w-4" />
               </a>

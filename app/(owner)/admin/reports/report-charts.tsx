@@ -17,8 +17,8 @@ interface ReportChartsProps {
 }
 
 const COLORS = {
-  green: '#22c55e',
-  blue: '#3b82f6',
+  primary: '#10b981',
+  secondary: '#22c55e',
   yellow: '#eab308',
   red: '#ef4444',
   teal: '#14b8a6',
@@ -39,25 +39,25 @@ export function ReportCharts({
   contactRequests,
 }: ReportChartsProps) {
   const investmentStatusData = [
-    { name: 'Active', value: activeInvestments, color: COLORS.green },
-    { name: 'Completed', value: completedInvestments, color: COLORS.blue },
+    { name: 'Active', value: activeInvestments, color: COLORS.primary },
+    { name: 'Completed', value: completedInvestments, color: COLORS.secondary },
     { name: 'Pending', value: pendingInvestments, color: COLORS.yellow },
   ]
 
   const shareAllocationData = [
     { name: 'Owner Shares', value: totalOwnerShares, color: COLORS.purple },
-    { name: 'Investor Shares Sold', value: totalSharesSold, color: COLORS.green },
-    { name: 'Available for Sale', value: availableSharesForSale, color: COLORS.blue },
+    { name: 'Investor Shares Sold', value: totalSharesSold, color: COLORS.primary },
+    { name: 'Available for Sale', value: availableSharesForSale, color: COLORS.secondary },
   ]
 
   const kycStatusData = [
-    { name: 'Approved', value: approvedKYC, color: COLORS.green },
+    { name: 'Approved', value: approvedKYC, color: COLORS.primary },
     { name: 'Pending', value: pendingKYC, color: COLORS.yellow },
   ]
 
   const audienceData = [
     { name: 'Active Subscribers', value: activeSubscribers, color: COLORS.teal },
-    { name: 'Contact Requests', value: contactRequests, color: COLORS.blue },
+    { name: 'Contact Requests', value: contactRequests, color: COLORS.secondary },
   ]
 
   const monthlyChartData = monthlyData.map(([month, data]) => ({
@@ -216,8 +216,8 @@ export function ReportCharts({
               contentStyle={{ backgroundColor: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
               itemStyle={{ color: '#fff' }}
             />
-            <Line type="monotone" dataKey="invested" stroke={COLORS.green} strokeWidth={2} name="Invested Amount" />
-            <Line type="monotone" dataKey="count" stroke={COLORS.blue} strokeWidth={2} name="Investment Count" />
+            <Line type="monotone" dataKey="invested" stroke={COLORS.primary} strokeWidth={2} name="Invested Amount" />
+            <Line type="monotone" dataKey="count" stroke={COLORS.secondary} strokeWidth={2} name="Investment Count" />
           </LineChart>
         </ResponsiveContainer>
       </div>

@@ -45,9 +45,9 @@ export function ExitRequestForm({ investmentId, principal, profit, shares, lockP
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-xl border border-green-500/20 bg-green-500/5 p-4 space-y-3">
+    <form onSubmit={handleSubmit} className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 space-y-3">
       <div className="flex items-center gap-2">
-        <Wallet className="h-4 w-4 text-green-400" />
+        <Wallet className="h-4 w-4 text-emerald-400" />
         <p className="text-sm font-semibold text-white">Request after {lockPeriodDays} days</p>
       </div>
       <p className="text-xs text-slate-400">Choose how you want to exit. The owner reviews every request and records the final settlement.</p>
@@ -61,7 +61,7 @@ export function ExitRequestForm({ investmentId, principal, profit, shares, lockP
           const IconComponent = Icon as typeof Banknote
           return (
           <button key={value as string} type="button" disabled={value === 'profit_only' && profit <= 0} onClick={() => setRequestType(value as typeof requestType)}
-              className={`rounded-lg border p-2 text-left text-xs transition-colors ${requestType === value ? 'border-green-400 bg-green-500/15 text-green-300' : 'border-white/10 text-slate-400 hover:border-white/20'}`}>
+              className={`rounded-lg border p-2 text-left text-xs transition-colors ${requestType === value ? 'border-emerald-400 bg-emerald-500/15 text-emerald-300' : 'border-white/10 text-slate-400 hover:border-white/20'}`}>
               <IconComponent className="mb-1 h-3.5 w-3.5" />{label as string}
             </button>
           )

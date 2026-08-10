@@ -4,17 +4,19 @@ import Link from 'next/link'
 import { ArrowRight, ShieldCheck, TrendingUp, Leaf } from 'lucide-react'
 import { ROUTES } from '@/constants'
 import { useState } from 'react'
-
-const TRUST_BADGES = [
-  { icon: ShieldCheck, text: 'Shariah Certified' },
-  { icon: TrendingUp, text: 'Variable Annual Dividends' },
-  { icon: Leaf, text: '25+ Farm Locations' },
-  { icon: ShieldCheck, text: 'Asset Insured' },
-]
+import { useLanguage } from '@/lib/i18n/context'
 
 export function HeroSection() {
   const [videoLoaded, setVideoLoaded] = useState(false)
   const [videoError, setVideoError] = useState(false)
+  const { t } = useLanguage()
+
+  const TRUST_BADGES = [
+    { icon: ShieldCheck, text: t.hero.badges.shariah },
+    { icon: TrendingUp, text: t.hero.badges.dividends },
+    { icon: Leaf, text: t.hero.badges.locations },
+    { icon: ShieldCheck, text: t.hero.badges.insured },
+  ]
 
   return (
     <section
@@ -57,45 +59,48 @@ export function HeroSection() {
       <div className="relative z-10 section-container text-center px-4 py-32 flex flex-col items-center motion-stagger">
 
         {/* Eyebrow badge */}
-        <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/5 border border-emerald-500/30 text-emerald-400 text-xs sm:text-sm font-semibold backdrop-blur-md mb-8 shadow-lg">
+        <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/5 border border-emerald-500/30 text-emerald-400 text-sm sm:text-base font-semibold backdrop-blur-md mb-8 shadow-lg">
           <Leaf className="h-4 w-4" />
-          <span>Halal · Asset-Backed · Shariah Compliant</span>
+          <span>{t.hero.eyebrow}</span>
         </div>
 
         {/* Headline */}
-        <h1 className="text-4xl sm:text-6xl md:text-7xl font-black text-white leading-[1.1] tracking-tight mb-6 max-w-4xl">
-          Invest in Agriculture.{' '}
-          {/*<span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-emerald-300 via-white to-emerald-300 animate-pulse">Harvest</span> the Future.*/}
-          <span className="" style={{ color: "#6a6012ff" }}>Harvest</span> the Future.
+        <h1 className="text-4xl sm:text-6xl md:text-7xl font-black text-white leading-[1.15] tracking-tight mb-6 max-w-4xl">
+          {t.hero.titleLine1}{' '}
+          <br />
+          <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-emerald-300 via-white to-emerald-300 animate-pulse">
+            {t.hero.highlightWord}
+          </span>
+          {t.hero.titleLine2}
         </h1>
 
         {/* Subtitle */}
-        <p className="text-base sm:text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed mb-10">
-          Participate in proportionate ownership of cow and fish production assets through a Sharia-compliant partnership — transparent, ethical, and managed by experienced farm teams.
+        <p className="text-lg sm:text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed mb-10">
+          {t.hero.subtitle}
         </p>
 
         {/* CTAs */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-14">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-14">
           <Link
             href={ROUTES.REGISTER}
-            className="btn-primary px-7 text-base shadow-2xl shadow-emerald-600/25 group"
+            className="btn-primary px-8 py-3.5 text-base sm:text-lg shadow-2xl shadow-emerald-600/25 group"
           >
-            <span>Start Investing Today</span>
+            <span>{t.hero.ctaPrimary}</span>
             <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
           </Link>
           <Link
             href={ROUTES.PLANS}
-            className="btn-secondary border-white/15 bg-white/5 px-7 text-base backdrop-blur-md hover:bg-white/10"
+            className="btn-secondary border-white/15 bg-white/5 px-8 py-3.5 text-base sm:text-lg backdrop-blur-md hover:bg-white/10"
           >
-            <span>View Investment Plans</span>
+            <span>{t.hero.ctaSecondary}</span>
           </Link>
         </div>
 
         {/* Trust Badges */}
-        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 sm:gap-x-10">
+        <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 sm:gap-x-10">
           {TRUST_BADGES.map(({ icon: Icon, text }) => (
-            <div key={text} className="flex items-center gap-2 text-sm text-slate-400">
-              <Icon className="h-4 w-4 text-emerald-500" />
+            <div key={text} className="flex items-center gap-2.5 text-base font-medium text-slate-300">
+              <Icon className="h-5 w-5 text-emerald-400 shrink-0" />
               <span>{text}</span>
             </div>
           ))}

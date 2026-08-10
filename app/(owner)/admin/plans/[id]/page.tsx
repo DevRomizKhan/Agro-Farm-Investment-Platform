@@ -32,11 +32,11 @@ export default async function EditPlanPage({ params }: { params: Promise<{ id: s
       <div className="page-header">
         <Link href={ROUTES.ADMIN_PLANS} className="flex items-center gap-2 text-slate-400 hover:text-white text-sm mb-4">
           <ArrowLeft className="h-4 w-4" />
-          Back to Plans
+          প্ল্যানের তালিকায় ফিরে যান
         </Link>
         <div>
-          <h1 className="page-title">Edit Investment Plan</h1>
-          <p className="page-subtitle">Update plan details and configuration</p>
+          <h1 className="page-title">বিনিয়োগ প্ল্যান সম্পাদনা</h1>
+          <p className="page-subtitle">প্ল্যানের তথ্য ও কনফিগারেশন হালনাগাদ করুন</p>
         </div>
       </div>
 

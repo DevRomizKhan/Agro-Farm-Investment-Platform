@@ -63,8 +63,8 @@ export default function VerifyEmailClient({
     return (
       <div className="min-h-[70vh] flex items-center justify-center p-4">
         <div className="glass-card p-8 max-w-md w-full text-center fade-in">
-          <div className="w-16 h-16 rounded-full bg-green-500/20 border border-green-500/30 flex items-center justify-center mx-auto mb-6">
-            <CheckCircle2 className="w-10 h-10 text-green-400" />
+          <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center mx-auto mb-6">
+            <CheckCircle2 className="w-10 h-10 text-emerald-400" />
           </div>
           <h1 className="text-2xl font-bold text-white mb-3">Email Verified Successfully!</h1>
           <p className="text-slate-300 mb-8 text-sm leading-relaxed">
@@ -135,8 +135,8 @@ export default function VerifyEmailClient({
         </p>
 
         {resendSuccess ? (
-          <div className="glass-card p-4 bg-green-500/10 border-green-500/30 mb-6 text-left">
-            <p className="text-sm font-medium text-green-300 mb-1">Verification Email Sent!</p>
+          <div className="glass-card p-4 bg-emerald-500/10 border-emerald-500/30 mb-6 text-left">
+            <p className="text-sm font-medium text-emerald-300 mb-1">Verification Email Sent!</p>
             <p className="text-xs text-slate-300">
               Please check your inbox (and spam folder) for the verification link.
             </p>

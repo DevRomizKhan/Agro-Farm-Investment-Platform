@@ -5,14 +5,14 @@ interface PostShareActionsProps {
 }
 
 export default function PostShareActions({ title }: PostShareActionsProps) {
-  const shareUrl = typeof window !== 'undefined' ? window.location.href : ''
+  const getShareUrl = () => (typeof window !== 'undefined' ? window.location.href : '')
 
   const shareOnTwitter = () => {
-    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(shareUrl)}`)
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(getShareUrl())}`)
   }
 
   const shareOnFacebook = () => {
-    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`)
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(getShareUrl())}`)
   }
 
   const copyLink = async () => {
@@ -22,7 +22,7 @@ export default function PostShareActions({ title }: PostShareActionsProps) {
     }
 
     try {
-      await navigator.clipboard.writeText(shareUrl)
+      await navigator.clipboard.writeText(getShareUrl())
       alert('Link copied to clipboard!')
     } catch {
       alert('Unable to copy link')

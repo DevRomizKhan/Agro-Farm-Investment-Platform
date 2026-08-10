@@ -3,43 +3,153 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import {
-  Coins,
-  Calendar,
-  TrendingUp,
-  Briefcase,
-  ArrowLeftRight,
-  Building2,
-  FileText,
-  AlertTriangle,
-  UserCheck,
-  Scale,
-  CloudRain,
-  Shield,
-  Bell,
-  MessageSquare,
-  Edit3,
-  FileCheck,
-  Search,
-  Printer,
-  Mail,
-  CheckCircle2,
-  Sparkles,
-  HelpCircle,
-  ChevronRight,
+  Coins, Calendar, TrendingUp, Briefcase, ArrowLeftRight,
+  Building2, FileText, AlertTriangle, UserCheck, Scale,
+  CloudRain, Shield, Bell, MessageSquare, Edit3, FileCheck,
+  Search, Printer, Mail, CheckCircle2, Sparkles, HelpCircle, ChevronRight
 } from 'lucide-react'
 import { ROUTES } from '@/constants'
+import { useLanguage } from '@/lib/i18n/context'
 
 interface PolicySection {
   id: string
   number: string
   title: string
   icon: React.ElementType
-  category: 'Structure & Duration' | 'Returns & Ownership' | 'Transfers & Liquidation' | 'Governance & Risk' | 'Legal & Compliance'
+  category: string
   summary: string
   clauses: string[]
 }
 
-const SECTIONS: PolicySection[] = [
+const SECTIONS_BN: PolicySection[] = [
+  {
+    id: 'investment-structure',
+    number: '১',
+    title: 'বিনিয়োগের কাঠামো ও নিয়মাবলী',
+    icon: Coins,
+    category: 'কাঠামো ও সময়কাল',
+    summary: 'শরীয়াহ সম্মত নীতিতে প্রতি শেয়ারের নির্ধারিত মূল্যায়নে বিনিয়োগ।',
+    clauses: [
+      '১.১. বিনিয়োগ শেয়ারের মূল্য প্রতি শেয়ার ১,০০০ টাকা (এক হাজার টাকা)।',
+      '১.২. একজন বিনিয়োগকারী তার সামর্থ্য অনুযায়ী একাধিক শেয়ার অর্জন করতে পারেন।',
+      '১.৩. বিনিয়োগ নিশ্চিত করার পর প্রথম ১ (এক) বছর বিনিয়োগের মূলধন অফেরতযোগ্য থাকবে।',
+      '১.৪. সকল লেনদেন আমানাহ ফার্ম অনুমোদিত পেমেন্ট চ্যানেলে সম্পূর্ণ করতে হবে (শুধুমাত্র বিডিটি টাকা প্রযোজ্য)।',
+      '১.৫. সমগ্র বিনিয়োগ প্রক্রিয়া সম্পূর্ণ ইসলামী শরীয়াহ অংশীদারিত্ব নীতি মেনে পরিচালিত হবে।',
+    ],
+  },
+  {
+    id: 'project-duration',
+    number: '২',
+    title: 'প্রকল্পের মেয়াদ ও পরিচালনা ক্ষেত্র',
+    icon: Calendar,
+    category: 'কাঠামো ও সময়কাল',
+    summary: '২ বছর মেয়াদী প্রোগ্রাম যা শুধুমাত্র গরু ও মাছ উৎপাদন সম্পদে সীমাবদ্ধ।',
+    clauses: [
+      '২.১. প্রকল্প আদি ২ (দুই) বছর মেয়াদের জন্য পরিচালিত হবে (১ জুলাই ২০২৬ থেকে ৩০ জুন ২০২৮)।',
+      '২.২. প্রকল্পটি শুধুমাত্র গবাদি পশু (গরু) মোটাতাজাকরণ/দুগ্ধ এবং মৎস্য চাষের উৎপাদনশীল মূল সম্পদে প্রয়োগ করা হবে।',
+    ],
+  },
+  {
+    id: 'dividend-distribution',
+    number: '৩',
+    title: 'বাৎসরিক লভ্যাংশ নীতি ও বন্টন',
+    icon: TrendingUp,
+    category: 'লভ্যাংশ ও মালিকানা',
+    summary: 'শরীয়াহ নীতি অনুযায়ী শেয়ারের আনুপাতিক হারে বাৎসরিক নিট লভ্যাংশ বণ্টন।',
+    clauses: [
+      '৩.১. বিনিয়োগকারীর অর্জিত শেয়ারের শতকরা হারের উপর ভিত্তি করে বাৎসরিক নিট লভ্যাংশ বিতরণ করা হবে।',
+      '৩.২. লভ্যাংশ বণ্টন সম্পূর্ণ ইসলামিক শরীয়াহ নীতিমালায় পরিচালিত হবে।',
+      '৩.৩. খামারের যাবতীয় পরিচালন ব্যয়, খাদ্য খরচ, পরিচর্যা ও প্রশাসনিক খরচ বাদ দিয়ে নিট লভ্যাংশ হিসাব করা হবে।',
+      '৩.৪. লভ্যাংশের হালনাগাদ অগ্রগতি প্রতি ৬ মাস পর পর এবং চূড়ান্ত বণ্টন বাৎসরিক ভিত্তিতে প্রদান করা হবে।',
+      '৩.৫. কোনো নির্দিষ্ট, স্থির বা পূর্বনির্ধারিত সুদের অফার করা হয় না। লভ্যাংশ খামারের প্রকৃত উৎপাদনের উপর নির্ভর করে পরিবর্তনশীল।',
+    ],
+  },
+  {
+    id: 'ownership-rights',
+    number: '৪',
+    title: 'শেয়ার মালিকানা অধিকার',
+    icon: Briefcase,
+    category: 'লভ্যাংশ ও মালিকানা',
+    summary: 'উৎপাদনশীল মূল সম্পদে বিনিয়োগকারীদের আনুপাতিক মালিকানা স্বত্ব।',
+    clauses: [
+      '৪.১. বিনিয়োগকারী মোট বিনিয়োগের অনুপাত অনুযায়ী খামারের মূল সম্পদে আনুপাতিক মালিকানা লাভ করবেন।',
+      '৪.২. মালিকানা অধিকারের মধ্যে বাৎসরিক লভ্যাংশ প্রাপ্তি এবং প্রকল্প সমাপনী সম্পদ অবায়িতকরণ অর্থ বন্টন অন্তর্ভুক্ত।',
+      '৪.৩. প্রথম ১ বছরের মধ্যে এই শেয়ার হস্তান্তর বা বিক্রয়যোগ্য নয়।',
+      '৪.৪. বিনিয়োগকারী শুধুমাত্র সরাসরি অর্জিত মূল সম্পদে মালিকানা পাবেন, খামারের অবকাঠামোগত অকৃষি সম্পদে নয়।',
+    ],
+  },
+  {
+    id: 'share-transfer-exit',
+    number: '৫',
+    title: 'শেয়ার বিক্রয়, হস্তান্তর ও এক্সিট সুবিধা',
+    icon: ArrowLeftRight,
+    category: 'হস্তান্তর ও সমাপনী',
+    summary: '১ বছর পর ১ মাসের লিখিত নোটিশে শেয়ার বিক্রয়ের সুযোগ।',
+    clauses: [
+      '৫.১. ১ম বছর অতিক্রান্ত হওয়ার পর বিনিয়োগকারী শেয়ার বিক্রয় বা হস্তান্তরের আবেদন করতে পারবেন।',
+      '৫.২. যেকোনো শেয়ার বিক্রয় আবেদনের জন্য ন্যূনতম ১ (এক) মাসের লিখিত বিজ্ঞপ্তির প্রয়োজন।',
+      '৫.৩. আবেদনের সময় তৎকালীন খামার বাজারদরের উপর ভিত্তি করে শেয়ারের মূল্য নির্ধারিত হবে।',
+      '৫.৪. আবেদন গ্রহণের পর সর্বোচ্চ ৪ (চার) মাসের মধ্যে সমাপনী হিসাব সম্পন্ন করা হবে।',
+      '৫.৫. শেয়ার হস্তান্তর কার্যক্রমে আমানাহ ফার্মের অনুমোদন ও সুবিধা প্রয়োজন হবে।',
+    ],
+  },
+  {
+    id: 'final-asset-distribution',
+    number: '৬',
+    title: 'প্রকল্প মেয়াদান্তে চূড়ান্ত সম্পদ বন্টন',
+    icon: Building2,
+    category: 'হস্তান্তর ও সমাপনী',
+    summary: '২০২৯ সালে খামার সম্পদ অবায়িতকরণ এবং বিক্রয়লব্ধ অর্থ বন্টন।',
+    clauses: [
+      '৬.১. ৩০ জুন ২০২৮ তারিখে প্রকল্প সমাপ্তির পর সমস্ত মূল সম্পদ অবায়িতকরণ করা হবে।',
+      '৬.২. অবায়িতকরণ থেকে অর্জিত নিট অর্থ সকল শেয়ারহোল্ডারদের শেয়ারের শতকরা হারে বন্টন করা হবে।',
+      '৬.৩. অডিট সম্পাদন শেষে যুক্তিসঙ্গত সময়সীমার মধ্যে বিনিয়োগকারীদের অর্থ প্রদান করা হবে।',
+    ],
+  },
+  {
+    id: 'transparency-reporting',
+    number: '৭',
+    title: 'আর্থিক স্বচ্ছতা ও চার্টার্ড অডিট ব্যবস্থা',
+    icon: FileText,
+    category: 'পরিচালনা ও ঝুঁকি',
+    summary: 'স্বতন্ত্র সিএ ফার্ম দ্বারা বাৎসরিক অডিট ও আয়-ব্যয় বিবরণী প্রকাশ।',
+    clauses: [
+      '৭.১. প্রজেক্ট আদি সমস্ত আয়, ব্যয় ও পরিচালন তথ্যের নিখুঁত হিসাব সংরক্ষণ করে।',
+      '৭.২. প্রতি বছর স্বাধীন চার্টার্ড অ্যাকাউন্ট্যান্ট ফার্ম দ্বারা বাৎসরিক হিসাব অডিট সম্পন্ন করা হয়।',
+      '৭.৩. বিনিয়োগকারীদের জন্য বাৎসরিক অডিট রিপোর্ট ও আর্থিক বিবরণী উন্মুক্ত রাখা হয়।',
+      '৭.৪. যেকোনো যুক্তিসঙ্গত আবেদনে আয়-ব্যয় বিবরণী পর্যালোচনা করার অধিকার রয়েছে।',
+    ],
+  },
+  {
+    id: 'risk-factors',
+    number: '৮',
+    title: 'খামার ঝুঁকি ও সতর্কতা',
+    icon: AlertTriangle,
+    category: 'পরিচালনা ও ঝুঁকি',
+    summary: 'কৃষি ও প্রাকৃতিক ঝুঁকি প্রকাশ; শরীয়াহ মতে আনুপাতিক ঝুঁকি বহন।',
+    clauses: [
+      '৮.১. পশু মোটাতাজাকরণ ও মৎস্য চাষে প্রাণীর রোগব্যাধি, প্রাকৃতিক দুর্যোগ, খাদ্যের মূল্যবৃদ্ধি ও বাজারদর পরিবর্তনের ঝুঁকি বিদ্যমান।',
+      '৮.২. যেকোনো অনাকাঙ্ক্ষিত পরিস্থিতিতে উৎপাদন ব্যয় বৃদ্ধি পেতে পারে।',
+      '৮.৩. শরীয়াহ নীতি অনুযায়ী খামারের প্রকৃত লাভ ও ক্ষতি সকল শেয়ারহোল্ডারদের মাঝে আনুপাতিক হারে বন্টন হবে।',
+      '৮.৪. প্রজেক্ট আদি কোনো নির্দিষ্ট স্থির লভ্যাংশ বা ক্যাপিটাল গ্যারান্টি প্রদান করে না।',
+    ],
+  },
+  {
+    id: 'legal-compliance',
+    number: '৯',
+    title: 'আইনি ও নিয়ন্ত্রক নীতিমালা',
+    icon: Scale,
+    category: 'আইনি বিষয়াবলী',
+    summary: 'অংশীদারিত্বভিত্তিক কৃষি বিনিয়োগ উদ্যোগ; শরীয়াহ নীতিতে পরিচালিত।',
+    clauses: [
+      '৯.১. এটি কোনো ব্যাংক বা ফিন্যান্স কোম্পানির ফিক্সড ডিপোজিট নয়; এটি একটি যৌথ কৃষি অংশীদারিত্ব।',
+      '৯.২. প্রকল্পটি পরিচালিত হয় ইসলামিক শরীয়াহ নীতি অনুযায়ী।',
+      '৯.৩. বিনিয়োগকারীদের জন্য নিজ নিজ আয়কর আইনের সকল বাধ্যবাধকতা প্রযোজ্য।',
+    ],
+  },
+]
+
+const SECTIONS_EN: PolicySection[] = [
   {
     id: 'investment-structure',
     number: '1',
@@ -96,178 +206,20 @@ const SECTIONS: PolicySection[] = [
       '4.4. Investor is only entitled to ownership of project base assets, not the constructional or any other assets which are not purchased using the investment.',
     ],
   },
-  {
-    id: 'share-transfer-exit',
-    number: '5',
-    title: 'Share Transfer and Exit Options',
-    icon: ArrowLeftRight,
-    category: 'Transfers & Liquidation',
-    summary: 'Exit and transfer allowed after 1 year with 1-month notice and 4-month settlement.',
-    clauses: [
-      '5.1. After the first year period, investors may request to sell or transfer their shares.',
-      '5.2. Written notice of One (1) month is required for any transfer or withdrawal request.',
-      '5.3. Share valuation is determined by prevailing market conditions at the time of the transfer request.',
-      '5.4. All transfers and settlements are completed within Four (4) months of notice submission.',
-      '5.5. Share transfers require approval and facilitation by "Project Adi".',
-    ],
-  },
-  {
-    id: 'final-asset-distribution',
-    number: '6',
-    title: 'Final Asset Distribution',
-    icon: Building2,
-    category: 'Transfers & Liquidation',
-    summary: 'Full asset liquidation and net proceeds distribution upon project conclusion.',
-    clauses: [
-      '6.1. Upon project conclusion on June 30, 2029, all project assets will be liquidated.',
-      '6.2. Net proceeds from asset sales are distributed proportionately among all investors based on their shareholding percentage.',
-      '6.3. Final distribution is completed within a reasonable timeframe following asset liquidation and audit completion.',
-    ],
-  },
-  {
-    id: 'transparency-reporting',
-    number: '7',
-    title: 'Transparency and Financial Reporting',
-    icon: FileText,
-    category: 'Governance & Risk',
-    summary: 'Comprehensive records with independent annual audits and open access.',
-    clauses: [
-      '7.1. "Project Adi" maintains comprehensive financial records including income, expenses, and operational details.',
-      '7.2. Annual audits are conducted by independent, recognized audit firms.',
-      '7.3. Investors receive annual audit reports and financial statements.',
-      '7.4. Investors have access to income and expense records upon reasonable request.',
-      '7.5. All communications regarding project progress and financial performance are provided transparently.',
-    ],
-  },
-  {
-    id: 'risk-factors',
-    number: '8',
-    title: 'Risk Factors',
-    icon: AlertTriangle,
-    category: 'Governance & Risk',
-    summary: 'Agricultural risks disclosed; loss sharing proportionate to shareholding.',
-    clauses: [
-      '8.1. Cow farming and aquaculture carry inherent risks including livestock mortality, disease, adverse weather conditions, dependent crop/feed price shifts, and market price fluctuations.',
-      '8.2. Project costs may increase due to natural disasters, disease outbreaks, commodity price increases, or unforeseen external factors.',
-      '8.3. Losses or underperformance in any project segment are distributed proportionately among all investors based on shareholding.',
-      '8.4. Project Adi does not guarantee specific profit returns, minimum dividend levels, or capital preservation.',
-    ],
-  },
-  {
-    id: 'investor-responsibilities',
-    number: '9',
-    title: 'Investor Responsibilities and Requirements',
-    icon: UserCheck,
-    category: 'Governance & Risk',
-    summary: 'Requirement to provide accurate identification and use approved payment channels.',
-    clauses: [
-      '9.1. Investors must provide accurate personal identification and contact information.',
-      '9.2. Investors are responsible for ensuring payments are made through approved payment methods only.',
-      '9.3. Investors must maintain updated contact information with The Project Adi.',
-      '9.4. Amanah.farm assumes no responsibility for unverified or incorrectly processed payments.',
-    ],
-  },
-  {
-    id: 'legal-compliance',
-    number: '10',
-    title: 'Legal and Regulatory Compliance',
-    icon: Scale,
-    category: 'Legal & Compliance',
-    summary: 'Partnership-based Sharia compliant initiative; tax obligations apply.',
-    clauses: [
-      '10.1. This investment is not a regulated financial product offered by a bank or licensed financial institution.',
-      '10.2. This is a partnership-based agricultural investment initiative with inherent profit and loss risks.',
-      '10.3. The project operations comply with applicable Islamic Sharia principles.',
-      '10.4. Applicable income taxes may be withheld from distributions in accordance with relevant tax jurisdictions.',
-      '10.5. Investors are responsible for reporting investment income to their respective tax authorities.',
-    ],
-  },
-  {
-    id: 'force-majeure',
-    number: '11',
-    title: 'Force Majeure',
-    icon: CloudRain,
-    category: 'Legal & Compliance',
-    summary: 'Protection in events beyond reasonable control including natural disasters.',
-    clauses: [
-      '11.1. The Project Adi shall not be liable for delays or failure to perform due to events beyond reasonable control, including acts of God, natural disasters, war, civil unrest, or government actions.',
-      '11.2. In such circumstances, The Project Adi will make reasonable efforts to minimize impact on the project and investor returns.',
-    ],
-  },
-  {
-    id: 'confidentiality',
-    number: '12',
-    title: 'Confidentiality',
-    icon: Shield,
-    category: 'Legal & Compliance',
-    summary: 'Mutual non-disclosure of sensitive business information and financial details.',
-    clauses: [
-      '12.1. Investors and The Project Adi agree to maintain confidentiality regarding sensitive business information, financial details, and proprietary operational strategies, except as required by law or for performance of contractual obligations.',
-    ],
-  },
-  {
-    id: 'communications-updates',
-    number: '13',
-    title: 'Communications and Project Updates',
-    icon: Bell,
-    category: 'Governance & Risk',
-    summary: 'Regular electronic updates via email, investor portal, and notifications.',
-    clauses: [
-      '13.1. The Project Adi communicates project updates, financial reports, and important notices to investors regularly.',
-      '13.2. Communications may be delivered via email, website portal, app notifications, or other electronic means.',
-      '13.3. Investors are responsible for monitoring official communication channels for updates and important notices.',
-    ],
-  },
-  {
-    id: 'dispute-resolution',
-    number: '14',
-    title: 'Dispute Resolution',
-    icon: MessageSquare,
-    category: 'Legal & Compliance',
-    summary: 'Amicable dispute resolution via support@amanah.farm or arbitration.',
-    clauses: [
-      '14.1. Any questions, concerns, or disputes regarding this investment should be directed to support@amanah.farm',
-      '14.2. The Project Adi management will attempt to resolve disputes through discussion and negotiation.',
-      '14.3. Unresolved disputes may be referred to arbitration or relevant legal authorities as appropriate.',
-    ],
-  },
-  {
-    id: 'amendment-modification',
-    number: '15',
-    title: 'Amendment and Modification',
-    icon: Edit3,
-    category: 'Legal & Compliance',
-    summary: 'Right to modify terms with prior notification through official channels.',
-    clauses: [
-      '15.1. The Project Adi reserves the right to modify these terms and conditions at any time.',
-      '15.2. Material changes will be communicated to investors through official channels.',
-      '15.3. Continued investment participation following notification of changes constitutes acceptance of modified terms.',
-    ],
-  },
-  {
-    id: 'miscellaneous',
-    number: '16',
-    title: 'Miscellaneous Provisions',
-    icon: FileCheck,
-    category: 'Legal & Compliance',
-    summary: 'Beneficiary transfer rights, complete agreement, and severability clauses.',
-    clauses: [
-      '16.1. In case of investor death or incapacity, shares and accrued proceeds transfer to designated beneficiaries.',
-      '16.2. This agreement constitutes the complete terms between parties and supersedes all prior agreements or understandings.',
-      '16.3. If any provision is found invalid or unenforceable, remaining provisions continue in full effect.',
-      '16.4. Investors may not assign, transfer, or delegate rights or obligations without written consent from The Project Adi.',
-    ],
-  },
 ]
 
 export default function TermsPage() {
+  const { lang } = useLanguage()
   const [search, setSearch] = useState('')
   const [activeCategory, setActiveCategory] = useState<string>('All')
 
-  const categories = ['All', 'Structure & Duration', 'Returns & Ownership', 'Transfers & Liquidation', 'Governance & Risk', 'Legal & Compliance']
+  const sections = lang === 'bn' ? SECTIONS_BN : SECTIONS_EN
+  const categories = lang === 'bn' 
+    ? ['সব', 'কাঠামো ও সময়কাল', 'লভ্যাংশ ও মালিকানা', 'হস্তান্তর ও সমাপনী', 'পরিচালনা ও ঝুঁকি', 'আইনি বিষয়াবলী']
+    : ['All', 'Structure & Duration', 'Returns & Ownership', 'Transfers & Liquidation', 'Governance & Risk', 'Legal & Compliance']
 
-  const filteredSections = SECTIONS.filter((sec) => {
-    const matchesCategory = activeCategory === 'All' || sec.category === activeCategory
+  const filteredSections = sections.filter((sec) => {
+    const matchesCategory = activeCategory === 'All' || activeCategory === 'সব' || sec.category === activeCategory
     const matchesSearch =
       sec.title.toLowerCase().includes(search.toLowerCase()) ||
       sec.summary.toLowerCase().includes(search.toLowerCase()) ||
@@ -284,39 +236,41 @@ export default function TermsPage() {
         <div className="max-w-5xl mx-auto text-center relative z-10 space-y-6">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold uppercase tracking-widest">
             <Sparkles className="h-3.5 w-3.5" />
-            Project Adi – 2 Year Ownership Program
+            {lang === 'bn' ? 'প্রজেক্ট আদি – ২ বছর মেয়াদী কৃষি মালিকানা প্রোগ্রাম' : 'Project Adi – 2 Year Ownership Program'}
           </div>
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight">
-            Terms &amp; Investment <span className="gradient-text">Policy</span>
+            {lang === 'bn' ? 'নিয়মাবলি ও বিনিয়োগ ' : 'Terms & Investment '}
+            <span className="gradient-text">{lang === 'bn' ? 'নীতিমালা' : 'Policy'}</span>
           </h1>
 
           <p className="text-slate-300 text-base sm:text-lg max-w-3xl mx-auto leading-relaxed">
-            Official summary of terms, rights, dividend policy, and risk disclosures governing investment participation in{' '}
-            <strong className="text-emerald-400">The Amanah.farm (Project Adi)</strong>.
+            {lang === 'bn'
+              ? 'আমানাহ ফার্ম (প্রজেক্ট আদি) পরিচালনা, লভ্যাংশ বণ্টন ও বিনিয়োগ স্বত্ব সংক্রান্ত আইনি নির্দেশিকা।'
+              : 'Official summary of terms, rights, dividend policy, and risk disclosures governing investment participation.'}
           </p>
 
           {/* Highlights Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto pt-6 text-left">
             <div className="p-4 rounded-2xl bg-slate-900/80 border border-emerald-500/20 backdrop-blur-md">
-              <p className="text-[11px] font-bold uppercase text-slate-400">Share Price</p>
-              <p className="text-xl font-black text-white font-mono mt-0.5">BDT 1,000</p>
-              <p className="text-[11px] text-emerald-400 mt-0.5">Per Share (One Thousand BDT)</p>
+              <p className="text-[11px] font-bold uppercase text-slate-400">{lang === 'bn' ? 'শেয়ার মূল্য' : 'Share Price'}</p>
+              <p className="text-xl font-black text-white font-mono mt-0.5">৳১,০০০</p>
+              <p className="text-[11px] text-emerald-400 mt-0.5">{lang === 'bn' ? 'প্রতি শেয়ার (এক হাজার টাকা)' : 'Per Share (One Thousand BDT)'}</p>
             </div>
             <div className="p-4 rounded-2xl bg-slate-900/80 border border-emerald-500/20 backdrop-blur-md">
-              <p className="text-[11px] font-bold uppercase text-slate-400">Project Term</p>
-              <p className="text-xl font-black text-white font-mono mt-0.5">2 Years</p>
-              <p className="text-[11px] text-slate-400 mt-0.5">July 1, 2026 – June 30, 2028</p>
+              <p className="text-[11px] font-bold uppercase text-slate-400">{lang === 'bn' ? 'প্রকল্প মেয়াদ' : 'Project Term'}</p>
+              <p className="text-xl font-black text-white font-mono mt-0.5">{lang === 'bn' ? '২ বছর' : '2 Years'}</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">{lang === 'bn' ? '১ জুলাই ২০২৬ – ৩০ জুন ২০২৮' : 'July 1, 2026 – June 30, 2028'}</p>
             </div>
             <div className="p-4 rounded-2xl bg-slate-900/80 border border-emerald-500/20 backdrop-blur-md">
-              <p className="text-[11px] font-bold uppercase text-slate-400">Production Scope</p>
-              <p className="text-xl font-black text-white mt-0.5">Cow &amp; Fish</p>
-              <p className="text-[11px] text-emerald-400 mt-0.5">Base Producing Assets</p>
+              <p className="text-[11px] font-bold uppercase text-slate-400">{lang === 'bn' ? 'উৎপাদন খাত' : 'Production Scope'}</p>
+              <p className="text-xl font-black text-white mt-0.5">{lang === 'bn' ? 'গরু ও মাছ' : 'Cow & Fish'}</p>
+              <p className="text-[11px] text-emerald-400 mt-0.5">{lang === 'bn' ? 'মূল উৎপাদন সম্পদ' : 'Base Producing Assets'}</p>
             </div>
             <div className="p-4 rounded-2xl bg-slate-900/80 border border-emerald-500/20 backdrop-blur-md">
-              <p className="text-[11px] font-bold uppercase text-slate-400">Sharia Governance</p>
-              <p className="text-xl font-black text-emerald-400 mt-0.5">100% Sharia</p>
-              <p className="text-[11px] text-slate-400 mt-0.5">Variable Net Dividends</p>
+              <p className="text-[11px] font-bold uppercase text-slate-400">{lang === 'bn' ? 'শরীয়াহ চুক্তি' : 'Sharia Governance'}</p>
+              <p className="text-xl font-black text-emerald-400 mt-0.5">{lang === 'bn' ? '১০০% শরীয়াহ' : '100% Sharia'}</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">{lang === 'bn' ? 'বাৎসরিক নিট লভ্যাংশ' : 'Variable Net Dividends'}</p>
             </div>
           </div>
 
@@ -326,14 +280,14 @@ export default function TermsPage() {
               className="btn-secondary text-xs inline-flex items-center gap-2 py-2 px-4 border-white/10 bg-slate-900 hover:bg-slate-800"
             >
               <Printer className="h-3.5 w-3.5" />
-              Print / Save Terms PDF
+              {lang === 'bn' ? 'প্রিন্ট / পিডিএফ ডাউনলোড' : 'Print / Save Terms PDF'}
             </button>
             <a
               href="mailto:support@amanah.farm"
               className="btn-secondary text-xs inline-flex items-center gap-2 py-2 px-4 border-emerald-500/20 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20"
             >
               <Mail className="h-3.5 w-3.5" />
-              Contact Legal Support: support@amanah.farm
+              {lang === 'bn' ? 'আইনি সহায়তা: support@amanah.farm' : 'Contact Legal Support: support@amanah.farm'}
             </a>
           </div>
         </div>
@@ -342,19 +296,17 @@ export default function TermsPage() {
       {/* ── Search & Filter Controls ─────────────────────── */}
       <section className="sticky top-20 z-30 bg-slate-950/90 backdrop-blur-xl border-b border-white/10 py-4 px-4">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          {/* Search bar */}
           <div className="relative w-full md:w-80">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search terms (e.g. share price, exit, sharia)..."
+              placeholder={lang === 'bn' ? 'অনুসন্ধান করুন (যেমন: শেয়ার মূল্য, লভ্যাংশ, অডিট)...' : 'Search terms...'}
               className="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500"
             />
           </div>
 
-          {/* Category Tabs */}
           <div className="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-1 md:pb-0 scrollbar-none">
             {categories.map((cat) => (
               <button
@@ -378,16 +330,15 @@ export default function TermsPage() {
         {filteredSections.length === 0 ? (
           <div className="text-center py-16 glass-card border-dashed">
             <HelpCircle className="h-10 w-10 text-slate-500 mx-auto mb-3" />
-            <p className="text-white font-bold">No matching policy clauses found</p>
-            <p className="text-xs text-slate-400 mt-1">Try searching with a different term or selecting &quot;All&quot; categories.</p>
+            <p className="text-white font-bold">{lang === 'bn' ? 'কোনো ফলাফল পাওয়া যায়নি' : 'No matching policy clauses found'}</p>
             <button
               onClick={() => {
                 setSearch('')
-                setActiveCategory('All')
+                setActiveCategory(lang === 'bn' ? 'সব' : 'All')
               }}
               className="btn-secondary text-xs mt-4"
             >
-              Reset Filters
+              {lang === 'bn' ? 'ফিল্টার রিসেট করুন' : 'Reset Filters'}
             </button>
           </div>
         ) : (
@@ -407,7 +358,7 @@ export default function TermsPage() {
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-                          Section {sec.number}
+                          {lang === 'bn' ? `ধারা ${sec.number}` : `Section ${sec.number}`}
                         </span>
                         <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
                           {sec.category}
@@ -432,14 +383,18 @@ export default function TermsPage() {
           })
         )}
 
-        {/* ── Contact & Support Notice Box ──────────────── */}
+        {/* Notice Box */}
         <section className="rounded-3xl bg-gradient-to-r from-emerald-950/60 via-slate-900 to-teal-950/60 border border-emerald-500/30 p-8 text-center space-y-4">
           <div className="h-12 w-12 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mx-auto text-emerald-400">
             <CheckCircle2 className="h-6 w-6" />
           </div>
-          <h3 className="text-xl font-bold text-white">Have questions regarding these terms &amp; conditions?</h3>
+          <h3 className="text-xl font-bold text-white">
+            {lang === 'bn' ? 'আইনি বা বিনিয়োগ শর্তাবলী নিয়ে কোনো প্রশ্ন আছে?' : 'Have questions regarding these terms & conditions?'}
+          </h3>
           <p className="text-sm text-slate-300 max-w-xl mx-auto">
-            Our legal and investor support team at <strong className="text-emerald-400 font-mono">The Project Adi</strong> is available to answer any questions.
+            {lang === 'bn'
+              ? 'আমাদের টিম আপনাকে সম্পূর্ণ সহায়তা প্রদান করবে।'
+              : 'Our legal and investor support team is available to answer any questions.'}
           </p>
           <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
             <a
@@ -447,13 +402,13 @@ export default function TermsPage() {
               className="btn-primary inline-flex items-center gap-2 text-sm px-6 py-3"
             >
               <Mail className="h-4 w-4" />
-              Contact support@amanah.farm
+              support@amanah.farm
             </a>
             <Link
               href={ROUTES.CONTACT}
               className="btn-secondary inline-flex items-center gap-2 text-sm px-6 py-3 border-white/10"
             >
-              Visit Contact Page
+              {lang === 'bn' ? 'যোগাযোগ পাতায় যান' : 'Visit Contact Page'}
             </Link>
           </div>
         </section>

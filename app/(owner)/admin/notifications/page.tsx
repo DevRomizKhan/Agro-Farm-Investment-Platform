@@ -1,74 +1,69 @@
-import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+'use client'
+
 import { Bell, Clock } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
+import { useLanguage } from '@/lib/i18n/context'
+import { useEffect, useState } from 'react'
+import { createClient } from '@/lib/supabase/client'
 import { ROUTES } from '@/constants'
-import type { Notification } from '@/types'
 
-type AdminNotification = Notification & {
-  profile: {
-    full_name: string | null
-    email: string | null
-  } | null
-}
+export default function AdminNotificationsPage() {
+  const { lang } = useLanguage()
+  const [notifications, setNotifications] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
-export default async function AdminNotificationsPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect(ROUTES.LOGIN)
+  useEffect(() => {
+    const fetchData = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { window.location.href = ROUTES.LOGIN; return }
+      const { data } = await supabase
+        .from('notifications')
+        .select('*, profile:profiles(full_name, email)')
+        .order('created_at', { ascending: false })
+      setNotifications(data || [])
+      setLoading(false)
+    }
+    fetchData()
+  }, [])
 
-  // Verify role
-  const { data: profile } = await supabase.from('profiles').select('role').eq('user_id', user.id).maybeSingle()
-  if (!profile || profile.role !== 'owner') redirect(ROUTES.INVESTOR_DASHBOARD)
-
-  // Fetch all notifications
-  const { data: notifications } = await supabase
-    .from('notifications')
-    .select('*, profile:profiles(full_name, email)')
-    .order('created_at', { ascending: false })
+  if (loading) return <div className="fade-in flex items-center justify-center min-h-48"><div className="h-6 w-6 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin" /></div>
 
   return (
     <div className="fade-in space-y-8">
-      {/* Header */}
       <div className="page-header">
         <div>
-          <h1 className="page-title">Notifications Management</h1>
-          <p className="page-subtitle">View all system notifications sent to users</p>
+          <h1 className="page-title">{lang === 'bn' ? 'বিজ্ঞপ্তি ব্যবস্থাপনা' : 'Notifications Management'}</h1>
+          <p className="page-subtitle">{lang === 'bn' ? 'ব্যবহারকারীদের পাঠানো সকল সিস্টেম বিজ্ঞপ্তি দেখুন' : 'View all system notifications sent to users'}</p>
         </div>
       </div>
 
-      {/* Notifications List */}
       <div className="glass-card p-6">
         <div className="flex items-center gap-2 mb-5 pb-4 border-b border-white/5">
-          <Bell className="h-5 w-5 text-green-400" />
-          <h2 className="font-semibold text-white">All Notifications ({notifications?.length || 0})</h2>
+          <Bell className="h-5 w-5 text-emerald-400" />
+          <h2 className="font-semibold text-white">{lang === 'bn' ? `সকল বিজ্ঞপ্তি (${notifications.length})` : `All Notifications (${notifications.length})`}</h2>
         </div>
 
-        {!notifications || notifications.length === 0 ? (
+        {notifications.length === 0 ? (
           <div className="text-center py-12">
             <Bell className="h-12 w-12 text-slate-600 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-white mb-2">No Notifications</h3>
-            <p className="text-slate-400 text-sm max-w-md mx-auto">
-              No notifications have been sent yet.
-            </p>
+            <h3 className="text-lg font-semibold text-white mb-2">{lang === 'bn' ? 'কোনো বিজ্ঞপ্তি নেই' : 'No Notifications'}</h3>
+            <p className="text-slate-400 text-sm max-w-md mx-auto">{lang === 'bn' ? 'এখনও কোনো বিজ্ঞপ্তি পাঠানো হয়নি।' : 'No notifications have been sent yet.'}</p>
           </div>
         ) : (
           <div className="space-y-4">
-            {(notifications as AdminNotification[]).map((notification) => (
-              <div
-                key={notification.id}
-                className="p-4 rounded-xl border border-white/5 bg-slate-900/40 hover:border-green-500/20 transition-colors"
-              >
+            {notifications.map((notification) => (
+              <div key={notification.id} className="p-4 rounded-xl border border-white/5 bg-slate-900/40 hover:border-emerald-500/20 transition-colors">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-start gap-4 flex-1">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-500/10 border border-green-500/20 flex-shrink-0">
-                      <Bell className="h-5 w-5 text-green-400" />
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10 border border-emerald-500/20 flex-shrink-0">
+                      <Bell className="h-5 w-5 text-emerald-400" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <h4 className="font-semibold text-white text-sm">{notification.title}</h4>
                         <span className="text-xs text-slate-500">•</span>
-                        <span className="text-xs text-slate-400">{notification.profile?.full_name || 'Unknown User'}</span>
+                        <span className="text-xs text-slate-400">{notification.profile?.full_name || (lang === 'bn' ? 'অজানা ব্যবহারকারী' : 'Unknown User')}</span>
                       </div>
                       <p className="text-slate-400 text-sm">{notification.message}</p>
                       <div className="flex items-center gap-2 mt-2 text-xs text-slate-500">

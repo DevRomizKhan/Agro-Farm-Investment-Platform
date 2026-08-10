@@ -109,8 +109,8 @@ export default function ResetPasswordClient({ code, error: errorProp }: Props) {
     return (
       <div className="fade-in text-center">
         <div className="glass-card p-10">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-500/20 border border-green-500/30 mx-auto mb-5">
-            <CheckCircle className="h-8 w-8 text-green-400" />
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/20 border border-emerald-500/30 mx-auto mb-5">
+            <CheckCircle className="h-8 w-8 text-emerald-400" />
           </div>
           <h2 className="text-xl font-bold text-white mb-3">Password Reset!</h2>
           <p className="text-slate-400 text-sm mb-6">Your password has been successfully reset.</p>
@@ -169,7 +169,7 @@ export default function ResetPasswordClient({ code, error: errorProp }: Props) {
 
         <p className="text-center text-sm text-slate-400 mt-6">
           Remember your password?{' '}
-          <Link href={ROUTES.LOGIN} className="text-green-400 hover:text-green-300 font-medium">Sign In</Link>
+          <Link href={ROUTES.LOGIN} className="text-emerald-400 hover:text-emerald-300 font-medium">Sign In</Link>
         </p>
       </div>
     </div>

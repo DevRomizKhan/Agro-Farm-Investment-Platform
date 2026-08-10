@@ -1,7 +1,10 @@
 import type { Metadata } from 'next'
+import { cookies } from 'next/headers'
 import { Toaster } from 'sonner'
 import { Providers } from '@/components/shared/providers'
 import { NavigationProgressBar } from '@/components/ui/navigation-progress'
+import { WhatsAppButton } from '@/components/ui/whatsapp-button'
+import type { Language } from '@/lib/i18n/translations'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -38,17 +41,22 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const cookieStore = await cookies()
+  const savedLang = cookieStore.get('amanah_lang')?.value as Language | undefined
+  const initialLang: Language = savedLang === 'en' || savedLang === 'bn' ? savedLang : 'bn'
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={initialLang} suppressHydrationWarning>
       <body className="font-sans antialiased">
         <NavigationProgressBar />
-        <Providers>
+        <Providers initialLang={initialLang}>
           {children}
+          <WhatsAppButton />
           <Toaster
             position="top-right"
             richColors
@@ -62,3 +70,4 @@ export default function RootLayout({
     </html>
   )
 }
+

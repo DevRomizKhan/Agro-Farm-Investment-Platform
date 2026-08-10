@@ -193,7 +193,7 @@ export default function NewBlogPostPage() {
           <div className="glass-card p-6">
             <h3 className="text-lg font-semibold text-white mb-4">Media</h3>
             
-            <div className="border-2 border-dashed border-slate-700 rounded-lg p-8 text-center hover:border-green-500/50 transition-colors">
+            <div className="border-2 border-dashed border-slate-700 rounded-lg p-8 text-center hover:border-emerald-500/50 transition-colors">
               <input
                 type="file"
                 onChange={handleFileUpload}

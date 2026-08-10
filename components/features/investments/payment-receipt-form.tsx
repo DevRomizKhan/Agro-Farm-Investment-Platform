@@ -19,11 +19,11 @@ export function PaymentReceiptForm({ investmentId }: { investmentId: string }) {
     if (!result.success) return toast.error(result.error || 'Could not submit receipt')
     toast.success('Payment receipt submitted for owner verification'); router.refresh()
   }
-  return <div className="space-y-3 rounded-xl border border-blue-500/20 bg-blue-500/10 p-4">
-    <p className="text-xs font-semibold text-blue-200">After transferring through the bank</p>
+  return <div className="space-y-3 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4">
+    <p className="text-xs font-semibold text-emerald-200">After transferring through the bank</p>
     <p className="text-xs text-slate-300">Upload the bank slip or official transfer statement. Your investment becomes active only after owner verification.</p>
-    <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-blue-400/30 px-3 py-3 text-xs text-slate-300">
-      <Upload className="h-4 w-4 text-blue-300" /><span className="truncate">{file?.name || 'Choose receipt (image or PDF)'}</span>
+    <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-emerald-400/30 px-3 py-3 text-xs text-slate-300">
+      <Upload className="h-4 w-4 text-emerald-300" /><span className="truncate">{file?.name || 'Choose receipt (image or PDF)'}</span>
       <input type="file" accept="image/*,application/pdf" className="hidden" onChange={event => setFile(event.target.files?.[0] || null)} />
     </label>
     <button type="button" onClick={submit} disabled={loading} className="btn-primary w-full justify-center py-2 text-xs disabled:opacity-60">

@@ -1,24 +1,29 @@
+'use client'
+
 import Image from 'next/image'
 import Link from 'next/link'
 import { Leaf, ShieldCheck, TrendingUp, Users, ArrowRight } from 'lucide-react'
 import { COMPANY_INFO, ROUTES } from '@/constants'
 import { Reveal } from '@/components/ui/reveal'
 import { CountUp } from '@/components/ui/count-up'
-
-const features = [
-  { icon: ShieldCheck, label: 'Shariah-Compliant Contracts' },
-  { icon: TrendingUp, label: 'Annual Net Dividends' },
-  { icon: Users, label: 'Proportionate Asset Ownership' },
-  { icon: Leaf, label: 'Cow & Fish Production' },
-]
-
-const stats = [
-  { value: 2023, label: 'Founded' },
-  { value: 1, suffix: '+', label: 'Farm Sites' },
-  { value: 4, suffix: '+', label: 'Active Investors' },
-]
+import { useLanguage } from '@/lib/i18n/context'
 
 export function AboutSection() {
+  const { t } = useLanguage()
+
+  const features = [
+    { icon: ShieldCheck, label: t.about.features.shariah },
+    { icon: TrendingUp, label: t.about.features.dividends },
+    { icon: Users, label: t.about.features.ownership },
+    { icon: Leaf, label: t.about.features.production },
+  ]
+
+  const stats = [
+    { value: 2023, label: t.about.stats.founded },
+    { value: 1, suffix: '+', label: t.about.stats.farmSites },
+    { value: 4, suffix: '+', label: t.about.stats.activeInvestors },
+  ]
+
   return (
     <section id="about" className="py-24 bg-slate-950 relative overflow-hidden">
       <div className="absolute -top-40 -right-40 w-[500px] h-[500px] bg-emerald-500/5 rounded-full blur-[120px] pointer-events-none ambient-float" />
@@ -28,27 +33,27 @@ export function AboutSection() {
 
           {/* LEFT CONTENT */}
           <div className="space-y-7">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold uppercase tracking-widest">
-              <Leaf className="h-3.5 w-3.5" />
-              Who We Are
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-bold uppercase tracking-widest">
+              <Leaf className="h-4 w-4" />
+              {t.about.badge}
             </div>
 
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight">
-              Empowering Investors,{' '}
-              <span className="gradient-text">Transforming Agriculture</span>
+              {t.about.titlePrefix}
+              <span className="gradient-text">{t.about.titleHighlight}</span>
             </h2>
 
-            <p className="text-slate-300 text-base sm:text-lg leading-relaxed">
-              Amanah Farm is a partnership-based agricultural investment initiative connecting investors to proportionate ownership in cow and fish production assets. Project Adi operates under Islamic Sharia principles, with annual net dividends calculated after project expenses, transparent financial records.
+            <p className="text-slate-300 text-lg sm:text-xl leading-relaxed">
+              {t.about.description}
             </p>
 
-            <div className="grid grid-cols-2 gap-3 motion-stagger">
+            <div className="grid grid-cols-2 gap-3.5 motion-stagger">
               {features.map(({ icon: Icon, label }) => (
-                <div key={label} className="flex items-center gap-2.5">
-                  <div className="h-8 w-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0">
-                    <Icon className="h-4 w-4 text-emerald-400" />
+                <div key={label} className="flex items-center gap-3">
+                  <div className="h-9 w-9 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                    <Icon className="h-4.5 w-4.5 text-emerald-400" />
                   </div>
-                  <span className="text-xs sm:text-sm text-slate-200 font-medium">{label}</span>
+                  <span className="text-sm sm:text-base text-slate-200 font-medium">{label}</span>
                 </div>
               ))}
             </div>
@@ -57,10 +62,10 @@ export function AboutSection() {
             <div className="flex gap-10 pt-4 border-t border-white/10">
               {stats.map(({ value, suffix, label }) => (
                 <div key={label}>
-                  <p className="text-2xl font-black text-emerald-400 font-mono">
+                  <p className="text-3xl font-black text-emerald-400 font-mono">
                     <CountUp value={value} suffix={suffix} label={`${value}${suffix || ''} ${label}`} />
                   </p>
-                  <p className="text-xs text-slate-400 mt-0.5">{label}</p>
+                  <p className="text-sm text-slate-400 mt-1">{label}</p>
                 </div>
               ))}
             </div>
@@ -69,7 +74,7 @@ export function AboutSection() {
               href={ROUTES.ABOUT}
               className="btn-secondary"
             >
-              Learn More About Us
+              {t.about.learnMore}
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
@@ -87,9 +92,9 @@ export function AboutSection() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
             </div>
-            <div className="absolute -bottom-5 left-5 right-5 sm:left-8 sm:right-8 rounded-2xl border border-white/10 bg-slate-950/90 px-5 py-4 backdrop-blur-md shadow-xl">
-              <p className="text-sm font-bold text-white">Managed by {COMPANY_INFO.founder}</p>
-              <p className="mt-1 text-xs text-slate-400">{COMPANY_INFO.founderTitle} · {COMPANY_INFO.farmLocations}</p>
+            <div className="absolute -bottom-5 left-5 right-5 sm:left-8 sm:right-8 rounded-2xl border border-white/10 bg-slate-950/90 px-6 py-4 backdrop-blur-md shadow-xl">
+              <p className="text-base font-bold text-white">{t.about.managedBy} {COMPANY_INFO.founder}</p>
+              <p className="mt-1 text-sm text-slate-400">{COMPANY_INFO.founderTitle} · {COMPANY_INFO.farmLocations}</p>
             </div>
           </div>
 

@@ -20,7 +20,7 @@ export function InvestmentStatusNotice({
     const toastId = toast.custom((id) => (
       <div className="w-[min(380px,calc(100vw-2rem))] rounded-2xl border border-emerald-500/25 bg-slate-900/95 p-4 text-white shadow-2xl shadow-black/30 backdrop-blur-xl">
         <div className="flex items-start gap-3">
-          <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${isApproved ? 'bg-emerald-500/15 text-emerald-400' : 'bg-blue-500/15 text-blue-400'}`}>
+          <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${isApproved ? 'bg-emerald-500/15 text-emerald-400' : 'bg-emerald-500/15 text-emerald-400'}`}>
             {isApproved ? <CheckCircle2 className="h-5 w-5" /> : <Info className="h-5 w-5" />}
           </div>
           <div className="min-w-0 flex-1">

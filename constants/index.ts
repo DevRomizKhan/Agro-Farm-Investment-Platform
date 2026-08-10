@@ -32,7 +32,7 @@ export const KYC_STATUS_LABELS: Record<string, string> = {
 
 export const KYC_STATUS_COLORS: Record<string, string> = {
   pending: 'yellow',
-  approved: 'green',
+  approved: 'emerald',
   rejected: 'red',
   not_submitted: 'gray',
 }

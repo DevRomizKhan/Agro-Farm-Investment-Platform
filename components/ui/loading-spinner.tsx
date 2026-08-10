@@ -37,7 +37,7 @@ export function LoadingSpinner({
             <span
               key={i}
               className={cn(
-                'rounded-full bg-green-400 animate-bounce',
+                'rounded-full bg-emerald-400 animate-bounce',
                 dotSizeMap[size],
               )}
               style={{ animationDelay: `${i * 0.15}s`, animationDuration: '0.8s' }}
@@ -54,7 +54,7 @@ export function LoadingSpinner({
       <div className={cn('flex flex-col items-center gap-3', className)}>
         <span
           className={cn(
-            'rounded-full bg-green-500/30 animate-ping',
+            'rounded-full bg-emerald-500/30 animate-ping',
             sizeMap[size],
           )}
         />
@@ -68,7 +68,7 @@ export function LoadingSpinner({
     <div className={cn('flex flex-col items-center gap-3', className)}>
       <span
         className={cn(
-          'block rounded-full border-2 border-slate-700 border-t-green-400 animate-spin',
+          'block rounded-full border-2 border-slate-700 border-t-emerald-400 animate-spin',
           sizeMap[size],
         )}
       />
@@ -82,7 +82,7 @@ export function SectionLoader({ label = 'Loading...' }: { label?: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-20 gap-4">
       <div className="relative">
-        <span className="block w-12 h-12 rounded-full border-2 border-slate-700 border-t-green-400 animate-spin" />
+        <span className="block w-12 h-12 rounded-full border-2 border-slate-700 border-t-emerald-400 animate-spin" />
         <span className="absolute inset-0 block w-12 h-12 rounded-full border-2 border-transparent border-b-emerald-500/40 animate-spin [animation-duration:1.5s]" />
       </div>
       <p className="text-sm text-slate-400 animate-pulse">{label}</p>

@@ -53,11 +53,11 @@ export default async function InvestorDetailPage({ params }: { params: Promise<{
       <div className="page-header">
         <Link href={ROUTES.ADMIN_INVESTORS} className="flex items-center gap-2 text-slate-400 hover:text-white text-sm mb-4">
           <ArrowLeft className="h-4 w-4" />
-          Back to Investors
+          বিনিয়োগকারীদের তালিকায় ফিরে যান
         </Link>
         <div>
-          <h1 className="page-title">Investor Details</h1>
-          <p className="page-subtitle">View investor profile and investment history</p>
+          <h1 className="page-title">বিনিয়োগকারীর বিস্তারিত</h1>
+          <p className="page-subtitle">বিনিয়োগকারীর প্রোফাইল ও বিনিয়োগের ইতিহাস দেখুন</p>
         </div>
       </div>
 
@@ -66,7 +66,7 @@ export default async function InvestorDetailPage({ params }: { params: Promise<{
         <div className="lg:col-span-1 space-y-6">
           <div className="glass-card p-6">
             <div className="flex items-center gap-4 mb-6">
-              <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-green-500/20 text-green-400 text-2xl font-bold">
+              <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400 text-2xl font-bold">
                 {investor.full_name?.charAt(0).toUpperCase() || '?'}
               </div>
               <div>
@@ -82,30 +82,30 @@ export default async function InvestorDetailPage({ params }: { params: Promise<{
               </div>
               <div className="flex items-center gap-3">
                 <Calendar className="h-4 w-4 text-slate-500" />
-                <span className="text-sm text-slate-300">Joined {formatDate(investor.created_at)}</span>
+                <span className="text-sm text-slate-300">যোগদান: {formatDate(investor.created_at)}</span>
               </div>
             </div>
 
             <div className="pt-4 border-t border-white/5">
               <span className={
-                kycSubmission?.status === 'approved' ? 'badge-green' :
+                kycSubmission?.status === 'approved' ? 'badge-primary' :
                 kycSubmission?.status === 'pending' ? 'badge-yellow' :
                 kycSubmission?.status === 'rejected' ? 'badge-red' : 'badge-gray'
               }>
-                {kycSubmission?.status === 'not_submitted' ? 'Not Submitted' : kycSubmission?.status?.charAt(0).toUpperCase() + kycSubmission?.status?.slice(1) || 'Not Submitted'}
+                {kycSubmission?.status === 'approved' ? 'অনুমোদিত' : kycSubmission?.status === 'pending' ? 'অপেক্ষমাণ' : kycSubmission?.status === 'rejected' ? 'বাতিল' : 'জমা হয়নি'}
               </span>
             </div>
           </div>
 
           <div className="glass-card p-6">
-            <h3 className="font-semibold text-white mb-4">Investment Summary</h3>
+            <h3 className="font-semibold text-white mb-4">বিনিয়োগের সারসংক্ষেপ</h3>
             <div className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-sm text-slate-400">Total Investments</span>
+                <span className="text-sm text-slate-400">মোট বিনিয়োগ</span>
                 <span className="text-white font-medium">{investments?.length || 0}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm text-slate-400">Total Invested</span>
+                <span className="text-sm text-slate-400">মোট বিনিয়োগের পরিমাণ</span>
                 <span className="text-white font-medium">{formatCurrency(totalInvested)}</span>
               </div>
             </div>
@@ -116,27 +116,27 @@ export default async function InvestorDetailPage({ params }: { params: Promise<{
         <div className="lg:col-span-2">
           <div className="glass-card p-6">
             <h2 className="font-semibold text-white mb-5 flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-green-400" />
-              Investment History
+              <TrendingUp className="h-5 w-5 text-emerald-400" />
+              বিনিয়োগের ইতিহাস
             </h2>
 
             {!investments || investments.length === 0 ? (
-              <p className="text-sm text-slate-500 text-center py-8">No investments yet</p>
+              <p className="text-sm text-slate-500 text-center py-8">এখনও কোনো বিনিয়োগ নেই</p>
             ) : (
               <div className="space-y-3">
                 {(investments as InvestmentWithPlan[]).map((inv) => (
                   <div key={inv.id} className="p-4 rounded-xl bg-slate-800/30 border border-white/5">
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <p className="font-medium text-white">{(inv.plan as { name: string })?.name || 'Unknown Plan'}</p>
+                        <p className="font-medium text-white">{(inv.plan as { name: string })?.name || 'অজানা প্ল্যান'}</p>
                         <p className="text-xs text-slate-500">{formatDate(inv.created_at)}</p>
                       </div>
-                      <span className={inv.status === 'active' ? 'badge-green' : inv.status === 'completed' ? 'badge-blue' : 'badge-yellow'}>
-                        {inv.status}
+                      <span className={inv.status === 'active' ? 'badge-primary' : inv.status === 'completed' ? 'badge-green' : 'badge-yellow'}>
+                        {inv.status === 'active' ? 'সক্রিয়' : inv.status === 'completed' ? 'সম্পন্ন' : 'অপেক্ষমাণ'}
                       </span>
                     </div>
                     <div className="flex justify-between items-center pt-2 border-t border-white/5">
-                      <span className="text-sm text-slate-400">Amount</span>
+                      <span className="text-sm text-slate-400">পরিমাণ</span>
                       <span className="text-white font-medium">{formatCurrency(Number(inv.amount))}</span>
                     </div>
                   </div>

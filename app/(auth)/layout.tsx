@@ -12,7 +12,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col">
       {/* Auth Header */}
-      <header className="border-b border-white/5 py-4">
+      <header className="border-b border-slate-700 py-4">
         <div className="section-container flex items-center justify-between">
           <Link href={ROUTES.HOME} className="flex items-center group">
             <Image
@@ -38,7 +38,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
       </main>
 
       {/* Footer note */}
-      <div className="py-4 text-center text-xs text-slate-600 border-t border-white/5">
+      <div className="py-4 text-center text-xs text-slate-500 border-t border-slate-700">
         © {new Date().getFullYear()} {APP_NAME}. All rights reserved.
       </div>
     </div>

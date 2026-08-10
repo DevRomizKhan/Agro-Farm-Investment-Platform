@@ -112,7 +112,7 @@ export function CarouselSection() {
         <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold text-white leading-[1.15] tracking-tight mb-6">
           {slide.title.split(' ').map((word, i) =>
             ['Agriculture.', 'Future.', 'Farming', 'ROI', 'Income', 'Sustainable'].includes(word) ? (
-              <span key={i} className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-green-400 inline-block mx-1">
+              <span key={i} className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-400 inline-block mx-1">
                 {word}
               </span>
             ) : (
