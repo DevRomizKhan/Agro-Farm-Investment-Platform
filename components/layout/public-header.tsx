@@ -34,7 +34,7 @@ export function PublicHeader() {
       className={cn(
         'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
         scrolled
-          ? 'bg-slate-950/95 backdrop-blur-xl border-b border-emerald-900/40 shadow-xl shadow-slate-950/40 py-3'
+          ? 'bg-slate-950/95 backdrop-blur-xl shadow-xl shadow-slate-950/40 py-3'
           : 'bg-gradient-to-b from-slate-950/95 via-slate-950/55 to-transparent py-4'
       )}
     >

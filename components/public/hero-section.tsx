@@ -83,14 +83,14 @@ export function HeroSection() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-14">
           <Link
             href={ROUTES.REGISTER}
-            className="btn-primary px-8 py-3.5 text-base sm:text-lg shadow-2xl shadow-emerald-600/25 group"
+            className="btn-primary shadow-2xl shadow-emerald-600/25 group"
           >
             <span>{t.hero.ctaPrimary}</span>
             <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
           </Link>
           <Link
             href={ROUTES.PLANS}
-            className="btn-secondary border-white/15 bg-white/5 px-8 py-3.5 text-base sm:text-lg backdrop-blur-md hover:bg-white/10"
+            className="btn-secondary"
           >
             <span>{t.hero.ctaSecondary}</span>
           </Link>

@@ -167,9 +167,10 @@ export function PublicFooter() {
 
         {/* Bottom bar */}
         <div className="mt-12 pt-8 border-t border-emerald-900/30 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-slate-500">
-            © {new Date().getFullYear()} {APP_NAME}. {t.footer.copyright}
-          </p>
+          <div className="text-xs text-slate-500 space-y-1">
+            <p>© {new Date().getFullYear()} {APP_NAME}. {t.footer.copyright}</p>
+            <p>Developed by Muslim Tech Lab</p>
+          </div>
           <div className="flex items-center gap-2.5">
             {[
               { Icon: Facebook, href: 'https://facebook.com', label: 'Facebook' },

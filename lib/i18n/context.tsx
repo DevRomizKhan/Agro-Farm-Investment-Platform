@@ -29,7 +29,7 @@ function setCookie(name: string, value: string, days = 365) {
 
 export function LanguageProvider({
   children,
-  initialLang = 'bn',
+  initialLang = 'en',
 }: {
   children: React.ReactNode
   initialLang?: Language
@@ -78,11 +78,11 @@ export function LanguageProvider({
 export function useLanguage(): LanguageContextType {
   const context = useContext(LanguageContext)
   if (!context) {
-    // Fallback to default Bangla if used outside provider
+    // Fallback to default English if used outside provider
     return {
-      lang: 'bn',
+      lang: 'en',
       setLang: () => {},
-      t: translations.bn,
+      t: translations.en,
     }
   }
   return context
