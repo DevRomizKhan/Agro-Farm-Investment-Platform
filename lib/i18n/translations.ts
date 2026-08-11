@@ -332,7 +332,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       badges: {
         shariah: 'শরীয়াহ সনদপ্রাপ্ত',
         dividends: 'পরিবর্তনশীল বাৎসরিক লভ্যাংশ',
-        locations: '২৫+ খামার প্রাঙ্গণ',
+        locations: '১+ খামার প্রাঙ্গণ',
         insured: 'বীমাকৃত খামার সম্পদ',
       },
     },
@@ -340,7 +340,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       badge: 'বিনিয়োগ প্ল্যানসমূহ',
       titlePrefix: 'প্রকল্প আদি ',
       titleHighlight: 'প্যাকেজসমূহ',
-      subtitle: 'শরীয়াহ সম্মত ও সম্পদ-ভিত্তিক কৃষি প্রকল্প, সর্বনিম্ন ১,০০০ টাকায় প্রতি শেয়ার (গরু ও মাছ চাষ)।',
+      subtitle: 'শরীয়াহ সম্মত ও সম্পদ-ভিত্তিক কৃষি প্রকল্প, সর্বনিম্ন ১০,০০০ টাকায় প্রতি শেয়ার (গরু ও মাছ চাষ)।',
       mostPopular: 'সর্বাধিক জনপ্রিয়',
       highReturns: 'উচ্চ লভ্যাংশ',
       entryLevel: 'প্রাথমিক স্তর',
@@ -369,7 +369,7 @@ export const translations: Record<Language, TranslationDictionary> = {
           name: 'বেসিক শেয়ার প্যাকেজ',
           tag: 'প্রাথমিক স্তর',
           features: [
-            'প্রতি শেয়ার ৳১,০০০ টাকা',
+            'প্রতি শেয়ার ৳১০,০০০ টাকা',
             '২ বছর মেয়াদী প্রকল্প (জুলাই ২০২৬ – জুন ২০২৮)',
             'গরু ও মাছ উৎপাদনের প্রকৃত মূল সম্পদ',
             'শরীয়াহ সম্মত বাৎসরিক নিট লভ্যাংশ',
@@ -379,7 +379,7 @@ export const translations: Record<Language, TranslationDictionary> = {
           name: 'স্ট্যান্ডার্ড শেয়ার প্যাকেজ',
           tag: 'সর্বাধিক জনপ্রিয়',
           features: [
-            'প্রতি শেয়ার ৳১,০০০ টাকা',
+            'প্রতি শেয়ার ৳১০,০০০ টাকা',
             '২ বছর মেয়াদী প্রকল্প (জুলাই ২০২৬ – জুন ২০২৮)',
             'একজন বিনিয়োগকারী সর্বোচ্চ ৫০০ শেয়ার',
             '৬ মাস পর পর লভ্যাংশ আপডেট ও বাৎসরিক অডিট',
@@ -389,7 +389,7 @@ export const translations: Record<Language, TranslationDictionary> = {
           name: 'প্রিমিয়াম শেয়ার প্যাকেজ',
           tag: 'সর্বোচ্চ বরাদ্দ',
           features: [
-            'প্রতি শেয়ার ৳১,০০০ টাকা',
+            'প্রতি শেয়ার ৳১০,০০০ টাকা',
             '২ বছর মেয়াদী প্রকল্প (জুলাই ২০২৬ – জুন ২০২৮)',
             '২০২৯ সালে প্রকল্প সমাপনী সম্পদ অবায়িতকরণ বণ্টন',
             'অগ্রাধিকারভিত্তিক বিনিয়োগকারী সহায়তা ও রিপোর্ট',
@@ -466,8 +466,8 @@ export const translations: Record<Language, TranslationDictionary> = {
         },
         {
           step: '০৩',
-          title: 'শেয়ার ক্রয় (প্রতি শেয়ার ৳১,০০০ টাকা)',
-          description: 'অনুমোদিত বিকাশ/ব্যাংক পেমেন্টের মাধ্যমে প্রতি শেয়ার ১,০০০ টাকা মূল্যে আপনার পছন্দমতো শেয়ার অর্জন করুন।',
+          title: 'শেয়ার ক্রয় (প্রতি শেয়ার ৳১০,০০০ টাকা)',
+          description: 'অনুমোদিত বিকাশ/ব্যাংক পেমেন্টের মাধ্যমে প্রতি শেয়ার ১০,০০০ টাকা মূল্যে আপনার পছন্দমতো শেয়ার অর্জন করুন।',
         },
         {
           step: '০৪',
@@ -498,7 +498,7 @@ export const translations: Record<Language, TranslationDictionary> = {
         },
         {
           q: 'শেয়ারের মূল্য এবং সর্বনিম্ন বিনিয়োগ কত?',
-          a: 'বিনিয়োগ শেয়ারের মূল্য প্রতি শেয়ার ১,০০০ টাকা (এক হাজার টাকা)। আপনি সর্বনিম্ন ১টি শেয়ার (১,০০০ টাকা) থেকে শুরু করে সামর্থ্য অনুযায়ী একাধিক শেয়ার আমানাহ ফার্মের নির্ধারিত পেমেন্ট চ্যানেলে জমা দিয়ে কিনতে পারেন।',
+          a: 'বিনিয়োগ শেয়ারের মূল্য প্রতি শেয়ার ১০,০০০ টাকা (এক হাজার টাকা)। আপনি সর্বনিম্ন ১টি শেয়ার (১০,০০০ টাকা) থেকে শুরু করে সামর্থ্য অনুযায়ী একাধিক শেয়ার আমানাহ ফার্মের নির্ধারিত পেমেন্ট চ্যানেলে জমা দিয়ে কিনতে পারেন।',
         },
         {
           q: 'লভ্যাংশ কীভাবে এবং কখন বিতরণ করা হয়?',
@@ -575,7 +575,7 @@ export const translations: Record<Language, TranslationDictionary> = {
     footer: {
       bannerBadge: 'সম্পদ বৃদ্ধি শুরু করুন',
       bannerTitle: 'প্রজেক্ট আদি-তে যুক্ত হোন — কৃষি সম্পদের অংশীদার হন',
-      bannerSubtitle: 'প্রতি শেয়ার ৳১,০০০ টাকা · গরু ও মৎস্য উৎপাদন · ২ বছর মেয়াদী প্রকল্প (জুলাই ২০২৬ – জুন ২০২৮) · ১০০% শরীয়াহ সম্মত।',
+      bannerSubtitle: 'প্রতি শেয়ার ৳১০,০০০ টাকা · গরু ও মৎস্য উৎপাদন · ২ বছর মেয়াদী প্রকল্প (জুলাই ২০২৬ – জুন ২০২৮) · ১০০% শরীয়াহ সম্মত।',
       createFreeAccount: 'বিনামূল্যে অ্যাকাউন্ট খুলুন',
       contactUs: 'যোগাযোগ করুন',
       brandDescription: 'বাংলাদেশের শীর্ষস্থানীয় শরীয়াহ সম্মত কৃষি বিনিয়োগ প্ল্যাটফর্ম — নিরাপদ, স্বচ্ছ এবং লাভজনক।',
@@ -766,7 +766,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       badges: {
         shariah: 'Shariah Certified',
         dividends: 'Variable Annual Dividends',
-        locations: '25+ Farm Locations',
+        locations: '1+ Farm Locations',
         insured: 'Asset Insured',
       },
     },
@@ -774,7 +774,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       badge: 'Investment Plans',
       titlePrefix: 'Project Adi ',
       titleHighlight: 'Packages',
-      subtitle: 'Shariah-compliant, asset-backed program starting at BDT 1,000 per share (Cow & Fish Production).',
+      subtitle: 'Shariah-compliant, asset-backed program starting at BDT 10,000 per share (Cow & Fish Production).',
       mostPopular: 'Most Popular',
       highReturns: 'High Returns',
       entryLevel: 'Entry Level',
@@ -803,7 +803,7 @@ export const translations: Record<Language, TranslationDictionary> = {
           name: 'Basic Share Package',
           tag: 'Entry Level',
           features: [
-            'BDT 1,000 per share',
+            'BDT 10,000 per share',
             '2-Year Program (July 2026 – June 2028)',
             'Cow & Fish production asset backing',
             'Sharia compliant net annual dividends',
@@ -813,7 +813,7 @@ export const translations: Record<Language, TranslationDictionary> = {
           name: 'Standard Share Package',
           tag: 'Most Popular',
           features: [
-            'BDT 1,000 per share',
+            'BDT 10,000 per share',
             '2-Year Program (July 2026 – June 2028)',
             'Up to 500 shares per investor',
             '6-Month dividend updates & annual audits',
@@ -823,7 +823,7 @@ export const translations: Record<Language, TranslationDictionary> = {
           name: 'Premium Share Package',
           tag: 'Maximum Allocation',
           features: [
-            'BDT 1,000 per share',
+            'BDT 10,000 per share',
             '2-Year Program (July 2026 – June 2028)',
             'Full asset liquidation distribution in 2029',
             'Priority investor support & reports',
@@ -900,8 +900,8 @@ export const translations: Record<Language, TranslationDictionary> = {
         },
         {
           step: '03',
-          title: 'Purchase Shares (BDT 1,000 each)',
-          description: 'Buy shares at BDT 1,000 per share through approved payment methods in BDT currency only. Multiple shares can be purchased.',
+          title: 'Purchase Shares (BDT 10,000 each)',
+          description: 'Buy shares at BDT 10,000 per share through approved payment methods in BDT currency only. Multiple shares can be purchased.',
         },
         {
           step: '04',
@@ -932,7 +932,7 @@ export const translations: Record<Language, TranslationDictionary> = {
         },
         {
           q: 'What is the share price and minimum investment?',
-          a: 'Investment shares are priced at BDT 1,000 per share (One Thousand BDT). You can start with as little as 1 share (BDT 1,000) and may purchase multiple shares through approved BDT payment channels on The Amanah.farm.',
+          a: 'Investment shares are priced at BDT 10,000 per share (One Thousand BDT). You can start with as little as 1 share (BDT 10,000) and may purchase multiple shares through approved BDT payment channels on The Amanah.farm.',
         },
         {
           q: 'How and when are dividend returns distributed?',
@@ -1009,7 +1009,7 @@ export const translations: Record<Language, TranslationDictionary> = {
     footer: {
       bannerBadge: 'Start Growing Wealth',
       bannerTitle: 'Join Project Adi — Own Agricultural Assets',
-      bannerSubtitle: 'BDT 1,000 per share · Cow & Fish production · 2-Year program (July 2026 – June 2028) · 100% Sharia-compliant.',
+      bannerSubtitle: 'BDT 10,000 per share · Cow & Fish production · 2-Year program (July 2026 – June 2028) · 100% Sharia-compliant.',
       createFreeAccount: 'Create Free Account',
       contactUs: 'Contact Us',
       brandDescription: "Bangladesh's premier Shariah-compliant agricultural investment platform — secure, transparent, and profitable.",
