@@ -1,45 +1,56 @@
 'use client'
 
+import { BadgeCheck, FileCheck2, HandCoins, ShieldCheck, Sprout, UserRoundPlus } from 'lucide-react'
 import { useLanguage } from '@/lib/i18n/context'
+
+const stepIcons = [UserRoundPlus, ShieldCheck, BadgeCheck, HandCoins, Sprout, FileCheck2]
 
 export function HowItWorksSection() {
   const { t } = useLanguage()
 
   return (
-    <section className="py-24 bg-slate-950">
+    <section className="bg-slate-950 py-24">
       <div className="section-container">
-        {/* Header */}
-        <div className="text-center mb-16">
-          <p className="badge-primary mb-4 mx-auto w-fit">{t.howItWorks.badge}</p>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
+        <div className="mx-auto mb-16 max-w-3xl text-center">
+          <p className="badge-primary mx-auto mb-4 w-fit">{t.howItWorks.badge}</p>
+          <h2 className="mb-5 text-[2.35rem] font-black leading-tight text-white sm:text-[2.85rem] lg:text-[3.5rem]">
             {t.howItWorks.titlePrefix}
             <span className="gradient-text">{t.howItWorks.titleHighlight}</span>
           </h2>
-          <p className="text-slate-300 text-base sm:text-lg max-w-xl mx-auto leading-relaxed">
+          <p className="mx-auto max-w-2xl text-[1.02rem] leading-8 text-slate-300 sm:text-[1.125rem]">
             {t.howItWorks.subtitle}
           </p>
         </div>
 
-        {/* Steps */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 motion-stagger">
-          {t.howItWorks.steps.map(({ step, title, description }, index) => (
-            <div key={step} className="relative glass-card p-7 group hover:border-emerald-500/30 transition-all duration-300">
-              {/* Step number */}
-              <div className="flex items-center gap-4 mb-5">
-                <div className="text-5xl font-black text-emerald-500/20 group-hover:text-emerald-500/30 transition-colors leading-none font-mono">
-                  {step}
-                </div>
-                {index < t.howItWorks.steps.length - 1 && (
-                  <div className="hidden lg:block absolute top-8 -right-3 w-6 h-0.5 bg-gradient-to-r from-emerald-500/20 to-transparent" />
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {t.howItWorks.steps.map(({ step, title, description }, index) => {
+            const Icon = stepIcons[index % stepIcons.length]
+            const isLast = index === t.howItWorks.steps.length - 1
+
+            return (
+              <div
+                key={step}
+                className="group relative overflow-hidden rounded-[28px] border border-white/10 bg-slate-900/80 p-8 shadow-[0_20px_70px_rgba(0,0,0,0.25)] transition-all duration-300 hover:-translate-y-1 hover:border-emerald-500/30 hover:shadow-[0_25px_80px_rgba(16,185,129,0.15)]"
+              >
+                {!isLast && (
+                  <div className="absolute right-0 top-8 hidden h-[2px] w-12 bg-gradient-to-r from-emerald-500/40 to-transparent xl:block" />
                 )}
+                <div className="mb-6 flex items-start justify-between">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-400">
+                    <Icon className="h-6 w-6" />
+                  </div>
+                  <div className="rounded-full border border-white/10 bg-slate-950/70 px-3 py-1 text-sm font-black tracking-[0.24em] text-emerald-400">
+                    {step}
+                  </div>
+                </div>
+                <h3 className="mb-3 text-[1.2rem] font-black text-white sm:text-[1.3rem]">{title}</h3>
+                <p
+                  className="text-[1rem] leading-7 text-slate-300 sm:text-[1.05rem]"
+                  dangerouslySetInnerHTML={{ __html: description }}
+                />
               </div>
-              <h3 className="text-xl font-bold text-white mb-3">{title}</h3>
-              <p
-                className="text-base text-slate-300 leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: description }}
-              />
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
     </section>

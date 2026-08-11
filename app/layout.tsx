@@ -51,7 +51,7 @@ export default async function RootLayout({
   const initialLang: Language = savedLang === 'en' || savedLang === 'bn' ? savedLang : 'bn'
 
   return (
-    <html lang={initialLang} suppressHydrationWarning>
+    <html lang={initialLang} suppressHydrationWarning data-scroll-behavior="smooth">
       <body className="font-sans antialiased">
         <NavigationProgressBar />
         <Providers initialLang={initialLang}>

@@ -82,7 +82,7 @@ export function PublicFooter() {
           {/* Brand (4 cols) */}
           <div className="md:col-span-4 space-y-5">
             <Link href={ROUTES.HOME}>
-              <Image src="/logo.png" alt={APP_NAME} width={150} height={44} className="h-11 w-auto object-contain" />
+              <Image src="/logo.png" alt={APP_NAME} width={150} height={44} className="h-auto w-auto object-contain" />
             </Link>
             <p className="text-sm text-slate-400 leading-relaxed max-w-xs">
               {t.footer.brandDescription}

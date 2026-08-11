@@ -47,7 +47,7 @@ export function PublicHeader() {
               alt={APP_NAME}
               width={150}
               height={45}
-              className="h-10 sm:h-11 w-auto object-contain group-hover:opacity-90 transition-opacity"
+              className="h-auto w-auto object-contain group-hover:opacity-90 transition-opacity"
               priority
             />
           </Link>

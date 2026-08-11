@@ -20,7 +20,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
               alt={APP_NAME}
               width={140}
               height={41}
-              className="h-10 w-auto object-contain group-hover:opacity-90 transition-opacity"
+              className="h-auto w-auto object-contain group-hover:opacity-90 transition-opacity"
               priority
             />
           </Link>

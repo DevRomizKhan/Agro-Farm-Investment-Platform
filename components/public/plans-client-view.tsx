@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Check, ArrowRight, Sparkles } from 'lucide-react'
+import { Check, ArrowRight, Sparkles, HandCoins, ShieldCheck, Sprout, UserRoundPlus } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import { ROUTES } from '@/constants'
 import { UpcomingPlanCard } from '@/components/public/upcoming-plans'
@@ -42,16 +42,18 @@ export function PlansClientView({ displayPlans, upcomingPlans }: PlansClientView
   const { lang, t } = useLanguage()
 
   const howItWorks = lang === 'bn' ? [
-    { n: '০১', title: 'নিবন্ধন ও কেওয়াইসি (KYC)', desc: 'মাত্র ৫ মিনিটে আপনার NID ও ব্যক্তিগত তথ্য দিয়ে পরিচয় জমা দিন।' },
-    { n: '০২', title: 'শেয়ার সংখ্যা নির্ধারণ', desc: 'প্রতি শেয়ার ৳১,০০০ টাকা হারে আপনার সাধ্য অনুযায়ী যত খুশি শেয়ার নির্বাচন করুন।' },
-    { n: '০৩', title: 'মূল সম্পদের অংশীদারিত্ব', desc: 'আপনার বিনিয়োগ সরাসরি গরুর মোটাতাজাকরণ ও মৎস্য উৎপাদনের মূল সম্পদে যুক্ত হবে।' },
-    { n: '০৪', title: 'বাৎসরিক লভ্যাংশ গ্রহণ', desc: 'প্রকল্পের সব খরচ বাদ দিয়ে বাৎসরিক নিট লভ্যাংশ সরাসরি আপনার ওয়ালেটে যুক্ত হবে।' },
+    { n: '০১', title: 'নিবন্ধন ও কেওয়াইসি', desc: 'মাত্র ৫ মিনিটে আপনার NID ও ব্যক্তিগত তথ্য দিয়ে পরিচয় জমা দিন।' },
+    { n: '০২', title: 'শেয়ার বাছাই করুন', desc: 'প্রতি শেয়ার ৳১,০০০ টাকা হারে আপনার পছন্দমতো শেয়ার নির্বাচন করুন।' },
+    { n: '০৩', title: 'মূল সম্পদে বিনিয়োগ', desc: 'আপনার অর্থ সরাসরি গরুর মোটাতাজাকরণ ও মৎস্য উৎপাদনের মূল সম্পদে যুক্ত হবে।' },
+    { n: '০৪', title: 'বাৎসরিক লভ্যাংশ পান', desc: 'প্রকল্পের সব খরচ বাদ দিয়ে বাৎসরিক নিট লভ্যাংশ আপনার অ্যাকাউন্টে যুক্ত হবে।' },
   ] : [
-    { n: '01', title: 'Register & Complete KYC', desc: 'Create your account and verify your identity in under 5 minutes using your NID.' },
-    { n: '02', title: 'Select Your Share Package', desc: 'Purchase shares at BDT 1,000 each — invest as much as you want through approved BDT payment channels.' },
-    { n: '03', title: 'Own Production Assets', desc: 'Your capital is allocated to cow and fish production — real agricultural assets under Sharia principles.' },
-    { n: '04', title: 'Receive Annual Dividends', desc: 'Net dividends are calculated annually after all expenses and communicated on a 6-month basis.' },
+    { n: '01', title: 'Register & Verify', desc: 'Create your account and complete your identity check in minutes using your NID.' },
+    { n: '02', title: 'Choose Your Shares', desc: 'Select the number of shares you want at BDT 1,000 each through approved payment channels.' },
+    { n: '03', title: 'Own Production Assets', desc: 'Your capital is allocated to cow and fish production under real Sharia-compliant ownership.' },
+    { n: '04', title: 'Receive Annual Dividends', desc: 'Net dividends are calculated after all expenses and distributed to your account each year.' },
   ]
+
+  const stepIcons = [UserRoundPlus, ShieldCheck, HandCoins, Sprout]
 
   return (
     <div className="min-h-screen bg-slate-950">
@@ -159,26 +161,35 @@ export function PlansClientView({ displayPlans, upcomingPlans }: PlansClientView
       </section>
 
       {/* How It Works */}
-      <section className="border-t border-white/5 bg-slate-900/30 py-20">
-        <div className="max-w-5xl mx-auto px-4">
-          <div className="text-center mb-14">
-            <h2 className="text-2xl sm:text-3xl font-black text-white">
+      <section className="border-t border-white/5 bg-slate-900/30 py-24">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="mx-auto mb-14 max-w-3xl text-center">
+            <h2 className="text-[2.15rem] font-black text-white sm:text-[2.7rem] lg:text-[3.2rem]">
               {lang === 'bn' ? 'যেভাবে কাজ করে' : 'How It Works'}
             </h2>
-            <p className="text-slate-400 text-sm mt-2">
+            <p className="mt-3 text-[1rem] leading-8 text-slate-400 sm:text-[1.08rem]">
               {lang === 'bn' ? 'মাত্র ৪টি সহজ ধাপে কৃষিতে নিরাপদ বিনিয়োগ শুরু করুন।' : 'Start earning in 4 simple steps.'}
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-            {howItWorks.map(({ n, title, desc }) => (
-              <div key={n} className="text-center space-y-3">
-                <div className="h-14 w-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto text-emerald-400 font-black text-xl font-mono">
-                  {n}
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+            {howItWorks.map(({ n, title, desc }, index) => {
+              const Icon = stepIcons[index % stepIcons.length]
+
+              return (
+                <div key={n} className="rounded-[24px] border border-white/10 bg-slate-900/70 p-7 shadow-[0_16px_60px_rgba(0,0,0,0.22)]">
+                  <div className="mb-5 flex items-center justify-between">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-400">
+                      <Icon className="h-6 w-6" />
+                    </div>
+                    <div className="rounded-full border border-white/10 bg-slate-950/80 px-3 py-1 text-sm font-black tracking-[0.24em] text-emerald-400">
+                      {n}
+                    </div>
+                  </div>
+                  <h3 className="mb-2 text-[1.1rem] font-black text-white sm:text-[1.2rem]">{title}</h3>
+                  <p className="text-[0.98rem] leading-7 text-slate-400">{desc}</p>
                 </div>
-                <h3 className="font-bold text-white text-sm">{title}</h3>
-                <p className="text-xs text-slate-400 leading-relaxed">{desc}</p>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       </section>

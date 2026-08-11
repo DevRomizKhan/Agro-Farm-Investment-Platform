@@ -70,7 +70,7 @@ export function InvestorSidebar({ userName, userEmail }: InvestorSidebarProps) {
               alt={APP_NAME}
               width={110}
               height={32}
-              className="h-7 w-auto object-contain"
+              className="h-auto w-auto object-contain"
               priority
             />
           </div>

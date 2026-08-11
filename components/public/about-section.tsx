@@ -9,7 +9,9 @@ import { CountUp } from '@/components/ui/count-up'
 import { useLanguage } from '@/lib/i18n/context'
 
 export function AboutSection() {
-  const { t } = useLanguage()
+  const { lang, t } = useLanguage()
+  const founderName = lang === 'bn' ? 'কাজী শাকিব' : COMPANY_INFO.founder
+  const founderTitle = lang === 'bn' ? 'প্রতিষ্ঠাতা ও সিইও' : COMPANY_INFO.founderTitle
 
   const features = [
     { icon: ShieldCheck, label: t.about.features.shariah },
@@ -38,12 +40,12 @@ export function AboutSection() {
               {t.about.badge}
             </div>
 
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight">
+            <h2 className="text-[2.35rem] font-black leading-tight text-white sm:text-[2.9rem] lg:text-[3.7rem]">
               {t.about.titlePrefix}
               <span className="gradient-text">{t.about.titleHighlight}</span>
             </h2>
 
-            <p className="text-slate-300 text-lg sm:text-xl leading-relaxed">
+            <p className="text-[1.02rem] leading-8 text-slate-300 sm:text-[1.125rem]">
               {t.about.description}
             </p>
 
@@ -93,8 +95,8 @@ export function AboutSection() {
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
             </div>
             <div className="absolute -bottom-5 left-5 right-5 sm:left-8 sm:right-8 rounded-2xl border border-white/10 bg-slate-950/90 px-6 py-4 backdrop-blur-md shadow-xl">
-              <p className="text-base font-bold text-white">{t.about.managedBy} {COMPANY_INFO.founder}</p>
-              <p className="mt-1 text-sm text-slate-400">{COMPANY_INFO.founderTitle} · {COMPANY_INFO.farmLocations}</p>
+              <p className="text-base font-bold text-white">{t.about.managedBy} {founderName}</p>
+              <p className="mt-1 text-sm text-slate-400">{founderTitle} · {COMPANY_INFO.farmLocations}</p>
             </div>
           </div>
 
