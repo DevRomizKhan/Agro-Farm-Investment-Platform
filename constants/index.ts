@@ -47,7 +47,6 @@ export const INVESTMENT_STATUS_LABELS: Record<string, string> = {
 export const GENDER_OPTIONS = [
   { value: 'male', label: 'Male' },
   { value: 'female', label: 'Female' },
-  { value: 'other', label: 'Other' },
 ]
 
 export const OCCUPATION_OPTIONS = [
