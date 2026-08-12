@@ -149,7 +149,7 @@ export default function AboutPage() {
               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-emerald-500/20 bg-emerald-500/10">
                 <Icon className="h-6 w-6 text-emerald-400" />
               </div>
-              <p className="font-mono text-[1.65rem] font-black text-white sm:text-[1.9rem]">
+              <p className="font-mono text-[1.35rem] font-black text-white sm:text-[1,95rem]">
                 {numericValue !== undefined ? (
                   <CountUp value={numericValue} suffix={suffix} label={`${numericValue}${suffix || ''} ${label}`} />
                 ) : val}
