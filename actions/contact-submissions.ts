@@ -12,6 +12,7 @@ const submissionSchema = z.object({
   phone: z.string().trim().max(30).optional().or(z.literal('')),
   message: z.string().trim().max(5000).optional().or(z.literal('')),
   source: z.string().trim().min(1).max(80).default('website'),
+  honeypot: z.string().optional(),
 })
 
 const updateSubmissionSchema = z.object({
@@ -44,15 +45,39 @@ async function getOwnerContext() {
 }
 
 export async function submitContactSubmission(input: SubmissionInput): Promise<SubmissionActionResult> {
+  // Honeypot anti-bot validation
+  if (input.honeypot && input.honeypot.trim() !== '') {
+    // Silently pretend success to deceive spam bots
+    return { success: true, message: 'Your submission has been received.' }
+  }
+
   const parsed = submissionSchema.safeParse(input)
   if (!parsed.success) return { success: false, error: parsed.error.issues[0]?.message || 'Invalid submission' }
 
   const { supabase, user } = await getOwnerContext()
+
+  // Rate Limiting: Max 3 submissions per email within 5 minutes
+  const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString()
+  const { count: recentCount } = await supabase
+    .from('contact_submissions')
+    .select('*', { count: 'exact', head: true })
+    .eq('email', parsed.data.email)
+    .gte('created_at', fiveMinutesAgo)
+
+  if (recentCount && recentCount >= 3) {
+    return {
+      success: false,
+      error: 'You have submitted too many requests recently. Please wait 5 minutes before trying again.',
+    }
+  }
+
   const { error } = await supabase.from('contact_submissions').insert({
-    ...parsed.data,
+    type: parsed.data.type,
     name: parsed.data.name || null,
+    email: parsed.data.email,
     phone: parsed.data.phone || null,
     message: parsed.data.message || null,
+    source: parsed.data.source,
     user_id: user?.id || null,
   })
 
