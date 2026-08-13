@@ -61,6 +61,7 @@ export default async function BlogPostPage({ params }: BlogPageProps) {
     <div className="article-page">
       <BlogJsonLd post={post} />
 
+      {/* ── Hero header ─────────────────────────────────── */}
       <header className="article-hero">
         <div className="article-hero__glow" aria-hidden="true" />
         <div className="article-shell article-hero__inner">
@@ -79,13 +80,14 @@ export default async function BlogPostPage({ params }: BlogPageProps) {
             {post.excerpt && <p className="article-dek">{post.excerpt}</p>}
           </div>
 
+          {/* Byline */}
           <div className="article-byline">
             {post.author?.avatar_url ? (
               <img src={post.author.avatar_url} alt={authorName} className="article-avatar" />
             ) : (
               <span className="article-avatar article-avatar--initial">{authorName.charAt(0)}</span>
             )}
-            <span>
+            <span className="article-byline__text">
               <span className="article-byline__label">Written by</span>
               <span className="article-byline__name">{authorName}</span>
             </span>
@@ -93,6 +95,7 @@ export default async function BlogPostPage({ params }: BlogPageProps) {
         </div>
       </header>
 
+      {/* ── Article body ─────────────────────────────────── */}
       <main className="article-shell">
         {post.featured_image && (
           <figure className="article-featured-image">
@@ -100,30 +103,29 @@ export default async function BlogPostPage({ params }: BlogPageProps) {
           </figure>
         )}
 
-        <div className="article-reading-layout">
-          <aside className="article-rail">
-            <span>Share</span>
-            <PostShareActions title={post.title} />
-          </aside>
+        {/* Prose */}
+        <article className="article-body">
+          <div
+            className="article-content"
+            dangerouslySetInnerHTML={{ __html: post.content.replace(/\n/g, '<br />') }}
+          />
 
-          <article className="article-body">
-            <div
-              className="article-content"
-              dangerouslySetInnerHTML={{ __html: post.content.replace(/\n/g, '<br />') }}
-            />
+          {/* Tags */}
+          {(post.tags?.length || 0) > 0 && (
+            <footer className="article-tags">
+              <span className="article-tags__label"><Tag className="h-4 w-4" /> Filed under</span>
+              <div>
+                {post.tags?.map((tag) => <span key={tag}>{tag}</span>)}
+              </div>
+            </footer>
+          )}
+        </article>
 
-            {(post.tags?.length || 0) > 0 && (
-              <footer className="article-tags">
-                <span className="article-tags__label"><Tag className="h-4 w-4" /> Filed under</span>
-                <div>
-                  {post.tags?.map((tag) => <span key={tag}>{tag}</span>)}
-                </div>
-              </footer>
-            )}
-          </article>
-        </div>
+        {/* ── Share bar — below the article content ──────── */}
+        <PostShareActions title={post.title} />
       </main>
 
+      {/* ── Related posts ────────────────────────────────── */}
       {relatedPosts.length > 0 && (
         <section className="related-section">
           <div className="article-shell">

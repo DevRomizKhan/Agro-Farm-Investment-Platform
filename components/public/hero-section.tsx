@@ -107,12 +107,12 @@ export function HeroSection() {
           </Link>
         </div>
 
-        {/* Trust Badges */}
-        <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 sm:gap-x-10">
+        {/* Trust Badges — 2×2 on mobile, single row on sm+ */}
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center justify-center gap-x-8 gap-y-3 sm:gap-x-10 sm:gap-y-4 w-full max-w-sm sm:max-w-none">
           {TRUST_BADGES.map(({ icon: Icon, text }) => (
-            <div key={text} className="flex items-center gap-2.5 text-base font-medium text-slate-300">
-              <Icon className="h-5 w-5 text-emerald-400 shrink-0" />
-              <span>{text}</span>
+            <div key={text} className="flex items-center gap-2.5 text-sm sm:text-base font-medium text-slate-300 justify-center sm:justify-start">
+              <Icon className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-400 shrink-0" />
+              <span className="leading-tight">{text}</span>
             </div>
           ))}
         </div>
