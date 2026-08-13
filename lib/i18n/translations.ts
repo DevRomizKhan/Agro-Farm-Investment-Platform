@@ -932,7 +932,7 @@ export const translations: Record<Language, TranslationDictionary> = {
         },
         {
           q: 'What is the share price and minimum investment?',
-          a: 'Investment shares are priced at BDT 10,000 per share (One Thousand BDT). You can start with as little as 1 share (BDT 10,000) and may purchase multiple shares through approved BDT payment channels on The Amanah.farm.',
+          a: 'Investment shares are priced at BDT 10,000 per share (One Thousand BDT). You can start with as little as 1 share (BDT 10,000) and may purchase multiple shares through approved BDT payment channels on Amanah Farm (amanahfarm.com).',
         },
         {
           q: 'How and when are dividend returns distributed?',

@@ -161,7 +161,7 @@ const SECTIONS_EN: PolicySection[] = [
       '1.1. Investment shares are priced at BDT 1,000 per share (One Thousand BDT).',
       '1.2. An investor may purchase multiple shares.',
       '1.3. Once an investment is confirmed, it is non-refundable during the first year of the investment period.',
-      '1.4. All payments must be completed through available payment methods as provided by The Amanah.farm. Only BDT currency is supported.',
+      '1.4. All payments must be completed through available payment methods as provided by Amanah Farm (amanahfarm.com). Only BDT currency is supported.',
       '1.5. Investment is made in full compliance with Islamic Sharia Law principles.',
     ],
   },
@@ -283,11 +283,11 @@ export default function TermsPage() {
               {lang === 'bn' ? 'প্রিন্ট / পিডিএফ ডাউনলোড' : 'Print / Save Terms PDF'}
             </button>
             <a
-              href="mailto:support@amanah.farm"
+              href="mailto:support@amanahfarm.com"
               className="btn-secondary text-xs inline-flex items-center gap-2 py-2 px-4 border-emerald-500/20 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20"
             >
               <Mail className="h-3.5 w-3.5" />
-              {lang === 'bn' ? 'আইনি সহায়তা: support@amanah.farm' : 'Contact Legal Support: support@amanah.farm'}
+              {lang === 'bn' ? 'আইনি সহায়তা: support@amanahfarm.com' : 'Contact Legal Support: support@amanahfarm.com'}
             </a>
           </div>
         </div>
@@ -398,11 +398,11 @@ export default function TermsPage() {
           </p>
           <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
             <a
-              href="mailto:support@amanah.farm"
+              href="mailto:support@amanahfarm.com"
               className="btn-primary inline-flex items-center gap-2 text-sm px-6 py-3"
             >
               <Mail className="h-4 w-4" />
-              support@amanah.farm
+              support@amanahfarm.com
             </a>
             <Link
               href={ROUTES.CONTACT}

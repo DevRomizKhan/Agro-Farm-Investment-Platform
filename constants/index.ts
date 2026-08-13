@@ -9,8 +9,8 @@ export const COMPANY_INFO = {
   executive: 'Nirob Hassan',
   executiveTitle: 'Former Executor',
   phone: '01954 745991',
-  email: 'support@amanah.farm',
-  website: 'www.amanah.farm',
+  email: 'support@amanahfarm.com',
+  website: 'www.amanahfarm.com',
   farmLocations: 'Sottrogram, Kalai, Joypurhat',
   mapQuery: 'Sottrogram, Kalai, Joypurhat, Bangladesh',
 } as const

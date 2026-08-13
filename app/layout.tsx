@@ -8,6 +8,7 @@ import type { Language } from '@/lib/i18n/translations'
 import './globals.css'
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://www.amanahfarm.com'),
   title: {
     default: 'Amanah Farm — Invest in Agriculture. Harvest the Future.',
     template: '%s | Amanah Farm',
