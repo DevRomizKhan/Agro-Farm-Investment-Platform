@@ -130,12 +130,12 @@ export function PublicHeader() {
               'border-emerald-900/40'
             )}>
               <Link
-                href={ROUTES.REGISTER}
+                href={ROUTES.LOGIN}
                 className="btn-primary w-full"
                 onClick={() => setIsOpen(false)}
               >
                 <TrendingUp className="h-4 w-4" />
-                <span>{t.header.register}</span>
+                <span>{t.header.login}</span>
               </Link>
             </div>
           </div>
