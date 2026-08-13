@@ -322,7 +322,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       register: 'অ্যাকাউন্ট খুলুন',
     },
     hero: {
-      eyebrow: 'হালাল · সম্পদ-ভিত্তিক · শরীয়াহ সম্মত খামার বিনিয়োগ',
+      eyebrow: 'হালাল · সম্পদ-ভিত্তিক ২৩১· শরীয়াহ সম্মত খামার বিনিয়োগ',
       titleLine1: 'কৃষিতে বিনিয়োগ করুন।',
       highlightWord: 'সমৃদ্ধি',
       titleLine2: ' ঘরে তুলুন।',
