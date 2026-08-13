@@ -9,7 +9,7 @@ import { useLanguage } from '@/lib/i18n/context'
 export function HeroSection() {
   const [videoLoaded, setVideoLoaded] = useState(false)
   const [videoError, setVideoError] = useState(false)
-  const { t } = useLanguage()
+  const { t, lang } = useLanguage()
 
   const TRUST_BADGES = [
     { icon: ShieldCheck, text: t.hero.badges.shariah },
@@ -59,11 +59,20 @@ export function HeroSection() {
       <div className="relative z-10 section-container text-center px-4 py-32 flex flex-col items-center motion-stagger">
 
         {/* Eyebrow badge */}
-        <div className="inline-flex flex-row items-start gap-1.5 sm:gap-2.5 px-4 py-2 rounded-full bg-white/5 border border-emerald-500/30 text-emerald-400 text-sm sm:text-base font-semibold backdrop-blur-md mb-8 shadow-lg">
+        <div className="inline-flex flex-row items-start gap-1.5 sm:gap-2.5 px-4 py-2 rounded-full bg-white/5 border border-emerald-500/30 text-emerald-400 text-sm sm:text-base font-semibold backdrop-blur-md mb-8">
           <Leaf className="h-4 w-4 flex-shrink-0 mt-0.5" />
-          <span className="leading-snug text-center">
-            {t.hero.eyebrow}
-          </span>
+
+          {lang === 'bn' ? (
+            <span className="leading-snug text-center">
+              হালাল · সম্পদ-ভিত্তিক ·<br className="sm:hidden" />
+              <span className="sm:ml-1">শরীয়াহ সম্মত খামার বিনিয়োগ</span>
+            </span>
+          ) : (
+            <span className="leading-snug text-center">
+              Halal · Asset-Backed ·<br className="sm:hidden" />
+              <span className="sm:ml-1">Shariah Compliant</span>
+            </span>
+          )}
         </div>
 
         {/* Headline */}
