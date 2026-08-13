@@ -59,9 +59,11 @@ export function HeroSection() {
       <div className="relative z-10 section-container text-center px-4 py-32 flex flex-col items-center motion-stagger">
 
         {/* Eyebrow badge */}
-        <div className="inline-flex flex-row items-center gap-1.5 sm:gap-2.5 px-4 py-2 rounded-full bg-white/5 border border-emerald-500/30 text-emerald-400 text-sm sm:text-base font-semibold backdrop-blur-md mb-8 shadow-lg">
-          <Leaf className="h-4 w-4 flex-shrink-0" />
-          <span className="leading-snug text-center">{t.hero.eyebrow}</span>
+        <div className="inline-flex flex-row items-start gap-1.5 sm:gap-2.5 px-4 py-2 rounded-full bg-white/5 border border-emerald-500/30 text-emerald-400 text-sm sm:text-base font-semibold backdrop-blur-md mb-8 shadow-lg">
+          <Leaf className="h-4 w-4 flex-shrink-0 mt-0.5" />
+          <span className="leading-snug text-center">
+            {t.hero.eyebrow}
+          </span>
         </div>
 
         {/* Headline */}
