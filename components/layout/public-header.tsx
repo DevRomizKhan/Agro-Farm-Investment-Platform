@@ -75,11 +75,11 @@ export function PublicHeader() {
           <div className="hidden lg:flex items-center gap-3">
             <LanguageSwitcher />
             <Link
-              href={ROUTES.REGISTER}
+              href={ROUTES.LOGIN}
               className="btn-primary rounded-xl shadow-lg shadow-emerald-500/20 group"
             >
               <TrendingUp className="h-4 w-4" />
-              <span>{t.header.register}</span>
+              <span>{t.header.login}</span>
               <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
             </Link>
           </div>
