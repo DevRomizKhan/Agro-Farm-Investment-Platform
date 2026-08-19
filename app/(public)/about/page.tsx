@@ -167,7 +167,7 @@ export default function AboutPage() {
       <section className="mx-auto max-w-6xl px-4 py-12 sm:py-20">
         <div className="mb-8 sm:mb-12 text-center">
           <h2 className="text-xl sm:text-[2.4rem] font-black text-white leading-tight">
-            {lang === 'bn' ? 'আমাদের মূল আদর্শ ও নীতিমালা' : 'Our Core Demo Principles'}
+            {lang === 'bn' ? 'আমাদের মূল আদর্শ ও নীতিমালা' : 'Our Core Demodeploy issues Principles'}
           </h2>
         </div>
         <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-3">
