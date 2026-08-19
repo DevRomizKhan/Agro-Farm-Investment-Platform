@@ -12,4 +12,5 @@ export async function markNotificationReadAction(notificationId: string): Promis
     .update({ is_read: true })
     .eq('id', notificationId)
     .eq('user_id', user.id)
+
 }
