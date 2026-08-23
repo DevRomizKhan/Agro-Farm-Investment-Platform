@@ -62,13 +62,15 @@ export function NavigationProgressBar() {
       const href = target.getAttribute('href')
       if (!href || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:')) return
       if (target.target === '_blank') return
+      // Don't start progress bar if clicking link to current page
+      if (href === pathname) return
       start()
     }
 
     document.addEventListener('click', handleClick)
     return () => document.removeEventListener('click', handleClick)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [pathname])
 
   return (
     <div

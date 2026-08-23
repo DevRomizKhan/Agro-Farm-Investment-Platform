@@ -76,12 +76,14 @@ export default function ContactPage() {
             <div className="relative h-64 rounded-2xl overflow-hidden border border-emerald-500/20 bg-slate-900">
               <iframe
                 title="Amanah Farm location map"
-                src="https://www.openstreetmap.org/export/embed.html?bbox=89.1650%2C25.1000%2C89.2650%2C25.1700&layer=mapnik&marker=25.1364%2C89.21548"
-                className="w-full h-full border-0 grayscale-[0.15] contrast-[1.05]"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3625.123456789!2d89.2397!3d25.0949!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39e1234567890123%3A0x1234567890abcdef!2s42MJ%2BW72%20%E0%A6%AC%E0%A6%BE%E0%A6%B8%20%E0%A6%95%E0%A6%BE%E0%A6%89%E0%A6%A8%E0%A7%8D%E0%A6%9F%E0%A6%BE%E0%A6%B0%2C%20Joypurhat%20-%20Hili%20Hwy%2C%20Joypurhat!5e0!3m2!1sen!2sbd!4v1690000000000!5m2!1sen!2sbd!5m2!1sen!2sbd&z=15&t=k&marker=color:0xff0000%7C25.0949,89.2397"
+                className="w-full h-full border-0"
                 loading="lazy"
+                allowFullScreen
+                referrerPolicy="no-referrer-when-downgrade"
               />
               <a
-                href="https://www.openstreetmap.org/?mlat=25.1364&mlon=89.21548#map=15/25.1364/89.21548"
+                href="https://www.google.com/maps/search/?api=1&query=42MJ%2BW72+বাস+কাউন্টার,+Joypurhat+-+Hili+Hwy,+Joypurhat"
                 target="_blank"
                 rel="noreferrer"
                 className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 rounded-lg bg-slate-950/90 px-3 py-2 text-[11px] font-semibold text-white backdrop-blur-md border border-white/10"
