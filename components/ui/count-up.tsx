@@ -10,9 +10,10 @@ type CountUpProps = {
   duration?: number
   className?: string
   label?: string
+  useCommas?: boolean
 }
 
-export function CountUp({ value, suffix = '', prefix = '', decimals = 0, duration = 1400, className = '', label }: CountUpProps) {
+export function CountUp({ value, suffix = '', prefix = '', decimals = 0, duration = 1400, className = '', label, useCommas = true }: CountUpProps) {
   const elementRef = useRef<HTMLSpanElement>(null)
   const [displayValue, setDisplayValue] = useState(value)
 
@@ -48,7 +49,7 @@ export function CountUp({ value, suffix = '', prefix = '', decimals = 0, duratio
 
   return (
     <span ref={elementRef} className={className} aria-label={label}>
-      {prefix}{displayValue.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}{suffix}
+      {prefix}{useCommas ? displayValue.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals }) : Math.floor(displayValue).toString()}{suffix}
     </span>
   )
 }

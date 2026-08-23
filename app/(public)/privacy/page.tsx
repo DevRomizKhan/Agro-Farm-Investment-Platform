@@ -11,7 +11,7 @@ export default function PrivacyPage() {
       <div className="py-16 bg-slate-950 text-slate-300 min-h-screen">
         <div className="section-container max-w-4xl space-y-8">
           <div className="text-center space-y-3">
-            <h1 className="text-3xl sm:text-4xl font-bold text-white">Privacy Policy</h1>
+            <h2 className="text-3xl sm:text-4xl font-bold text-white">Privacy Policy</h2>
             <p className="text-sm text-slate-400">Last updated: July 2026</p>
           </div>
           
@@ -50,7 +50,7 @@ export default function PrivacyPage() {
             <ShieldCheck className="h-4 w-4" />
             <span>গোপনীয়তা ও তথ্য সুরক্ষা নীতি</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white">গোপনীয়তা নীতি (Privacy Policy)</h1>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white">গোপনীয়তা নীতি (Privacy Policy)</h2>
           <p className="text-sm text-slate-400">সর্বশেষ হালনাগাদ: জুলাই ২০২৬</p>
         </div>
         

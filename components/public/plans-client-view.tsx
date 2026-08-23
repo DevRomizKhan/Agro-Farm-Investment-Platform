@@ -66,7 +66,7 @@ export function PlansClientView({ displayPlans, upcomingPlans }: PlansClientView
             <Sparkles className="h-3.5 w-3.5" />
             {lang === 'bn' ? 'প্রজেক্ট আদি — ২ বছর মেয়াদী কৃষি মালিকানা প্রোগ্রাম' : 'Project Adi — 2 Year Ownership Program'}
           </div>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight">
+          <h1 className="text-4xl sm:text-5xl lg:text-5xl font-black text-white leading-tight">
             {t.plans.titlePrefix}<span className="gradient-text">{t.plans.titleHighlight}</span>
           </h1>
           <p className="text-slate-300 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">

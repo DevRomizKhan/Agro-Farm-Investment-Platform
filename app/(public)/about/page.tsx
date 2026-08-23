@@ -56,15 +56,15 @@ export default function AboutPage() {
       <section className="relative overflow-hidden px-4 pb-16 pt-28 sm:pb-28 sm:pt-36">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(16,185,129,0.12),transparent)]" />
         <div className="relative z-10 mx-auto max-w-5xl text-center">
-          <div className="mx-auto mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3.5 py-1.5 text-[0.7rem] sm:text-xs font-bold uppercase tracking-wider sm:tracking-[0.24em] text-emerald-400">
-            <Leaf className="h-3.5 w-3.5 shrink-0" />
+          <div className="mx-auto mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3.5 py-1.5 text-[14px] sm:text-sm font-bold uppercase tracking-wider sm:tracking-[0.24em] text-emerald-400">
+            <Leaf className="h-4 w-4 shrink-0" />
             <span>{t.about.badge}</span>
           </div>
-          <h1 className="text-2xl font-black leading-tight text-white sm:text-4xl lg:text-[4.25rem] sm:leading-[1.05] break-words">
+          <h1 className="text-[36px] sm:text-4xl lg:text-5xl font-black leading-tight text-white mb-4">
             {t.about.titlePrefix}
             <span className="gradient-text">{t.about.titleHighlight}</span>
           </h1>
-          <p className="mx-auto mt-4 sm:mt-6 max-w-3xl text-sm sm:text-[1.15rem] leading-7 sm:leading-8 text-slate-300">
+          <p className="mx-auto max-w-3xl text-[16px] sm:text-lg text-slate-300 leading-relaxed">
             {t.about.description}
           </p>
         </div>
@@ -72,7 +72,7 @@ export default function AboutPage() {
 
       <section className="mx-auto max-w-7xl px-4 pb-16 sm:pb-24">
         <div className="grid items-center gap-10 lg:gap-14 lg:grid-cols-2">
-          <div className="group relative aspect-[16/10] sm:aspect-[4/3] overflow-hidden rounded-2xl sm:rounded-[32px] border border-emerald-500/20 shadow-2xl shadow-emerald-950/20">
+          <div className="group relative aspect-[16/10] sm:aspect-[4/3] overflow-hidden rounded-2xl sm:rounded-3xl border border-emerald-500/20 shadow-2xl">
             <Image
               src="/images/carousel/slide3.jpg"
               alt="Amanah Farm cattle operation in Bangladesh"
@@ -91,16 +91,16 @@ export default function AboutPage() {
           </div>
 
           <div className="space-y-4 sm:space-y-6">
-            <h2 className="text-xl font-black leading-snug text-white sm:text-[2.6rem]">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black leading-tight text-white">
               {lang === 'bn' ? 'স্বচ্ছতার ভিত্তিতে গঠিত, ' : 'Built on Transparency, '}
               <span className="gradient-text">{lang === 'bn' ? 'আস্থায় পরিচালিত' : 'Powered by Trust'}</span>
             </h2>
-            <p className="text-sm sm:text-[1.05rem] leading-7 sm:leading-8 text-slate-300">
+            <p className="text-sm sm:text-base lg:text-lg text-slate-300 leading-relaxed">
               {lang === 'bn'
                 ? `আমানাহ ফার্ম প্রতিষ্ঠিত হয়েছে ${founderName}-এর দূরদর্শী নেতৃত্বে — মূল উদ্দেশ্য বাংলাদেশে কৃষি যৌথ বিনিয়োগকে স্বচ্ছ ও সহজলভ্য করে তোলা।`
                 : `Amanah Farm was founded by ${founderName} with one goal: make agricultural co-ownership transparent and genuinely accessible to Bangladeshi investors.`}
             </p>
-            <p className="text-xs sm:text-[1rem] leading-6 sm:leading-8 text-slate-400">
+            <p className="text-sm sm:text-base text-slate-400 leading-relaxed">
               {lang === 'bn'
                 ? 'আমাদের বর্তমান উদ্যোগ, প্রজেক্ট আদি, হলো একটি ২ বছর মেয়াদী (জুলাই ২০২৬ – জুন ২০২৮) গরু ও মৎস্য চাষ প্রকল্প। বিনিয়োগকারীরা শরীয়াহ অংশীদারিত্ব নীতি মেনে মূল সম্পদের আনুপাতিক মালিকানা এবং বাৎসরিক নিট লভ্যাংশ পান।'
                 : 'Our current initiative, Project Adi, is a 2-year ownership program (July 2026 – June 2028) focused on cow and fish production. Investors receive proportionate ownership rights and annual net dividends under Islamic Sharia partnership principles.'}

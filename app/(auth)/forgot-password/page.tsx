@@ -50,7 +50,7 @@ export default function ForgotPasswordPage() {
   return (
     <div className="fade-in">
       <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold text-white mb-2">{t.auth.forgotPasswordTitle}</h1>
+        <h2 className="text-2xl font-bold text-white mb-2">{t.auth.forgotPasswordTitle}</h2>
         <p className="text-slate-400 text-sm">{t.auth.forgotPasswordSubtitle}</p>
       </div>
       <div className="glass-card p-8">

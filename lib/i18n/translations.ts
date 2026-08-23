@@ -110,19 +110,6 @@ export interface TranslationDictionary {
       a: string
     }>
   }
-  testimonials: {
-    badge: string
-    titlePrefix: string
-    titleHighlight: string
-    invested: string
-    items: Array<{
-      name: string
-      location: string
-      occupation: string
-      content: string
-      invested: string
-    }>
-  }
   statsSection: {
     activeInvestors: { label: string; desc: string }
     averageRoi: { label: string; desc: string }
@@ -523,35 +510,6 @@ export const translations: Record<Language, TranslationDictionary> = {
         {
           q: 'প্রকল্পে কী ধরনের ঝুঁকি থাকতে পারে?',
           a: 'কৃষি ও মৎস্য খাতে প্রাকৃতিক দুর্যোগ, প্রাণীর রোগব্যাধি, গো-খাদ্যের মূল্য বৃদ্ধি ও বাজারদরের ওঠানামার ঝুঁকি থাকে। শরীয়াহ নীতি অনুসারে লাভ ও ক্ষতি আনুপাতিকভাবে ভাগ করে নেয়া হয়।',
-        },
-      ],
-    },
-    testimonials: {
-      badge: 'বিনিয়োগকারীদের কথা',
-      titlePrefix: 'আমাদের বিনিয়োগকারীরা ',
-      titleHighlight: 'যা বলছেন',
-      invested: 'বিনিয়োগ করেছেন',
-      items: [
-        {
-          name: 'মোঃ রফিকুল ইসলাম',
-          location: 'ঢাকা',
-          occupation: 'ব্যবসায়ী',
-          content: 'আমি গত ২ বছর ধরে আমানাহ ফার্মের সাথে আছি। তাদের অনলাইন ড্যাশবোর্ডে বিনিয়োগের সব আপডেট স্পষ্ট দেখা যায়। আমার অভিজ্ঞতা অত্যন্ত চমৎকার!',
-          invested: '৳৫,০০,০০০',
-        },
-        {
-          name: 'ফাতেমা বেগম',
-          location: 'চট্টগ্রাম',
-          occupation: 'চিকিৎসক',
-          content: 'পেশাগত ব্যস্ততার কারণে একটি হালাল ও নিরাপদ প্যাসিভ ইনকামের সুযোগ খুঁজছিলাম। আমানাহ ফার্মের পারফর্মেন্স ও সময়মতো লভ্যাংশ প্রদান সত্যিই প্রশংসনীয়।',
-          invested: '৳২,০০,০০০',
-        },
-        {
-          name: 'করিম উদ্দিন',
-          location: 'সিলেট',
-          occupation: 'প্রকৌশলী',
-          content: 'প্ল্যাটফর্মটির স্বচ্ছতা অতুলনীয়। খামারের মূলধন কোথায় কীভাবে ব্যবহৃত হচ্ছে এবং বাৎসরিক অডিট রিপোর্ট সরাসরি দেখা যায়। তাদের প্রতি আস্থাশীল।',
-          invested: '৳৩,৫০,০০০',
         },
       ],
     },
@@ -957,35 +915,6 @@ export const translations: Record<Language, TranslationDictionary> = {
         {
           q: 'What are the main risk factors involved?',
           a: 'Livestock and aquaculture carry inherent risks including animal mortality, disease, weather conditions, feed prices, and market price fluctuations. Costs may also shift due to natural disasters or commodity prices, with risks shared proportionately under Sharia partnership principles.',
-        },
-      ],
-    },
-    testimonials: {
-      badge: 'Testimonials',
-      titlePrefix: 'What Our ',
-      titleHighlight: 'Investors Say',
-      invested: 'Invested',
-      items: [
-        {
-          name: 'Md. Rafiqul Islam',
-          location: 'Dhaka',
-          occupation: 'Business Owner',
-          content: 'I have been investing with Amanah Farm for 2 years. The dashboard makes it easy to track my investment and ownership. Highly recommended!',
-          invested: '৳5,00,000',
-        },
-        {
-          name: 'Fatema Begum',
-          location: 'Chittagong',
-          occupation: 'Doctor',
-          content: 'As a busy professional, I needed a passive income source. Amanah Farm gives me 15% annual returns with zero hassle. The team is very professional.',
-          invested: '৳2,00,000',
-        },
-        {
-          name: 'Karim Uddin',
-          location: 'Sylhet',
-          occupation: 'Engineer',
-          content: 'The transparency of this platform is unmatched. I can see exactly where my money is invested and review the project reports. Trust is the biggest factor and Amanah Farm delivers it.',
-          invested: '৳3,50,000',
         },
       ],
     },

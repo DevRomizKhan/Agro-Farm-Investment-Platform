@@ -5,7 +5,6 @@ import { PublicFooter } from '@/components/layout/public-footer'
 import { HeroSection } from '@/components/public/hero-section'
 import { AboutSection } from '@/components/public/about-section'
 import { PlansPreviewSection } from '@/components/public/plans-preview-section'
-import { BlogSection } from '@/components/public/blog-section'
 import { FAQSection } from '@/components/public/faq-section'
 
 export default async function HomePage({
@@ -30,9 +29,6 @@ export default async function HomePage({
         <AboutSection />
         <Suspense fallback={<SectionFallback label="Loading investment plans…" />}>
           <PlansPreviewSection />
-        </Suspense>
-        <Suspense fallback={<SectionFallback label="Loading insights…" />}>
-          <BlogSection />
         </Suspense>
         <FAQSection />
       </main>

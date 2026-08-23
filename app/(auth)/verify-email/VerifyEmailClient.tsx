@@ -66,7 +66,7 @@ export default function VerifyEmailClient({
           <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center mx-auto mb-6">
             <CheckCircle2 className="w-10 h-10 text-emerald-400" />
           </div>
-          <h1 className="text-2xl font-bold text-white mb-3">Email Verified Successfully!</h1>
+          <h2 className="text-2xl font-bold text-white mb-3">Email Verified Successfully!</h2>
           <p className="text-slate-300 mb-8 text-sm leading-relaxed">
             Your email address has been confirmed. You now have full access to your account and investment dashboard.
           </p>
@@ -124,9 +124,9 @@ export default function VerifyEmailClient({
           )}
         </div>
 
-        <h1 className="text-2xl font-bold text-white mb-3">
+        <h2 className="text-2xl font-bold text-white mb-3">
           {errorMessage ? 'Verification Failed' : 'Check Your Email'}
-        </h1>
+        </h2>
 
         <p className="text-slate-300 mb-6 text-sm leading-relaxed">
           {errorMessage

@@ -35,21 +35,21 @@ export function AboutSection() {
 
           {/* LEFT CONTENT */}
           <div className="space-y-5 sm:space-y-7">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs sm:text-sm font-bold uppercase tracking-wider sm:tracking-widest">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[14px] sm:text-sm font-bold uppercase tracking-wider sm:tracking-widest">
               <Leaf className="h-4 w-4 shrink-0" />
               <span>{t.about.badge}</span>
             </div>
 
-            <h2 className="text-2xl font-black leading-tight text-white sm:text-[2.9rem] lg:text-[3.7rem] break-words">
+            <h2 className="text-[36px] font-black leading-tight text-white sm:text-[2.9rem] lg:text-[3.7rem] break-words">
               {t.about.titlePrefix}
               <span className="gradient-text">{t.about.titleHighlight}</span>
             </h2>
 
-            <p className="text-sm sm:text-[1.125rem] leading-7 sm:leading-8 text-slate-300">
+            <p className="text-[16px] sm:text-[1.125rem] leading-7 sm:leading-8 text-slate-300">
               {t.about.description}
             </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-3.5 motion-stagger">
+            <div className="grid grid-cols-2 sm:grid-cols-2 gap-3 sm:gap-3.5 motion-stagger">
               {features.map(({ icon: Icon, label }) => (
                 <div key={label} className="flex items-center gap-3">
                   <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0">
@@ -65,7 +65,7 @@ export function AboutSection() {
               {stats.map(({ value, suffix, label }) => (
                 <div key={label}>
                   <p className="text-xl sm:text-3xl font-black text-emerald-400 font-mono">
-                    <CountUp value={value} suffix={suffix} label={`${value}${suffix || ''} ${label}`} />
+                    <CountUp value={value} suffix={suffix} label={`${value}${suffix || ''} ${label}`} useCommas={value >= 1000 ? false : true} />
                   </p>
                   <p className="text-xs sm:text-sm text-slate-400 mt-0.5 sm:mt-1 leading-tight">{label}</p>
                 </div>
