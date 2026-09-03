@@ -76,10 +76,16 @@ export function HeroSection() {
         </div>
 
         {/* Headline */}
-        <h1 className="text-4xl sm:text-6xl md:text-7xl font-[950] text-white leading-[1.15] tracking-tight mb-6 max-w-4xl">
+        <h1
+          className={`text-4xl sm:text-6xl md:text-7xl text-white mb-6 max-w-4xl ${
+            lang === 'bn'
+              ? 'font-extrabold leading-[1.25] tracking-normal'
+              : 'font-[950] leading-[1.15] tracking-tight'
+          }`}
+        >
           {t.hero.titleLine1}{' '}
           <br />
-          <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-emerald-300 via-white to-emerald-300 animate-pulse">
+          <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-emerald-300 via-emerald-200 to-emerald-400 drop-shadow-[0_0_25px_rgba(52,211,153,0.35)] px-1 -mx-1">
             {t.hero.highlightWord}
           </span>
           {t.hero.titleLine2}
