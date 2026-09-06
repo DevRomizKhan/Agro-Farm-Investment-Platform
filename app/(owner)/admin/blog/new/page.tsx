@@ -159,9 +159,10 @@ export default function NewBlogPostPage() {
               <input
                 {...register('slug')}
                 type="text"
-                placeholder="post-title-url"
+                placeholder="Generated from title if left empty"
                 className="input-base"
               />
+              <p className="mt-1 text-xs text-slate-500">Use a short, descriptive URL if you want to customise it.</p>
               {errors.slug && <p className="mt-1.5 text-xs text-red-400">{errors.slug.message}</p>}
             </div>
 
@@ -352,6 +353,7 @@ export default function NewBlogPostPage() {
                   placeholder="keyword1, keyword2, keyword3"
                   className="input-base"
                 />
+                <p className="mt-1 text-xs text-slate-500">Separate keywords with commas.</p>
               </div>
             </div>
           </div>

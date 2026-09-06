@@ -114,11 +114,11 @@ export default function EditBlogPostPage() {
 
     setIsUploading(true)
     try {
-      const fileType = file.type.startsWith('image') ? 'image' : 
-                      file.type.startsWith('video') ? 'video' : 'document'
-      
+      const fileType = file.type.startsWith('image') ? 'image' :
+        file.type.startsWith('video') ? 'video' : 'document'
+
       const result = await uploadBlogMedia(file, postId, fileType)
-      
+
       if (result.success) {
         toast.success(result.message)
         await loadPost() // Reload to show new media
@@ -235,9 +235,10 @@ export default function EditBlogPostPage() {
               <input
                 {...register('slug')}
                 type="text"
-                placeholder="post-title-url"
+                placeholder="Generated from title if left empty"
                 className="input-base"
               />
+              <p className="mt-1 text-xs text-slate-500">Use a short, descriptive URL if you want to customise it.</p>
               {errors.slug && <p className="mt-1.5 text-xs text-red-400">{errors.slug.message}</p>}
             </div>
 
@@ -268,7 +269,7 @@ export default function EditBlogPostPage() {
           {/* Media Upload */}
           <div className="glass-card p-6">
             <h3 className="text-lg font-semibold text-white mb-4">Media</h3>
-            
+
             <div className="border-2 border-dashed border-slate-700 rounded-lg p-8 text-center hover:border-emerald-500/50 transition-colors">
               <input
                 type="file"
@@ -327,11 +328,10 @@ export default function EditBlogPostPage() {
                     <button
                       type="button"
                       onClick={() => handleSetFeaturedImage(media.file_url)}
-                      className={`absolute bottom-2 left-2 px-2 py-1 rounded text-xs transition-opacity ${
-                        watch('featured_image') === media.file_url
-                          ? 'bg-emerald-500 text-white'
-                          : 'bg-black/60 text-white opacity-0 group-hover:opacity-100'
-                      }`}
+                      className={`absolute bottom-2 left-2 px-2 py-1 rounded text-xs transition-opacity ${watch('featured_image') === media.file_url
+                        ? 'bg-emerald-500 text-white'
+                        : 'bg-black/60 text-white opacity-0 group-hover:opacity-100'
+                        }`}
                     >
                       {watch('featured_image') === media.file_url ? 'Featured' : 'Set as Featured'}
                     </button>
@@ -448,6 +448,7 @@ export default function EditBlogPostPage() {
                   placeholder="keyword1, keyword2, keyword3"
                   className="input-base"
                 />
+                <p className="mt-1 text-xs text-slate-500">Separate keywords with commas.</p>
               </div>
             </div>
           </div>
