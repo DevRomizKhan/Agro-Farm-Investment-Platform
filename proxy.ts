@@ -9,6 +9,23 @@ const AUTH_ROUTES = ['/login', '/register', '/forgot-password']
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
+/**
+ * Roles are stored in `profiles`, not in user metadata. User metadata is
+ * editable by the signed-in user, so it must never decide authorization.
+ */
+async function getProfileRole(
+  supabase: ReturnType<typeof createServerClient>,
+  userId: string,
+) {
+  const { data } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('user_id', userId)
+    .maybeSingle()
+
+  return data?.role === 'owner' ? 'owner' : 'investor'
+}
+
 function clearAuthCookies(response: NextResponse, request: NextRequest) {
   // Supabase may split its auth session across several `sb-*` cookies.
   for (const { name } of request.cookies.getAll()) {
@@ -75,13 +92,13 @@ export async function proxy(request: NextRequest) {
   }
 
   if (isAuthRoute && user) {
-    const role = user.user_metadata?.role as string | undefined
+    const role = await getProfileRole(supabase, user.id)
     const redirectTo = role === 'owner' ? '/admin' : '/dashboard'
     return NextResponse.redirect(new URL(redirectTo, request.url))
   }
 
   if (isOwnerRoute && user) {
-    const role = user.user_metadata?.role as string | undefined
+    const role = await getProfileRole(supabase, user.id)
     if (role !== 'owner') {
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }

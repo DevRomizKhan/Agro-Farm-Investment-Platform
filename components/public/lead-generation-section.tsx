@@ -1,4 +1,4 @@
-'use client'
+z'use client'
 
 import { useState } from 'react'
 import {
@@ -43,12 +43,12 @@ export function LeadGenerationSection() {
       <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-teal-500/10 rounded-full blur-[100px] pointer-events-none" />
 
       <div className="section-container relative z-10">
-        
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          
+
           {/* Left Column: Copy & Value Proposition */}
           <div className="lg:col-span-6 space-y-6">
-            
+
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold uppercase tracking-wider">
               <Calculator className="h-3.5 w-3.5" />
               <span>Free Investor Consultation</span>
@@ -66,7 +66,7 @@ export function LeadGenerationSection() {
             {/* Benefit Checkpoints */}
             <div className="space-y-4 pt-2">
               {[
-                'Tailored cattle unit allocation based on your budget',
+                'Tailored Fish Project unit allocation based on your budget',
                 'Detailed breakdown of Shariah profit sharing ratios',
                 'Complimentary consultation with senior agro financial managers',
                 'Instant access to farm audit & legal documentation',
@@ -105,7 +105,7 @@ export function LeadGenerationSection() {
           {/* Right Column: Lead Form Card */}
           <div className="lg:col-span-6">
             <div className="glass-card p-8 sm:p-10 rounded-3xl border border-emerald-500/30 shadow-2xl bg-slate-900/90 relative">
-              
+
               {submitted ? (
                 <div className="py-12 text-center space-y-6">
                   <div className="h-20 w-20 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center mx-auto text-emerald-400">

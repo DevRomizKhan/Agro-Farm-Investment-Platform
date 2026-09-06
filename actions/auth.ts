@@ -16,6 +16,7 @@ export type ActionResult = {
   message?: string
   needsVerification?: boolean
   email?: string
+  redirectTo?: string
 }
 
 function isEmailConfirmationEnabled() {
@@ -56,8 +57,20 @@ export async function loginAction(data: LoginFormData): Promise<ActionResult> {
     }
   }
 
+  // Authorization is based on the database profile, never user metadata.
+  // Metadata can be changed by the user and may be replaced during profile
+  // updates, so it is not a stable source for the owner role.
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('user_id', authData.user.id)
+    .maybeSingle()
+
   revalidatePath('/', 'layout')
-  return { success: true }
+  return {
+    success: true,
+    redirectTo: profile?.role === 'owner' ? ROUTES.ADMIN_DASHBOARD : ROUTES.INVESTOR_DASHBOARD,
+  }
 }
 
 export async function registerAction(data: RegisterFormData): Promise<ActionResult> {

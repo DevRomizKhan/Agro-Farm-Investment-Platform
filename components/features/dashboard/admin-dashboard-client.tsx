@@ -5,6 +5,7 @@ import { Users, TrendingUp, Clock, ArrowRight, DollarSign, Layers, FileClock, Re
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { ROUTES } from '@/constants'
 import { useLanguage } from '@/lib/i18n/context'
+import { PlanRealtimeRefresh } from '@/components/realtime/plan-realtime-refresh'
 
 type ProfileSummary = {
   user_id: string
@@ -46,6 +47,7 @@ export function AdminDashboardClient({
 
   return (
     <div className="fade-in space-y-8">
+      <PlanRealtimeRefresh />
       {/* Header */}
       <div className="page-header">
         <div>

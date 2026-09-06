@@ -1,7 +1,7 @@
 # Amanah Farm
 
 Amanah Farm is a Sharia-compliant agricultural co-ownership platform built
-for Project Adi. Investors can review share packages, complete KYC, submit
+for Fish Project. Investors can review share packages, complete KYC, submit
 investment requests, track ownership, and receive transparent project
 reporting. Owners manage plans, investments, KYC reviews, blog content, leads,
 notifications, and reports from the admin panel.

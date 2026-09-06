@@ -22,17 +22,17 @@ export default async function BlogPage() {
   return (
     <div className="min-h-screen pb-16">
       {/* Hero Section */}
-      <section className="relative py-16 px-4">
-        <div className="max-w-4xl mx-auto text-center">
+      <section className="relative px-4 py-16">
+        <div className="mx-auto max-w-6xl text-left">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
             Agricultural Investment Insights
           </h1>
-          <p className="text-lg text-slate-400 mb-8 max-w-2xl mx-auto">
+          <p className="mb-8 max-w-2xl text-lg text-slate-400">
             Expert perspectives on sustainable farming, investment opportunities, and the future of agriculture in Bangladesh.
           </p>
           
           {/* Search Bar */}
-          <div className="max-w-xl mx-auto relative">
+          <div className="relative max-w-xl">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
             <input
               type="text"

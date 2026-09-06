@@ -367,6 +367,15 @@ export async function manageInvestmentPlanAction(
     const validated = investmentPlanSchema.safeParse(data)
     if (!validated.success) return { success: false, error: validated.error.issues[0]?.message }
 
+    const highlights = (validated.data.highlights_text || '')
+      .split(/\r?\n/)
+      .map((highlight) => highlight.trim())
+      .filter(Boolean)
+
+    if (highlights.length > 6) {
+      return { success: false, error: 'A plan can have at most 6 public highlights' }
+    }
+
     if (planId) {
       // Update plan
       const { error } = await supabase
@@ -374,6 +383,9 @@ export async function manageInvestmentPlanAction(
         .update({
           name: validated.data.name,
           description: validated.data.description,
+          display_label: validated.data.display_label || null,
+          highlights,
+          is_featured: validated.data.is_featured,
           total_shares: validated.data.total_shares,
           shares_per_amount: validated.data.shares_per_amount,
           owner_share_percentage: validated.data.owner_share_percentage,
@@ -396,6 +408,9 @@ export async function manageInvestmentPlanAction(
         .insert({
           name: validated.data.name,
           description: validated.data.description || null,
+          display_label: validated.data.display_label || null,
+          highlights,
+          is_featured: validated.data.is_featured,
           total_shares: validated.data.total_shares,
           shares_per_amount: validated.data.shares_per_amount,
           owner_share_percentage: validated.data.owner_share_percentage,
@@ -415,9 +430,7 @@ export async function manageInvestmentPlanAction(
       if (!newPlan) throw new Error('Failed to create plan')
     }
 
-    revalidatePath('/plans')
-    revalidatePath('/', 'layout')
-    revalidatePath('/admin/plans')
+    revalidatePlanViews(planId)
     return { success: true }
   } catch (err: unknown) {
     return { success: false, error: getErrorMessage(err, 'Failed to save plan') }
@@ -464,13 +477,34 @@ export async function deleteInvestmentPlanAction(planId: string): Promise<{ succ
 
     if (error) throw error
 
-    revalidatePath('/plans')
-    revalidatePath('/', 'layout')
-    revalidatePath('/admin/plans')
+    revalidatePlanViews(planId)
     return { success: true }
   } catch (err: unknown) {
     return { success: false, error: getErrorMessage(err, 'Failed to delete plan') }
   }
+}
+
+/**
+ * Every view below reads plan terms directly from `investment_plans` (or via
+ * its relation on an investment). Keep their server-rendered payloads fresh
+ * after an owner creates, edits, or deletes a plan.
+ */
+function revalidatePlanViews(planId?: string) {
+  revalidatePath('/', 'layout')
+
+  for (const path of [
+    '/plans',
+    '/dashboard',
+    '/dashboard/investments',
+    '/admin',
+    '/admin/plans',
+    '/admin/investments',
+    '/admin/reports',
+  ]) {
+    revalidatePath(path)
+  }
+
+  if (planId) revalidatePath(`/admin/plans/${planId}`)
 }
 
 /**

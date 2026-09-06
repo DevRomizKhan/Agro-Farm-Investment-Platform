@@ -6,19 +6,21 @@ import { ROUTES } from '@/constants'
 import { formatCurrency } from '@/lib/utils'
 import { UpcomingPlanCard, type UpcomingPlan } from '@/components/public/upcoming-plans'
 import { useLanguage } from '@/lib/i18n/context'
+import { PlanRealtimeRefresh } from '@/components/realtime/plan-realtime-refresh'
 
 export interface ActivePlanItem {
   id?: string
   name: string
-  tag: string
+  description: string | null
+  display_label: string | null
+  highlights: string[]
+  is_featured: boolean
   total_shares: number
   shares_per_amount: number
   max_shares_per_investor: number
   roi_percentage: number
   duration_months: number
   owner_share_percentage: number
-  popular: boolean
-  features: string[]
 }
 
 interface PlansPreviewClientProps {
@@ -27,29 +29,11 @@ interface PlansPreviewClientProps {
 }
 
 export function PlansPreviewClient({ activePlans, upcomingPlans }: PlansPreviewClientProps) {
-  const { t, lang } = useLanguage()
-
-  const staticPlansTrans = t.plans.staticPlans
-
-  const displayPlans = activePlans.map((plan, idx) => {
-    // If it's static fallback or server plan, map titles/features to current language
-    const staticTranslation = staticPlansTrans[idx % staticPlansTrans.length]
-    const localizedName = lang === 'bn' && staticTranslation ? staticTranslation.name : plan.name
-    const localizedTag = lang === 'bn' && staticTranslation ? staticTranslation.tag : (
-      plan.roi_percentage >= 16 ? t.plans.highReturns : plan.roi_percentage >= 12 ? t.plans.mostPopular : t.plans.entryLevel
-    )
-    const localizedFeatures = lang === 'bn' && staticTranslation ? staticTranslation.features : plan.features
-
-    return {
-      ...plan,
-      displayName: localizedName,
-      displayTag: localizedTag,
-      displayFeatures: localizedFeatures,
-    }
-  })
+  const { t } = useLanguage()
 
   return (
     <section id="plans" className="py-20 bg-slate-950 border-t border-white/5 relative">
+      <PlanRealtimeRefresh />
       <div className="section-container">
 
         {/* Header */}
@@ -68,16 +52,16 @@ export function PlansPreviewClient({ activePlans, upcomingPlans }: PlansPreviewC
 
         {/* Plans Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch max-w-5xl mx-auto">
-          {displayPlans.map((plan) => (
+          {activePlans.map((plan) => (
             <div
               key={plan.id ?? plan.name}
               className={`relative p-6 sm:p-8 rounded-3xl flex flex-col transition-all duration-300 ${
-                plan.popular
+                plan.is_featured
                   ? 'bg-slate-900 border-2 border-emerald-500/60 shadow-xl shadow-emerald-950/40'
                   : 'bg-slate-900/40 border border-white/10 hover:border-white/20'
               }`}
             >
-              {plan.popular && (
+              {plan.is_featured && (
                 <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
                   <span className="px-3.5 py-1 bg-emerald-500 text-slate-950 text-xs font-bold rounded-full uppercase tracking-wider">
                     {t.plans.mostPopular}
@@ -87,12 +71,13 @@ export function PlansPreviewClient({ activePlans, upcomingPlans }: PlansPreviewC
 
               {/* Plan Header */}
               <div className="mb-5">
-                {!plan.popular && (
+                {plan.display_label && (
                   <span className="text-sm font-bold text-emerald-400 uppercase tracking-wider block mb-1">
-                    {plan.displayTag}
+                    {plan.display_label}
                   </span>
                 )}
-                <h3 className="text-2xl font-bold text-white mb-3">{plan.displayName}</h3>
+                <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
+                {plan.description && <p className="text-sm leading-6 text-slate-400 mb-3">{plan.description}</p>}
                 <div className="flex items-baseline gap-1.5">
                   <span className="text-5xl font-extrabold text-white font-mono">
                     {plan.roi_percentage}%
@@ -121,20 +106,20 @@ export function PlansPreviewClient({ activePlans, upcomingPlans }: PlansPreviewC
               </div>
 
               {/* Features */}
-              <ul className="space-y-3 mb-6 flex-1">
-                {plan.displayFeatures.map((f) => (
-                  <li key={f} className="flex items-center gap-2.5 text-sm text-slate-200">
+              {plan.highlights.length > 0 && <ul className="space-y-3 mb-6 flex-1">
+                {plan.highlights.map((f, index) => (
+                  <li key={`${plan.id ?? plan.name}-${index}`} className="flex items-center gap-2.5 text-sm text-slate-200">
                     <Check className="h-4 w-4 text-emerald-400 flex-shrink-0" />
                     <span>{f}</span>
                   </li>
                 ))}
-              </ul>
+              </ul>}
 
               {/* CTA */}
               <Link
                 href={ROUTES.REGISTER}
                 className={`flex items-center justify-center gap-2 py-3.5 rounded-xl text-base font-semibold transition-all ${
-                  plan.popular ? 'btn-primary' : 'btn-secondary'
+                  plan.is_featured ? 'btn-primary' : 'btn-secondary'
                 }`}
               >
                 <span>{t.plans.startInvesting}</span>

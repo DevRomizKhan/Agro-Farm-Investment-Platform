@@ -7,6 +7,7 @@ import { FileText, Plus, Edit, CalendarClock, CheckCircle2, XCircle, Timer } fro
 import Link from 'next/link'
 import { ROUTES } from '@/constants'
 import type { InvestmentPlan } from '@/types'
+import { PlanRealtimeRefresh } from '@/components/realtime/plan-realtime-refresh'
 
 /** Returns a human-friendly status label + badge colour for a plan in the admin panel */
 function getPlanStatus(plan: InvestmentPlan): {
@@ -105,6 +106,7 @@ export default async function AdminPlansPage() {
 
   return (
     <div className="fade-in space-y-8">
+      <PlanRealtimeRefresh />
       {/* Header */}
       <div className="page-header">
         <div>

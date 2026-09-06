@@ -31,7 +31,7 @@ export default function LoginPage() {
       const result = await loginAction(data)
       if (result.success) {
         toast.success(t.auth.welcomeBack)
-        router.push(ROUTES.INVESTOR_DASHBOARD)
+        router.push(result.redirectTo || ROUTES.INVESTOR_DASHBOARD)
         router.refresh()
       } else {
         if (result.needsVerification) {

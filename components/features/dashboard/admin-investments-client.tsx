@@ -7,6 +7,7 @@ import { ROUTES } from '@/constants'
 import { useLanguage } from '@/lib/i18n/context'
 import { InvestmentRequestActions } from '@/components/features/admin/investment-request-actions'
 import { ConfirmInvestmentPaymentButton } from '@/components/features/admin/confirm-investment-payment-button'
+import { PlanRealtimeRefresh } from '@/components/realtime/plan-realtime-refresh'
 
 interface AdminInvestmentsClientProps {
   investments: any[]
@@ -40,6 +41,7 @@ export function AdminInvestmentsClient({ investments, profileMap, approve, rejec
 
   return (
     <div className="fade-in space-y-8">
+      <PlanRealtimeRefresh />
       <div className="page-header">
         <div>
           <h1 className="page-title">{lang === 'bn' ? 'বিনিয়োগ ব্যবস্থাপনা' : 'Investments Management'}</h1>

@@ -71,6 +71,9 @@ export const kycSchema = z.object({
 export const investmentPlanSchema = z.object({
   name: z.string().min(3, 'Plan name is required'),
   description: z.string().optional(),
+  display_label: z.string().trim().max(80, 'Display label cannot exceed 80 characters').optional(),
+  highlights_text: z.string().max(900, 'Highlights cannot exceed 900 characters').optional(),
+  is_featured: z.boolean().default(false),
   total_shares: z.coerce.number().int().min(1, 'Total shares must be at least 1'),
   shares_per_amount: z.coerce.number().int().min(1000, 'Share amount must be at least ৳1,000'),
   owner_share_percentage: z.coerce.number().min(0).max(100, 'Owner share percentage must be between 0-100'),

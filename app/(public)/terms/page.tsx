@@ -43,10 +43,10 @@ const SECTIONS_BN: PolicySection[] = [
     title: 'প্রকল্পের মেয়াদ ও পরিচালনা ক্ষেত্র',
     icon: Calendar,
     category: 'কাঠামো ও সময়কাল',
-    summary: '২ বছর মেয়াদী প্রোগ্রাম যা শুধুমাত্র গরু ও মাছ উৎপাদন সম্পদে সীমাবদ্ধ।',
+    summary: '২ বছর মেয়াদী প্রোগ্রাম যা শুধুমাত্র Fish Project ও মাছ উৎপাদন সম্পদে সীমাবদ্ধ।',
     clauses: [
-      '২.১. প্রকল্প আদি ২ (দুই) বছর মেয়াদের জন্য পরিচালিত হবে (১ জুলাই ২০২৬ থেকে ৩০ জুন ২০২৮)।',
-      '২.২. প্রকল্পটি শুধুমাত্র গবাদি পশু (গরু) মোটাতাজাকরণ/দুগ্ধ এবং মৎস্য চাষের উৎপাদনশীল মূল সম্পদে প্রয়োগ করা হবে।',
+      '২.১. Fish Project ২ (দুই) বছর মেয়াদের জন্য পরিচালিত হবে (১ জুলাই ২০২৬ থেকে ৩০ জুন ২০২৮)।',
+      '২.২. প্রকল্পটি শুধুমাত্র Fish Project এবং মৎস্য চাষের উৎপাদনশীল মূল সম্পদে প্রয়োগ করা হবে।',
     ],
   },
   {
@@ -114,7 +114,7 @@ const SECTIONS_BN: PolicySection[] = [
     category: 'পরিচালনা ও ঝুঁকি',
     summary: 'স্বতন্ত্র সিএ ফার্ম দ্বারা বাৎসরিক অডিট ও আয়-ব্যয় বিবরণী প্রকাশ।',
     clauses: [
-      '৭.১. প্রজেক্ট আদি সমস্ত আয়, ব্যয় ও পরিচালন তথ্যের নিখুঁত হিসাব সংরক্ষণ করে।',
+      '৭.১. Fish Project সমস্ত আয়, ব্যয় ও পরিচালন তথ্যের নিখুঁত হিসাব সংরক্ষণ করে।',
       '৭.২. প্রতি বছর স্বাধীন চার্টার্ড অ্যাকাউন্ট্যান্ট ফার্ম দ্বারা বাৎসরিক হিসাব অডিট সম্পন্ন করা হয়।',
       '৭.৩. বিনিয়োগকারীদের জন্য বাৎসরিক অডিট রিপোর্ট ও আর্থিক বিবরণী উন্মুক্ত রাখা হয়।',
       '৭.৪. যেকোনো যুক্তিসঙ্গত আবেদনে আয়-ব্যয় বিবরণী পর্যালোচনা করার অধিকার রয়েছে।',
@@ -131,7 +131,7 @@ const SECTIONS_BN: PolicySection[] = [
       '৮.১. পশু মোটাতাজাকরণ ও মৎস্য চাষে প্রাণীর রোগব্যাধি, প্রাকৃতিক দুর্যোগ, খাদ্যের মূল্যবৃদ্ধি ও বাজারদর পরিবর্তনের ঝুঁকি বিদ্যমান।',
       '৮.২. যেকোনো অনাকাঙ্ক্ষিত পরিস্থিতিতে উৎপাদন ব্যয় বৃদ্ধি পেতে পারে।',
       '৮.৩. শরীয়াহ নীতি অনুযায়ী খামারের প্রকৃত লাভ ও ক্ষতি সকল শেয়ারহোল্ডারদের মাঝে আনুপাতিক হারে বন্টন হবে।',
-      '৮.৪. প্রজেক্ট আদি কোনো নির্দিষ্ট স্থির লভ্যাংশ বা ক্যাপিটাল গ্যারান্টি প্রদান করে না।',
+      '৮.৪. Fish Project কোনো নির্দিষ্ট স্থির লভ্যাংশ বা ক্যাপিটাল গ্যারান্টি প্রদান করে না।',
     ],
   },
   {
@@ -171,10 +171,10 @@ const SECTIONS_EN: PolicySection[] = [
     title: 'Project Duration & Investment Period',
     icon: Calendar,
     category: 'Structure & Duration',
-    summary: '2-year program duration focused strictly on cow and fish production.',
+    summary: '2-year program duration focused strictly on Fish Project and fish production.',
     clauses: [
-      '2.1. The investment program operates for 2 (two) years, commencing July 1, 2026 and concluding June 30, 2028.',
-      '2.2. The project encompasses only cow and fish producing assets and operations.',
+      '2.1. The investment program operates for 2 (two) years.',
+      '2.2. The project encompasses only Fish Project and fish producing assets and operations.',
     ],
   },
   {
@@ -188,7 +188,7 @@ const SECTIONS_EN: PolicySection[] = [
       '3.1. Annual dividends are distributed to investors based on their shareholding percentage.',
       '3.2. Distributions are made in accordance with Islamic Sharia Law principles.',
       '3.3. Net dividends are calculated annually after deducting all operational costs, production expenses, maintenance, and project-related expenditures.',
-      '3.4. Dividend payment schedules and amounts will be communicated by "Project Adi" on a 6-month basis.',
+      '3.4. Dividend payment schedules and amounts will be communicated by "Fish Project" on a 6-month basis.',
       '3.5. No fixed, guaranteed, or predetermined profit levels are offered. Returns are variable and dependent on project performance.',
     ],
   },
@@ -214,7 +214,7 @@ export default function TermsPage() {
   const [activeCategory, setActiveCategory] = useState<string>('All')
 
   const sections = lang === 'bn' ? SECTIONS_BN : SECTIONS_EN
-  const categories = lang === 'bn' 
+  const categories = lang === 'bn'
     ? ['সব', 'কাঠামো ও সময়কাল', 'লভ্যাংশ ও মালিকানা', 'হস্তান্তর ও সমাপনী', 'পরিচালনা ও ঝুঁকি', 'আইনি বিষয়াবলী']
     : ['All', 'Structure & Duration', 'Returns & Ownership', 'Transfers & Liquidation', 'Governance & Risk', 'Legal & Compliance']
 
@@ -232,11 +232,11 @@ export default function TermsPage() {
       {/* ── Header / Hero Section ──────────────────────── */}
       <section className="relative pt-36 pb-16 px-4 overflow-hidden border-b border-white/5 bg-gradient-to-b from-slate-900/80 via-slate-950 to-slate-950">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(16,185,129,0.15),transparent)]" />
-        
+
         <div className="max-w-5xl mx-auto text-center relative z-10 space-y-6">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold uppercase tracking-widest">
             <Sparkles className="h-3.5 w-3.5" />
-            {lang === 'bn' ? 'প্রজেক্ট আদি – ২ বছর মেয়াদী কৃষি মালিকানা প্রোগ্রাম' : 'Project Adi – 2 Year Ownership Program'}
+            {lang === 'bn' ? 'Fish Project – ২ বছর মেয়াদী কৃষি মালিকানা প্রোগ্রাম' : 'Fish Project – 2 Year Ownership Program'}
           </div>
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight">
@@ -246,7 +246,7 @@ export default function TermsPage() {
 
           <p className="text-slate-300 text-base sm:text-lg max-w-3xl mx-auto leading-relaxed">
             {lang === 'bn'
-              ? 'আমানাহ ফার্ম (প্রজেক্ট আদি) পরিচালনা, লভ্যাংশ বণ্টন ও বিনিয়োগ স্বত্ব সংক্রান্ত আইনি নির্দেশিকা।'
+              ? 'আমানাহ ফার্ম (Fish Project) পরিচালনা, লভ্যাংশ বণ্টন ও বিনিয়োগ স্বত্ব সংক্রান্ত আইনি নির্দেশিকা।'
               : 'Official summary of terms, rights, dividend policy, and risk disclosures governing investment participation.'}
           </p>
 
@@ -254,17 +254,16 @@ export default function TermsPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto pt-6 text-left">
             <div className="p-4 rounded-2xl bg-slate-900/80 border border-emerald-500/20 backdrop-blur-md">
               <p className="text-[11px] font-bold uppercase text-slate-400">{lang === 'bn' ? 'শেয়ার মূল্য' : 'Share Price'}</p>
-              <p className="text-xl font-black text-white font-mono mt-0.5">৳১,০০০</p>
+              <p className="text-xl font-black text-white font-mono mt-0.5">৳১০,০০০</p>
               <p className="text-[11px] text-emerald-400 mt-0.5">{lang === 'bn' ? 'প্রতি শেয়ার (এক হাজার টাকা)' : 'Per Share (One Thousand BDT)'}</p>
             </div>
             <div className="p-4 rounded-2xl bg-slate-900/80 border border-emerald-500/20 backdrop-blur-md">
               <p className="text-[11px] font-bold uppercase text-slate-400">{lang === 'bn' ? 'প্রকল্প মেয়াদ' : 'Project Term'}</p>
               <p className="text-xl font-black text-white font-mono mt-0.5">{lang === 'bn' ? '২ বছর' : '2 Years'}</p>
-              <p className="text-[11px] text-slate-400 mt-0.5">{lang === 'bn' ? '১ জুলাই ২০২৬ – ৩০ জুন ২০২৮' : 'July 1, 2026 – June 30, 2028'}</p>
             </div>
             <div className="p-4 rounded-2xl bg-slate-900/80 border border-emerald-500/20 backdrop-blur-md">
               <p className="text-[11px] font-bold uppercase text-slate-400">{lang === 'bn' ? 'উৎপাদন খাত' : 'Production Scope'}</p>
-              <p className="text-xl font-black text-white mt-0.5">{lang === 'bn' ? 'গরু ও মাছ' : 'Cow & Fish'}</p>
+              <p className="text-xl font-black text-white mt-0.5">{lang === 'bn' ? 'Fish Project ও মাছ' : 'Fish Project'}</p>
               <p className="text-[11px] text-emerald-400 mt-0.5">{lang === 'bn' ? 'মূল উৎপাদন সম্পদ' : 'Base Producing Assets'}</p>
             </div>
             <div className="p-4 rounded-2xl bg-slate-900/80 border border-emerald-500/20 backdrop-blur-md">
@@ -312,11 +311,10 @@ export default function TermsPage() {
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${
-                  activeCategory === cat
-                    ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-                    : 'bg-slate-900/80 text-slate-400 hover:text-white hover:bg-slate-800'
-                }`}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${activeCategory === cat
+                  ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
+                  : 'bg-slate-900/80 text-slate-400 hover:text-white hover:bg-slate-800'
+                  }`}
               >
                 {cat}
               </button>

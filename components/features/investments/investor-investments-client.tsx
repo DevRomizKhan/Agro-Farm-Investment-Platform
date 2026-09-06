@@ -9,6 +9,7 @@ import { ExitRequestForm } from '@/components/features/investments/exit-request-
 import { PaymentReceiptForm } from '@/components/features/investments/payment-receipt-form'
 import { InvestForm } from '@/components/features/investments/invest-form'
 import { useLanguage } from '@/lib/i18n/context'
+import { PlanRealtimeRefresh } from '@/components/realtime/plan-realtime-refresh'
 
 interface InvestorInvestmentsClientProps {
   isKYCApproved: boolean
@@ -31,6 +32,7 @@ export function InvestorInvestmentsClient({
 
   return (
     <div className="fade-in space-y-8">
+      <PlanRealtimeRefresh />
       {/* Header */}
       <div className="page-header">
         <div>

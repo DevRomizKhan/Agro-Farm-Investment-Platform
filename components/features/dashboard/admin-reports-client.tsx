@@ -5,6 +5,7 @@ import { BarChart3, TrendingUp, Users, DollarSign, Calendar, Mail, MessageSquare
 import Link from 'next/link'
 import { ROUTES } from '@/constants'
 import { useLanguage } from '@/lib/i18n/context'
+import { PlanRealtimeRefresh } from '@/components/realtime/plan-realtime-refresh'
 import { ExportReportButton } from '@/app/(owner)/admin/reports/export-report-button'
 import { ReportCharts } from '@/app/(owner)/admin/reports/report-charts'
 
@@ -37,6 +38,7 @@ export function AdminReportsClient(props: AdminReportsClientProps) {
 
   return (
     <div className="fade-in space-y-8">
+      <PlanRealtimeRefresh />
       <div className="page-header">
         <div>
           <h1 className="page-title">{lang === 'bn' ? 'রিপোর্ট ও বিশ্লেষণ' : 'Reports & Analytics'}</h1>

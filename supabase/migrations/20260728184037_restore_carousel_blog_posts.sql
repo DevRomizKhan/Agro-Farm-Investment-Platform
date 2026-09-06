@@ -10,16 +10,16 @@ WITH owner_profile AS (
 seed_posts (title, slug, excerpt, content, featured_image, category, tags, meta_title, meta_description, meta_keywords) AS (
   VALUES
     (
-      'Building a Stronger Future Through Responsible Cattle Farming',
-      'building-a-stronger-future-through-responsible-cattle-farming',
-      'Discover how well-managed cattle farms create real economic value while supporting farmers, families, and food security in Bangladesh.',
-      '<p>Responsible cattle farming is more than raising healthy livestock. It is a long-term approach to building resilient rural businesses, strengthening local supply chains, and supporting food security.</p><p>At Amanah Farm, each project is managed with clear operational standards, careful animal welfare practices, and transparent reporting. This helps investors understand how their capital is connected to productive, asset-backed agriculture.</p><h2>Investing in productive assets</h2><p>When cattle are managed responsibly, value is created through disciplined feeding, veterinary care, farm operations, and strong market relationships. The result is a farming model designed for sustainable growth rather than short-term speculation.</p>',
+      'Building a Stronger Future Through Responsible Fish Project Farming',
+      'building-a-stronger-future-through-responsible-Fish-project-farming',
+      'Discover how well-managed Fish Project farms create real economic value while supporting farmers, families, and food security in Bangladesh.',
+      '<p>Responsible Fish Project farming is more than raising healthy livestock. It is a long-term approach to building resilient rural businesses, strengthening local supply chains, and supporting food security.</p><p>At Amanah Farm, each project is managed with clear operational standards, careful animal welfare practices, and transparent reporting. This helps investors understand how their capital is connected to productive, asset-backed agriculture.</p><h2>Investing in productive assets</h2><p>When Fish Project are managed responsibly, value is created through disciplined feeding, veterinary care, farm operations, and strong market relationships. The result is a farming model designed for sustainable growth rather than short-term speculation.</p>',
       '/images/carousel/slide1.jpg',
       'Agriculture',
-      ARRAY['cattle farming', 'responsible investment', 'Bangladesh agriculture'],
-      'Responsible Cattle Farming and Agricultural Investment',
-      'Learn how responsible cattle farming supports sustainable agricultural investment and food security in Bangladesh.',
-      ARRAY['cattle farming', 'agricultural investment', 'Bangladesh', 'food security']
+      ARRAY['Fish Project farming', 'responsible investment', 'Bangladesh agriculture'],
+      'Responsible Fish Project Farming and Agricultural Investment',
+      'Learn how responsible Fish Project farming supports sustainable agricultural investment and food security in Bangladesh.',
+      ARRAY['Fish Project farming', 'agricultural investment', 'Bangladesh', 'food security']
     ),
     (
       'Inside a Modern Livestock Operation',

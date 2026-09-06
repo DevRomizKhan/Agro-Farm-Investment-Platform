@@ -86,7 +86,7 @@ export function AboutSection() {
             <div className="relative aspect-[4/3] rounded-2xl sm:rounded-3xl overflow-hidden border border-emerald-500/20 shadow-2xl group">
               <Image
                 src="/images/carousel/slide3.jpg"
-                alt="Amanah Farm cattle operation in Bangladesh"
+                alt="Amanah Farm Fish Project operation in Bangladesh"
                 fill
                 priority
                 sizes="(max-width: 1024px) 100vw, 50vw"

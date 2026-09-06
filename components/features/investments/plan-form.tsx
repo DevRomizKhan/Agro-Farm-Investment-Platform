@@ -49,6 +49,9 @@ export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
       ? {
           name: initialPlan.name,
           description: initialPlan.description || '',
+          display_label: initialPlan.display_label || '',
+          highlights_text: initialPlan.highlights?.join('\n') || '',
+          is_featured: initialPlan.is_featured || false,
           total_shares: initialPlan.total_shares,
           shares_per_amount: initialPlan.shares_per_amount,
           owner_share_percentage: initialPlan.owner_share_percentage,
@@ -63,6 +66,9 @@ export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
       : {
           name: '',
           description: '',
+          display_label: '',
+          highlights_text: '',
+          is_featured: false,
           total_shares: 150,
           shares_per_amount: 10000,
           owner_share_percentage: 40,
@@ -138,6 +144,45 @@ export function PlanForm({ initialPlan, onSuccess }: PlanFormProps) {
       </div>
 
       {/* Share Configuration */}
+      <div>
+        <label className="block text-sm font-medium text-slate-300 mb-1.5">
+          {lang === 'bn' ? 'পাবলিক লেবেল' : 'Public label'}
+        </label>
+        <input
+          {...register('display_label')}
+          type="text"
+          className="input-base py-2.5 text-sm"
+          placeholder={lang === 'bn' ? 'যেমন: সীমিত সময়ের অফার' : 'e.g. Limited availability'}
+        />
+        {errors.display_label ? (
+          <p className="mt-1 text-xs text-red-400">{errors.display_label.message}</p>
+        ) : (
+          <p className="mt-1 text-xs text-slate-500">{lang === 'bn' ? 'প্ল্যানের নামের উপরে দেখানো ঐচ্ছিক লেখা।' : 'Optional text shown above the plan name.'}</p>
+        )}
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-slate-300 mb-1.5">
+          {lang === 'bn' ? 'পাবলিক হাইলাইটসমূহ' : 'Public highlights'}
+        </label>
+        <textarea
+          {...register('highlights_text')}
+          rows={4}
+          className="input-base py-2.5 text-sm resize-y"
+          placeholder={lang === 'bn' ? 'প্রতি লাইনে একটি হাইলাইট লিখুন' : 'Enter one highlight per line'}
+        />
+        {errors.highlights_text ? (
+          <p className="mt-1 text-xs text-red-400">{errors.highlights_text.message}</p>
+        ) : (
+          <p className="mt-1 text-xs text-slate-500">{lang === 'bn' ? 'সর্বোচ্চ ৬টি হাইলাইট। এগুলো পাবলিক প্ল্যান কার্ডে দেখানো হবে।' : 'Up to 6 highlights. These appear on the public plan card.'}</p>
+        )}
+      </div>
+
+      <label className="flex items-center gap-3 cursor-pointer">
+        <input {...register('is_featured')} type="checkbox" className="h-4 w-4 accent-emerald-500" />
+        <span className="text-sm text-slate-300">{lang === 'bn' ? 'প্ল্যানটিকে বিশেষভাবে দেখান' : 'Feature this plan on public pages'}</span>
+      </label>
+
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-slate-300 mb-1.5">

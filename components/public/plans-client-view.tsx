@@ -6,6 +6,7 @@ import { formatCurrency } from '@/lib/utils'
 import { ROUTES } from '@/constants'
 import { UpcomingPlanCard } from '@/components/public/upcoming-plans'
 import { useLanguage } from '@/lib/i18n/context'
+import { PlanRealtimeRefresh } from '@/components/realtime/plan-realtime-refresh'
 
 interface UpcomingPlanItem {
   id: string
@@ -21,16 +22,16 @@ interface UpcomingPlanItem {
 interface DisplayPlanItem {
   id?: string
   name: string
-  tag: string
+  description: string | null
+  display_label: string | null
+  highlights: string[]
+  is_featured: boolean
   total_shares: number
   shares_per_amount: number
   max_shares_per_investor: number
   roi_percentage: number
   duration_months: number
   owner_share_percentage: number
-  popular: boolean
-  features: string[]
-  featuresBn?: string[]
 }
 
 interface PlansClientViewProps {
@@ -43,13 +44,13 @@ export function PlansClientView({ displayPlans, upcomingPlans }: PlansClientView
 
   const howItWorks = lang === 'bn' ? [
     { n: '০১', title: 'নিবন্ধন ও কেওয়াইসি', desc: 'মাত্র ৫ মিনিটে আপনার NID ও ব্যক্তিগত তথ্য দিয়ে পরিচয় জমা দিন।' },
-    { n: '০২', title: 'শেয়ার বাছাই করুন', desc: 'প্রতি শেয়ার ৳১,০০০ টাকা হারে আপনার পছন্দমতো শেয়ার নির্বাচন করুন।' },
-    { n: '০৩', title: 'মূল সম্পদে বিনিয়োগ', desc: 'আপনার অর্থ সরাসরি গরুর মোটাতাজাকরণ ও মৎস্য উৎপাদনের মূল সম্পদে যুক্ত হবে।' },
+    { n: '০২', title: 'প্ল্যান বাছাই করুন', desc: 'আপনার জন্য উপযুক্ত প্ল্যান, শেয়ারের সংখ্যা এবং বিনিয়োগের পরিমাণ নির্বাচন করুন।' },
+    { n: '০৩', title: 'প্ল্যানে বিনিয়োগ করুন', desc: 'নির্বাচিত প্ল্যানের শর্ত অনুযায়ী আপনার মূলধন বরাদ্দ করুন।' },
     { n: '০৪', title: 'বাৎসরিক লভ্যাংশ পান', desc: 'প্রকল্পের সব খরচ বাদ দিয়ে বাৎসরিক নিট লভ্যাংশ আপনার অ্যাকাউন্টে যুক্ত হবে।' },
   ] : [
     { n: '01', title: 'Register & Verify', desc: 'Create your account and complete your identity check in minutes using your NID.' },
-    { n: '02', title: 'Choose Your Shares', desc: 'Select the number of shares you want at BDT 1,000 each through approved payment channels.' },
-    { n: '03', title: 'Own Production Assets', desc: 'Your capital is allocated to cow and fish production under real Sharia-compliant ownership.' },
+    { n: '02', title: 'Choose Your Plan', desc: 'Select the plan, number of shares, and investment amount that suit you.' },
+    { n: '03', title: 'Invest in Your Plan', desc: 'Your capital is allocated according to the selected plan terms.' },
     { n: '04', title: 'Receive Annual Dividends', desc: 'Net dividends are calculated after all expenses and distributed to your account each year.' },
   ]
 
@@ -57,6 +58,7 @@ export function PlansClientView({ displayPlans, upcomingPlans }: PlansClientView
 
   return (
     <div className="min-h-screen bg-slate-950">
+      <PlanRealtimeRefresh />
 
       {/* Page Hero */}
       <section className="relative pt-36 pb-20 px-4 overflow-hidden">
@@ -64,7 +66,7 @@ export function PlansClientView({ displayPlans, upcomingPlans }: PlansClientView
         <div className="max-w-3xl mx-auto text-center relative z-10 space-y-5">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold uppercase tracking-widest">
             <Sparkles className="h-3.5 w-3.5" />
-            {lang === 'bn' ? 'প্রজেক্ট আদি — ২ বছর মেয়াদী কৃষি মালিকানা প্রোগ্রাম' : 'Project Adi — 2 Year Ownership Program'}
+            {t.plans.badge}
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-5xl font-black text-white leading-tight">
             {t.plans.titlePrefix}<span className="gradient-text">{t.plans.titleHighlight}</span>
@@ -78,26 +80,17 @@ export function PlansClientView({ displayPlans, upcomingPlans }: PlansClientView
       {/* Plans Grid */}
       <section className="max-w-6xl mx-auto px-4 pb-20">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
-          {displayPlans.map((plan, idx) => {
-            const staticPlanBn = t.plans.staticPlans[idx]
-            const name = lang === 'bn' && staticPlanBn ? staticPlanBn.name : plan.name
-            const tag = lang === 'bn' 
-              ? (plan.popular ? t.plans.mostPopular : plan.roi_percentage >= 16 ? 'উচ্চ লভ্যাংশ' : t.plans.entryLevel)
-              : plan.tag
-            const features = lang === 'bn' && staticPlanBn 
-              ? staticPlanBn.features 
-              : (lang === 'bn' && plan.featuresBn ? plan.featuresBn : plan.features)
-
+          {displayPlans.map((plan) => {
             return (
               <div
                 key={plan.id ?? plan.name}
                 className={`relative rounded-3xl p-8 flex flex-col transition-all ${
-                  plan.popular
+                plan.is_featured
                     ? 'bg-slate-900 border-2 border-emerald-500/60 shadow-2xl shadow-emerald-950/40 md:scale-105'
                     : 'bg-slate-900/50 border border-white/8 hover:border-white/20'
                 }`}
               >
-                {plan.popular && (
+                {plan.is_featured && (
                   <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
                     <span className="px-4 py-1 bg-emerald-500 text-slate-950 text-xs font-black rounded-full uppercase tracking-wide">
                       ⭐ {t.plans.mostPopular}
@@ -105,8 +98,9 @@ export function PlansClientView({ displayPlans, upcomingPlans }: PlansClientView
                   </div>
                 )}
 
-                {!plan.popular && <p className="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-1">{tag}</p>}
-                <h2 className="text-2xl font-black text-white mb-5">{name}</h2>
+                {plan.display_label && <p className="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-1">{plan.display_label}</p>}
+                <h2 className="text-2xl font-black text-white mb-2">{plan.name}</h2>
+                {plan.description && <p className="text-sm leading-6 text-slate-400 mb-5">{plan.description}</p>}
 
                 {/* ROI */}
                 <div className="flex items-baseline gap-1 bg-slate-950/60 rounded-2xl px-4 py-4 mb-4 border border-white/5">
@@ -133,19 +127,19 @@ export function PlansClientView({ displayPlans, upcomingPlans }: PlansClientView
                 </div>
 
                 {/* Features */}
-                <ul className="space-y-2.5 mb-8 flex-1">
-                  {features.map((f) => (
-                    <li key={f} className="flex items-center gap-2.5 text-xs text-slate-300">
+                {plan.highlights.length > 0 && <ul className="space-y-2.5 mb-8 flex-1">
+                  {plan.highlights.map((f, index) => (
+                    <li key={`${plan.id ?? plan.name}-${index}`} className="flex items-center gap-2.5 text-xs text-slate-300">
                       <Check className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
                       {f}
                     </li>
                   ))}
-                </ul>
+                </ul>}
 
                 <Link
                   href={ROUTES.REGISTER}
                   className={`flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-bold transition-all ${
-                    plan.popular
+                  plan.is_featured
                       ? 'btn-primary'
                       : 'btn-secondary'
                   }`}
@@ -168,7 +162,7 @@ export function PlansClientView({ displayPlans, upcomingPlans }: PlansClientView
               {lang === 'bn' ? 'যেভাবে কাজ করে' : 'How It Works'}
             </h2>
             <p className="mt-3 text-[1rem] leading-8 text-slate-400 sm:text-[1.08rem]">
-              {lang === 'bn' ? 'মাত্র ৪টি সহজ ধাপে কৃষিতে নিরাপদ বিনিয়োগ শুরু করুন।' : 'Start earning in 4 simple steps.'}
+              {lang === 'bn' ? '৪টি সহজ ধাপে আপনার পছন্দের প্ল্যানে বিনিয়োগ শুরু করুন।' : 'Start investing in your chosen plan in 4 simple steps.'}
             </p>
           </div>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">

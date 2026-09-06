@@ -83,6 +83,12 @@ export interface InvestmentPlan {
   id: string
   name: string
   description: string | null
+  /** Optional short label displayed above the plan name on public cards */
+  display_label: string | null
+  /** Owner-entered bullet points displayed on public cards */
+  highlights: string[]
+  /** Controls the emphasized styling of public plan cards */
+  is_featured: boolean
   /** Total shares available for this plan */
   total_shares: number
   /** Amount per share in BDT */

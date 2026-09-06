@@ -54,11 +54,6 @@ export interface TranslationDictionary {
       minutes: string
       seconds: string
     }
-    staticPlans: Array<{
-      name: string
-      tag: string
-      features: string[]
-    }>
   }
   about: {
     badge: string
@@ -325,9 +320,9 @@ export const translations: Record<Language, TranslationDictionary> = {
     },
     plans: {
       badge: 'বিনিয়োগ প্ল্যানসমূহ',
-      titlePrefix: 'প্রকল্প আদি ',
-      titleHighlight: 'প্যাকেজসমূহ',
-      subtitle: 'শরীয়াহ সম্মত ও সম্পদ-ভিত্তিক কৃষি প্রকল্প, সর্বনিম্ন ১০,০০০ টাকায় প্রতি শেয়ার (গরু ও মাছ চাষ)।',
+      titlePrefix: 'বিনিয়োগ ',
+      titleHighlight: 'প্ল্যানসমূহ',
+      subtitle: 'বর্তমানে বিনিয়োগের জন্য উন্মুক্ত প্ল্যানসমূহ দেখুন এবং আপনার পছন্দের প্ল্যানটি বেছে নিন।',
       mostPopular: 'সর্বাধিক জনপ্রিয়',
       highReturns: 'উচ্চ লভ্যাংশ',
       entryLevel: 'প্রাথমিক স্তর',
@@ -351,44 +346,12 @@ export const translations: Record<Language, TranslationDictionary> = {
         minutes: 'মিনিট',
         seconds: 'সেকেন্ড',
       },
-      staticPlans: [
-        {
-          name: 'বেসিক শেয়ার প্যাকেজ',
-          tag: 'প্রাথমিক স্তর',
-          features: [
-            'প্রতি শেয়ার ৳১০,০০০ টাকা',
-            '২ বছর মেয়াদী প্রকল্প (জুলাই ২০২৬ – জুন ২০২৮)',
-            'গরু ও মাছ উৎপাদনের প্রকৃত মূল সম্পদ',
-            'শরীয়াহ সম্মত বাৎসরিক নিট লভ্যাংশ',
-          ],
-        },
-        {
-          name: 'স্ট্যান্ডার্ড শেয়ার প্যাকেজ',
-          tag: 'সর্বাধিক জনপ্রিয়',
-          features: [
-            'প্রতি শেয়ার ৳১০,০০০ টাকা',
-            '২ বছর মেয়াদী প্রকল্প (জুলাই ২০২৬ – জুন ২০২৮)',
-            'একজন বিনিয়োগকারী সর্বোচ্চ ৫০০ শেয়ার',
-            '৬ মাস পর পর লভ্যাংশ আপডেট ও বাৎসরিক অডিট',
-          ],
-        },
-        {
-          name: 'প্রিমিয়াম শেয়ার প্যাকেজ',
-          tag: 'সর্বোচ্চ বরাদ্দ',
-          features: [
-            'প্রতি শেয়ার ৳১০,০০০ টাকা',
-            '২ বছর মেয়াদী প্রকল্প (জুলাই ২০২৬ – জুন ২০২৮)',
-            '২০২৯ সালে প্রকল্প সমাপনী সম্পদ অবায়িতকরণ বণ্টন',
-            'অগ্রাধিকারভিত্তিক বিনিয়োগকারী সহায়তা ও রিপোর্ট',
-          ],
-        },
-      ],
     },
     about: {
       badge: 'আমাদের পরিচিতি',
       titlePrefix: 'বিনিয়োগকারীদের ক্ষমতায়ন, ',
       titleHighlight: 'কৃষির আধুনিকায়ন',
-      description: 'আমানাহ ফার্ম একটি শরীয়াহ সম্মত অংশীদারিত্বভিত্তিক কৃষি বিনিয়োগ উদ্যোগ, যা বিনিয়োগকারীদের গরু ও মাছ চাষ প্রকল্পের প্রবৃদ্ধি ও সম্পদের আনুপাতিক মালিকানায় সংযুক্ত করে। প্রজেক্ট আদি পরিচালিত হয় ইসলামিক শরীয়াহ নীতিমালায়, যেখানে সব খরচ বাদ দিয়ে বাৎসরিক নিট লভ্যাংশ প্রদান করা হয়।',
+      description: 'আমানাহ ফার্ম একটি শরীয়াহ সম্মত অংশীদারিত্বভিত্তিক কৃষি বিনিয়োগ উদ্যোগ, যা বিনিয়োগকারীদের Fish Project ও মাছ চাষ প্রকল্পের প্রবৃদ্ধি ও সম্পদের আনুপাতিক মালিকানায় সংযুক্ত করে। Fish Project পরিচালিত হয় ইসলামিক শরীয়াহ নীতিমালায়, যেখানে সব খরচ বাদ দিয়ে বাৎসরিক নিট লভ্যাংশ প্রদান করা হয়।',
       features: {
         shariah: 'শরীয়াহ সম্মত চুক্তিমালা',
         dividends: 'বাৎসরিক নিট লভ্যাংশ বণ্টন',
@@ -419,15 +382,15 @@ export const translations: Record<Language, TranslationDictionary> = {
         },
         {
           title: '২ বছর মেয়াদী প্রকল্প ব্যবস্থা',
-          description: 'প্রকল্প আদি চলবে ১ জুলাই ২০২৬ থেকে ৩০ জুন ২০২৮ পর্যন্ত। মেয়াদের পর খামারের উৎপাদনশীল সম্পদ বিক্রয়লব্ধ অর্থ সকল শেয়ারহোল্ডারদের মাঝে আনুপাতিক হারে বন্টন করা হবে।',
+          description: 'Fish Project একটি ২ বছর মেয়াদী প্রকল্প। মেয়াদের পর খামারের উৎপাদনশীল সম্পদ বিক্রয়লব্ধ অর্থ সকল শেয়ারহোল্ডারদের মাঝে আনুপাতিক হারে বন্টন করা হবে।',
         },
         {
           title: 'দক্ষ খামার ব্যবস্থাপনা',
-          description: 'অভিজ্ঞ কৃষিবিদ ও খামার বিশেষজ্ঞদের সুনিপুণ তত্ত্বাবধানে আমাদের গরু ও মাছ চাষ খামারসমূহ উচ্চ ফলনশীলতায় পরিচালিত হয়।',
+          description: 'অভিজ্ঞ কৃষিবিদ ও খামার বিশেষজ্ঞদের সুনিপুণ তত্ত্বাবধানে আমাদের Fish Project ও মাছ চাষ খামারসমূহ উচ্চ ফলনশীলতায় পরিচালিত হয়।',
         },
         {
-          title: 'গরু ও মৎস্য উৎপাদন খাত',
-          description: 'বিনিয়োগ শুধুমাত্র গরু ও মাছের উৎপাদনশীল মূল সম্পদে প্রয়োগ করা হয় — কোন ধরনের অনাবশ্যক বা কাঠামোগত অকৃষি খাতে নয়।',
+          title: 'Fish Project ও মৎস্য উৎপাদন খাত',
+          description: 'বিনিয়োগ শুধুমাত্র Fish Project ও মাছের উৎপাদনশীল মূল সম্পদে প্রয়োগ করা হয় — কোন ধরনের অনাবশ্যক বা কাঠামোগত অকৃষি খাতে নয়।',
         },
         {
           title: 'রিয়েল-টাইম বিনিয়োগকারী পোর্টাল',
@@ -459,7 +422,7 @@ export const translations: Record<Language, TranslationDictionary> = {
         {
           step: '০৪',
           title: 'উৎপাদনশীল খামারের অংশীদারিত্ব',
-          description: 'আপনার বিনিয়োগের অর্থ সরাসরি ইসলামী শরীয়াহ অংশীদারিত্ব নীতিতে গরু ও মৎস্য মূল সম্পদে যুক্ত হবে।',
+          description: 'আপনার বিনিয়োগের অর্থ সরাসরি ইসলামী শরীয়াহ অংশীদারিত্ব নীতিতে Fish Project ও মৎস্য মূল সম্পদে যুক্ত হবে।',
         },
         {
           step: '০৫',
@@ -477,11 +440,11 @@ export const translations: Record<Language, TranslationDictionary> = {
       badge: 'সাধারণ জিজ্ঞাসা',
       titlePrefix: 'সাধারণ ',
       titleHighlight: 'প্রশ্নাবলী (FAQ)',
-      subtitle: 'প্রজেক্ট আদি – ২ বছর মেয়াদী কৃষি মালিকানা সংক্রান্ত বহুল জিজ্ঞাসিত প্রশ্ন ও উত্তর।',
+      subtitle: 'Fish Project – ২ বছর মেয়াদী কৃষি মালিকানা সংক্রান্ত বহুল জিজ্ঞাসিত প্রশ্ন ও উত্তর।',
       faqs: [
         {
-          q: 'প্রজেক্ট আদি – ২ বছর মেয়াদী প্রোগ্রামটি আসলে কী?',
-          a: 'প্রজেক্ট আদি হলো একটি ২ বছর মেয়াদী (১ জুলাই ২০২৬ – ৩০ জুন ২০২৮) শরীয়াহ সম্মত যৌথ কৃষি প্রকল্প, যা মূলত গরু মোটাতাজাকরণ/দুগ্ধ ও মৎস্য চাষ উৎপাদন সম্পদে কেন্দ্রীভূত।',
+          q: 'Fish Project – ২ বছর মেয়াদী প্রোগ্রামটি আসলে কী?',
+          a: 'Fish Project হলো একটি ২ বছর মেয়াদী শরীয়াহ সম্মত যৌথ কৃষি প্রকল্প, যা মূলত Fish Project ও মৎস্য চাষ উৎপাদন সম্পদে কেন্দ্রীভূত।',
         },
         {
           q: 'শেয়ারের মূল্য এবং সর্বনিম্ন বিনিয়োগ কত?',
@@ -505,7 +468,7 @@ export const translations: Record<Language, TranslationDictionary> = {
         },
         {
           q: 'আর্থিক স্বচ্ছতা এবং নিরীক্ষা ব্যবস্থা কেমন?',
-          a: 'প্রজেক্ট আদি কঠোর আর্থিক স্বচ্ছতা বজায় রাখে। নিরপেক্ষ স্বীকৃত চার্টার্ড অ্যাকাউন্ট্যান্ট ফার্ম দ্বারা বাৎসরিক অডিট সম্পন্ন করা হয় এবং নিয়মিত অডিট রিপোর্ট বিনিয়োগকারীকে প্রদান করা হয়।',
+          a: 'Fish Project কঠোর আর্থিক স্বচ্ছতা বজায় রাখে। নিরপেক্ষ স্বীকৃত চার্টার্ড অ্যাকাউন্ট্যান্ট ফার্ম দ্বারা বাৎসরিক অডিট সম্পন্ন করা হয় এবং নিয়মিত অডিট রিপোর্ট বিনিয়োগকারীকে প্রদান করা হয়।',
         },
         {
           q: 'প্রকল্পে কী ধরনের ঝুঁকি থাকতে পারে?',
@@ -532,8 +495,8 @@ export const translations: Record<Language, TranslationDictionary> = {
     },
     footer: {
       bannerBadge: 'সম্পদ বৃদ্ধি শুরু করুন',
-      bannerTitle: 'প্রজেক্ট আদি-তে যুক্ত হোন — কৃষি সম্পদের অংশীদার হন',
-      bannerSubtitle: 'প্রতি শেয়ার ৳১০,০০০ টাকা · গরু ও মৎস্য উৎপাদন · ২ বছর মেয়াদী প্রকল্প (জুলাই ২০২৬ – জুন ২০২৮) · ১০০% শরীয়াহ সম্মত।',
+      bannerTitle: 'Fish Project-তে যুক্ত হোন — কৃষি সম্পদের অংশীদার হন',
+      bannerSubtitle: 'প্রতি শেয়ার ৳১০,০০০ টাকা · Fish Project ও মৎস্য উৎপাদন · ২ বছর মেয়াদী প্রকল্প · ১০০% শরীয়াহ সম্মত।',
       createFreeAccount: 'বিনামূল্যে অ্যাকাউন্ট খুলুন',
       contactUs: 'যোগাযোগ করুন',
       brandDescription: 'বাংলাদেশের শীর্ষস্থানীয় শরীয়াহ সম্মত কৃষি বিনিয়োগ প্ল্যাটফর্ম — নিরাপদ, স্বচ্ছ এবং লাভজনক।',
@@ -625,7 +588,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       badge: 'যোগাযোগ করুন',
       titlePrefix: 'আমানাহ ফার্মের সাথে ',
       titleHighlight: 'যোগাযোগ',
-      subtitle: 'প্রজেক্ট আদি শেয়ার প্যাকেজ, লভ্যাংশের হালনাগাদ কিংবা মালিকানা সংক্রান্ত যেকোনো জিজ্ঞাসায় আমাদের টিম সহায়তায় প্রস্তুত।',
+      subtitle: 'Fish Project শেয়ার প্যাকেজ, লভ্যাংশের হালনাগাদ কিংবা মালিকানা সংক্রান্ত যেকোনো জিজ্ঞাসায় আমাদের টিম সহায়তায় প্রস্তুত।',
       formTitle: 'বার্তা পাঠান',
       formSubtitle: 'আমরা ২ কর্মঘণ্টার মধ্যে আপনার সাথে যোগাযোগ করব।',
       fullName: 'আপনার পূর্ণ নাম *',
@@ -718,7 +681,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       titleLine1: 'Invest in Agriculture. ',
       highlightWord: 'Harvest',
       titleLine2: ' the Future.',
-      subtitle: 'Participate in proportionate ownership of cow and fish production assets through a Sharia-compliant partnership — transparent, ethical, and managed by experienced farm teams.',
+      subtitle: 'Participate in proportionate ownership of Fish Project and fish production assets through a Sharia-compliant partnership — transparent, ethical, and managed by experienced farm teams.',
       ctaPrimary: 'Start Investing Today',
       ctaSecondary: 'View Investment Plans',
       badges: {
@@ -730,9 +693,9 @@ export const translations: Record<Language, TranslationDictionary> = {
     },
     plans: {
       badge: 'Investment Plans',
-      titlePrefix: 'Project Adi ',
-      titleHighlight: 'Packages',
-      subtitle: 'Shariah-compliant, asset-backed program starting at BDT 10,000 per share (Cow & Fish Production).',
+      titlePrefix: 'Investment ',
+      titleHighlight: 'Plans',
+      subtitle: 'Explore the plans currently open for investment and choose the one that suits you.',
       mostPopular: 'Most Popular',
       highReturns: 'High Returns',
       entryLevel: 'Entry Level',
@@ -756,49 +719,17 @@ export const translations: Record<Language, TranslationDictionary> = {
         minutes: 'Minutes',
         seconds: 'Seconds',
       },
-      staticPlans: [
-        {
-          name: 'Basic Share Package',
-          tag: 'Entry Level',
-          features: [
-            'BDT 10,000 per share',
-            '2-Year Program (July 2026 – June 2028)',
-            'Cow & Fish production asset backing',
-            'Sharia compliant net annual dividends',
-          ],
-        },
-        {
-          name: 'Standard Share Package',
-          tag: 'Most Popular',
-          features: [
-            'BDT 10,000 per share',
-            '2-Year Program (July 2026 – June 2028)',
-            'Up to 500 shares per investor',
-            '6-Month dividend updates & annual audits',
-          ],
-        },
-        {
-          name: 'Premium Share Package',
-          tag: 'Maximum Allocation',
-          features: [
-            'BDT 10,000 per share',
-            '2-Year Program (July 2026 – June 2028)',
-            'Full asset liquidation distribution in 2029',
-            'Priority investor support & reports',
-          ],
-        },
-      ],
     },
     about: {
       badge: 'Who We Are',
       titlePrefix: 'Empowering Investors, ',
       titleHighlight: 'Transforming Agriculture',
-      description: 'Amanah Farm is a partnership-based agricultural investment initiative connecting investors to proportionate ownership in cow and fish production assets. Project Adi operates under Islamic Sharia principles, with annual net dividends calculated after project expenses, transparent financial records.',
+      description: 'Amanah Farm is a partnership-based agricultural investment initiative connecting investors to proportionate ownership in Fish Project and fish production assets. Fish Project operates under Islamic Sharia principles, with annual net dividends calculated after project expenses, transparent financial records.',
       features: {
         shariah: 'Shariah-Compliant Contracts',
         dividends: 'Annual Net Dividends',
         ownership: 'Proportionate Asset Ownership',
-        production: 'Cow & Fish Production',
+        production: 'Fish Project Production',
       },
       stats: {
         founded: 'Founded',
@@ -824,15 +755,15 @@ export const translations: Record<Language, TranslationDictionary> = {
         },
         {
           title: '2-Year Program Duration',
-          description: 'Project Adi runs from July 1, 2026 to June 30, 2028. Upon conclusion, all assets are liquidated and net proceeds distributed proportionately to all investors.',
+          description: 'Fish Project is a 2-year program. Upon conclusion, all assets are liquidated and net proceeds distributed proportionately to all investors.',
         },
         {
           title: 'Expert Farm Management',
-          description: 'Our team of experienced agronomists and farm managers ensure optimal productivity in both cattle and fish production across all farm sites.',
+          description: 'Our team of experienced agronomists and farm managers ensure optimal productivity in both Fish Project and fish production across all farm sites.',
         },
         {
-          title: 'Cow & Fish Production',
-          description: 'The project covers only cow and fish base producing assets. Investor ownership is strictly limited to production assets — not constructional or non-production assets.',
+          title: 'Fish Project Production',
+          description: 'The project covers only Fish Project and fish base producing assets. Investor ownership is strictly limited to production assets — not constructional or non-production assets.',
         },
         {
           title: 'Real-Time Investor Portal',
@@ -864,7 +795,7 @@ export const translations: Record<Language, TranslationDictionary> = {
         {
           step: '04',
           title: 'Own Production Assets',
-          description: 'Your investment is allocated proportionately into cow and fish production assets under Sharia-compliant partnership principles.',
+          description: 'Your investment is allocated proportionately into Fish Project and fish production assets under Sharia-compliant partnership principles.',
         },
         {
           step: '05',
@@ -882,15 +813,15 @@ export const translations: Record<Language, TranslationDictionary> = {
       badge: 'Frequently Asked Questions',
       titlePrefix: 'Common ',
       titleHighlight: 'Questions',
-      subtitle: 'Everything you need to know about Project Adi – 2 Year Ownership Program.',
+      subtitle: 'Everything you need to know about Fish Project – 2 Year Ownership Program.',
       faqs: [
         {
-          q: 'What is Project Adi – 2 Year Ownership Program?',
-          a: 'Project Adi is a 2-year partnership-based agricultural ownership program (July 1, 2026 – June 30, 2028) focused exclusively on cattle (cow) and fish (aquaculture) production under Islamic Sharia principles.',
+          q: 'What is Fish Project?',
+          a: 'Fish Project is a 2-year partnership-based agricultural ownership programfocused exclusively on Fish Project and fish (aquaculture) production under Islamic Sharia principles.',
         },
         {
           q: 'What is the share price and minimum investment?',
-          a: 'Investment shares are priced at BDT 10,000 per share (One Thousand BDT). You can start with as little as 1 share (BDT 10,000) and may purchase multiple shares through approved BDT payment channels on Amanah Farm (amanahfarm.com).',
+          a: 'Investment shares are priced at BDT 10,000 per share (Ten Thousand BDT). You can start with as little as 1 share (BDT 10,000) and may purchase multiple shares through approved BDT payment channels on Amanah Farm (amanahfarm.com).',
         },
         {
           q: 'How and when are dividend returns distributed?',
@@ -906,11 +837,11 @@ export const translations: Record<Language, TranslationDictionary> = {
         },
         {
           q: 'What happens at the end of the 2-year project period?',
-          a: 'Upon project conclusion, all base project assets (cattle and fish inventory) are liquidated by June 30, 2029. Net proceeds from asset sales are distributed proportionately among all investors based on their shareholding percentage.',
+          a: 'Upon project conclusion, all base project assets (Fish Project and fish inventory) are liquidated by June 30, 2029. Net proceeds from asset sales are distributed proportionately among all investors based on their shareholding percentage.',
         },
         {
           q: 'How is financial transparency and auditing handled?',
-          a: 'Project Adi maintains comprehensive financial records. Independent, recognized audit firms conduct annual audits, and investors receive annual financial statements and audit reports.',
+          a: 'Fish Project maintains comprehensive financial records. Independent, recognized audit firms conduct annual audits, and investors receive annual financial statements and audit reports.',
         },
         {
           q: 'What are the main risk factors involved?',
@@ -937,8 +868,8 @@ export const translations: Record<Language, TranslationDictionary> = {
     },
     footer: {
       bannerBadge: 'Start Growing Wealth',
-      bannerTitle: 'Join Project Adi — Own Agricultural Assets',
-      bannerSubtitle: 'BDT 10,000 per share · Cow & Fish production · 2-Year program (July 2026 – June 2028) · 100% Sharia-compliant.',
+      bannerTitle: 'Join Fish Project — Own Agricultural Assets',
+      bannerSubtitle: 'BDT 10,000 per share · Fish Project production · 2-Year program · 100% Sharia-compliant.',
       createFreeAccount: 'Create Free Account',
       contactUs: 'Contact Us',
       brandDescription: "Bangladesh's premier Shariah-compliant agricultural investment platform — secure, transparent, and profitable.",
@@ -1015,7 +946,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       badge: 'Farm Facilities',
       titlePrefix: 'Amanah Farm ',
       titleHighlight: 'Gallery',
-      subtitle: 'Take a visual tour of our modern cattle facilities, feeding yards, and sustainable agro hubs.',
+      subtitle: 'Take a visual tour of our modern Fish Project facilities, feeding yards, and sustainable agro hubs.',
       cta: 'Invest in These Farms',
       items: [
         { title: 'High-Yield Bull Fattening Facility', location: 'Rajshahi Hub' },
@@ -1030,7 +961,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       badge: 'Get in Touch',
       titlePrefix: 'Contact ',
       titleHighlight: 'Amanah Farm',
-      subtitle: 'Have questions about Project Adi share packages, dividend updates, or ownership rights? Our team responds within 2 business hours.',
+      subtitle: 'Have questions about Fish Project share packages, dividend updates, or ownership rights? Our team responds within 2 business hours.',
       formTitle: 'Send a Message',
       formSubtitle: 'We will respond within 2 business hours.',
       fullName: 'Full Name *',

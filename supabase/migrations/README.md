@@ -1,6 +1,6 @@
 # Migration notes
 
-The three `add_production_blog_schema` files from July 2026 are retained as
+The three `add_production_blog_schema` files from xxxxxxxx 2026 are retained as
 empty historical placeholders because their versions may already exist in the
 remote Supabase migration history. They must not be edited or reused.
 

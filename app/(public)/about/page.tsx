@@ -20,8 +20,8 @@ export default function AboutPage() {
       icon: Target,
       title: lang === 'bn' ? 'আমাদের লক্ষ্য (Mission)' : 'Our Mission',
       desc: lang === 'bn'
-        ? 'স্বচ্ছ ও শরীয়াহ সম্মত অংশীদারিত্বের মাধ্যমে বাংলাদেশের সাধারণ বিনিয়োগকারীদের গরু ও মাছের উৎপাদনশীল খামার সম্পদের আনুপাতিক মালিকানায় যুক্ত করা।'
-        : 'Connect everyday investors to real, asset-backed agricultural production — offering transparent, Sharia-compliant co-ownership of cow and fish farming in Bangladesh.',
+        ? 'স্বচ্ছ ও শরীয়াহ সম্মত অংশীদারিত্বের মাধ্যমে বাংলাদেশের সাধারণ বিনিয়োগকারীদের Fish Project ও মাছের উৎপাদনশীল খামার সম্পদের আনুপাতিক মালিকানায় যুক্ত করা।'
+        : 'Connect everyday investors to real, asset-backed agricultural production — offering transparent, Sharia-compliant co-ownership of Fish Project and fish farming in Bangladesh.',
     },
     {
       icon: Eye,
@@ -42,7 +42,7 @@ export default function AboutPage() {
   const stats = [
     { icon: TrendingUp, val: lang === 'bn' ? 'পরিবর্তনশীল' : 'Variable', label: lang === 'bn' ? 'বাৎসরিক নিট লভ্যাংশ' : 'Net Annual Returns' },
     { icon: Users, val: lang === 'bn' ? '৪+' : '4+', numericValue: 4, suffix: '+', label: lang === 'bn' ? 'সক্রিয় বিনিয়োগকারী' : 'Active Investors' },
-    { icon: Leaf, val: lang === 'bn' ? 'গরু ও মৎস্য' : 'Cow & Fish', label: lang === 'bn' ? 'উৎপাদন খাত' : 'Production Scope' },
+    { icon: Leaf, val: lang === 'bn' ? 'মৎস্য ও গরু' : 'Fish & Cow', label: lang === 'bn' ? 'উৎপাদন খাত' : 'Production Scope' },
     { icon: ShieldCheck, val: lang === 'bn' ? '১০০% শরীয়াহ' : '100% Sharia', label: lang === 'bn' ? 'সম্মত পরিচালনা' : 'Compliant Operations' },
   ]
 
@@ -75,7 +75,7 @@ export default function AboutPage() {
           <div className="group relative aspect-[16/10] sm:aspect-[4/3] overflow-hidden rounded-2xl sm:rounded-3xl border border-emerald-500/20 shadow-2xl">
             <Image
               src="/images/carousel/slide3.jpg"
-              alt="Amanah Farm cattle operation in Bangladesh"
+              alt="Amanah Farm Fish Project operation in Bangladesh"
               width={1400}
               height={1050}
               sizes="(max-width: 1024px) 100vw, 50vw"
@@ -99,11 +99,6 @@ export default function AboutPage() {
               {lang === 'bn'
                 ? `আমানাহ ফার্ম প্রতিষ্ঠিত হয়েছে ${founderName}-এর দূরদর্শী নেতৃত্বে — মূল উদ্দেশ্য বাংলাদেশে কৃষি যৌথ বিনিয়োগকে স্বচ্ছ ও সহজলভ্য করে তোলা।`
                 : `Amanah Farm was founded by ${founderName} with one goal: make agricultural co-ownership transparent and genuinely accessible to Bangladeshi investors.`}
-            </p>
-            <p className="text-sm sm:text-base text-slate-400 leading-relaxed">
-              {lang === 'bn'
-                ? 'আমাদের বর্তমান উদ্যোগ, প্রজেক্ট আদি, হলো একটি ২ বছর মেয়াদী (জুলাই ২০২৬ – জুন ২০২৮) গরু ও মৎস্য চাষ প্রকল্প। বিনিয়োগকারীরা শরীয়াহ অংশীদারিত্ব নীতি মেনে মূল সম্পদের আনুপাতিক মালিকানা এবং বাৎসরিক নিট লভ্যাংশ পান।'
-                : 'Our current initiative, Project Adi, is a 2-year ownership program (July 2026 – June 2028) focused on cow and fish production. Investors receive proportionate ownership rights and annual net dividends under Islamic Sharia partnership principles.'}
             </p>
             <Link href={ROUTES.REGISTER} className="btn-primary inline-flex items-center gap-2 rounded-xl text-sm font-semibold">
               {t.hero.ctaPrimary}

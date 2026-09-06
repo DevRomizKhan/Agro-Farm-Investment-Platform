@@ -6,6 +6,7 @@ import { formatCurrency, formatDate } from '@/lib/utils'
 import { ROUTES } from '@/constants'
 import { InvestmentStatusNotice } from '@/components/features/investments/investment-status-notice'
 import { useLanguage } from '@/lib/i18n/context'
+import { PlanRealtimeRefresh } from '@/components/realtime/plan-realtime-refresh'
 
 interface InvestorDashboardClientProps {
   profileName?: string
@@ -43,6 +44,7 @@ export function InvestorDashboardClient({
 
   return (
     <div className="fade-in space-y-8">
+      <PlanRealtimeRefresh />
       <InvestmentStatusNotice notification={latestNotification} />
 
       {/* Header */}
