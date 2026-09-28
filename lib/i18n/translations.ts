@@ -300,7 +300,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       faq: 'প্রশ্নোত্তর',
       blog: 'ব্লগ ও আপডেট',
       contact: 'যোগাযোগ',
-      login: 'বিনিয়োগকারী লগইন',
+      login: 'লগইন',
       register: 'অ্যাকাউন্ট খুলুন',
     },
     hero: {
@@ -673,7 +673,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       faq: 'FAQ',
       blog: 'Blogs & News',
       contact: 'Contact Us',
-      login: 'Investor Sign In',
+      login: 'Sign In',
       register: 'Create Account',
     },
     hero: {
