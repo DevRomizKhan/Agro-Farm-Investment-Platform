@@ -19,9 +19,9 @@ export const metadata: Metadata = {
   authors: [{ name: 'Amanah Farm' }],
   creator: 'Amanah Farm',
   icons: {
-    icon: '/logo.png',
-    shortcut: '/logo.png',
-    apple: '/logo.png',
+    icon: '/favicon.png',
+    shortcut: '/favicon.png',
+    apple: '/favicon.png',
   },
   openGraph: {
     type: 'website',
