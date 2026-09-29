@@ -681,8 +681,8 @@ export const translations: Record<Language, TranslationDictionary> = {
       titleLine1: 'Invest in Agriculture. ',
       highlightWord: 'Harvest',
       titleLine2: ' the Future.',
-      subtitle: 'Participate in proportionate ownership of Fish Project and fish production assets through a Sharia-compliant partnership — transparent, ethical, and managed by experienced farm teams.',
-      ctaPrimary: 'Start Investing Today',
+      subtitle: 'Participate in proportionate ownership of Fish, Cattle and Paulty Project and fish production assets through a Sharia-compliant partnership — transparent, ethical, and managed by experienced farm teams.',
+      ctaPrimary: 'Grow with Us',
       ctaSecondary: 'View Investment Plans',
       badges: {
         shariah: 'Shariah Certified',
@@ -724,7 +724,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       badge: 'Who We Are',
       titlePrefix: 'Empowering Investors, ',
       titleHighlight: 'Transforming Agriculture',
-      description: 'Amanah Farm is a partnership-based agricultural investment initiative connecting investors to proportionate ownership in Fish Project and fish production assets. Fish Project operates under Islamic Sharia principles, with annual net dividends calculated after project expenses, transparent financial records.',
+      description: 'Amanah Farm is a partnership-based agricultural investment initiative connecting investors to proportionate ownership in Fish, Cattle and Paulty Project.',
       features: {
         shariah: 'Shariah-Compliant Contracts',
         dividends: 'Annual Net Dividends',
@@ -867,7 +867,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       categoryDefault: 'Agriculture',
     },
     footer: {
-      bannerBadge: 'Start Growing Wealth',
+      bannerBadge: 'Start Growing with Us',
       bannerTitle: 'Join Fish Project — Own Agricultural Assets',
       bannerSubtitle: 'BDT 10,000 per share · Fish Project production · 2-Year program · 100% Sharia-compliant.',
       createFreeAccount: 'Create Free Account',
