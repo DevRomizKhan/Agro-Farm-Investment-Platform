@@ -125,7 +125,7 @@ export default function ContactPage() {
                       <input
                         required
                         type="text"
-                        placeholder="তানভীর আহমেদ"
+                        placeholder="Your Name"
                         value={form.name}
                         onChange={(e) => setForm({ ...form, name: e.target.value })}
                         className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 text-white text-sm focus:outline-none focus:border-emerald-500 placeholder:text-slate-500"
@@ -136,7 +136,7 @@ export default function ContactPage() {
                       <input
                         required
                         type="tel"
-                        placeholder="০১৯৫৪ ৭৪৫৯৯১"
+                        placeholder="01XXXXXXXXX"
                         value={form.phone}
                         onChange={(e) => setForm({ ...form, phone: e.target.value })}
                         className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 text-white text-sm focus:outline-none focus:border-emerald-500 placeholder:text-slate-500"
@@ -149,7 +149,7 @@ export default function ContactPage() {
                     <input
                       required
                       type="email"
-                      placeholder="tanvir@example.com"
+                      placeholder="you@example.com"
                       value={form.email}
                       onChange={(e) => setForm({ ...form, email: e.target.value })}
                       className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 text-white text-sm focus:outline-none focus:border-emerald-500 placeholder:text-slate-500"
